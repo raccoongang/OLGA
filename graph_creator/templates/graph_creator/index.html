@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<h2>{{ students_quantity.students_quantity }}</h2>
+
+<h3>Test Form</h3>
+<form action="{% url 'graph_creator:receive_data' %}" method="post">
+{% csrf_token %}
+    <input type="text" name="test" value="123">
+    <input type="submit" value="Sub">
+</form>
+
+</body>
+</html>
