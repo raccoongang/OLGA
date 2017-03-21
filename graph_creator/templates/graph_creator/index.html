@@ -11,7 +11,7 @@
 <h3>Test Form</h3>
 <form action="{% url 'graph_creator:receive_data' %}" method="post">
 {% csrf_token %}
-    <input type="text" name="test" value="123">
+    <input type="text" name="number_of_students" value="123">
     <input type="submit" value="Sub">
 </form>
 
