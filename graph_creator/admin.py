@@ -4,7 +4,6 @@ from .models import DataStorage
 
 
 class DataStorageAdmin(admin.ModelAdmin):
-    fields = ['students_quantity']
-
+    fields = ['courses_amount', 'students_amount', 'latitude', 'longitude']
 
 admin.site.register(DataStorage, DataStorageAdmin)

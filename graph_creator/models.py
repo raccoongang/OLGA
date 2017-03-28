@@ -4,5 +4,8 @@ from django.db import models
 
 
 class DataStorage(models.Model):
-    students_quantity = models.IntegerField(default=0)
+    courses_amount = models.IntegerField(default=0)
+    students_amount = models.IntegerField(default=0)
+    latitude = models.FloatField(default=0)
+    longitude = models.FloatField(default=0)
 
