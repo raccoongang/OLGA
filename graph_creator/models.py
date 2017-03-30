@@ -8,4 +8,5 @@ class DataStorage(models.Model):
     students_amount = models.IntegerField(default=0)
     latitude = models.FloatField(default=0)
     longitude = models.FloatField(default=0)
-
+    platform_url = models.URLField(null=True)
+    secret_token = models.UUIDField(null=True)
