@@ -88,3 +88,8 @@ ENV/
 
 # Rope project settings
 .ropeproject
+.idea/
+bin/
+include/
+pip-selfcheck.json
+requirement.txt

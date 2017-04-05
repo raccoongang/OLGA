@@ -43,7 +43,9 @@ class ReceiveData(View):
             secret_token = uuid.uuid4()
             obj = DataStorage.objects.create()
             obj.secret_token = secret_token
+            obj.platform_url = platform_url
             obj.save()
-            reverse_token = requests.post('http://requestb.in/11n3rhx1', data={"reverse_token": secret_token})
+            reverse_token = requests.post('http://192.168.33.10:8000/acceptor_data/',
+                                          data={"reverse_token": secret_token})
 
         return redirect(reverse('graph_creator:index'))
