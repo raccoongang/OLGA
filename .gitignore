@@ -93,3 +93,6 @@ bin/
 include/
 pip-selfcheck.json
 requirement.txt
+
+migrations/
+*.sqlite3
