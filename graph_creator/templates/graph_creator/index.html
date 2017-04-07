@@ -1,0 +1,20 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'graph_creator/style.css' %}" />
+</head>
+<body>
+<div id="map"></div>
+<script>
+    // Define JS global vars to work with external map.js file.
+    var edxData = JSON.parse('{{ edx_data|safe }}');
+</script>
+<script src="{% static 'graph_creator/map.js' %}"></script>
+</body>
+</html>
