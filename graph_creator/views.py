@@ -67,19 +67,17 @@ class ReceiveData(View):
 
         if secret_token is None:
             secret_token = uuid.uuid4().hex
-            obj = DataStorage.objects.create(**kwargs)
-            obj.secret_token = secret_token
-            obj.platform_url = platform_url
-            obj.save()
-            reverse_token = requests.post('http://192.168.1.139:8000/acceptor_data/',
-                                          data={"reverse_token": secret_token})
+            DataStorage.objects.create(secret_token=secret_token, platform_url=platform_url)
+            reverse_token = requests.post(
+                'http://192.168.1.139:8000/acceptor_data/', data={"reverse_token": secret_token}
+            )
         else:
-            obj = DataStorage.objects.get(secret_token=str(secret_token))
-            obj.courses_amount = int(courses_amount)
-            obj.students_amount = int(students_amount)
-            obj.latitude = float(latitude)
-            obj.longitude = float(longitude)
-            obj.platform_url = platform_url
-            obj.save()
+            DataStorage.objects.filter(secret_token=str(secret_token)).update(
+                courses_amount=int(courses_amount),
+                students_amount=int(students_amount),
+                latitude=float(latitude),
+                longitude=float(longitude),
+                platform_url=platform_url
+            )
 
         return redirect(reverse('graph_creator:index'))
