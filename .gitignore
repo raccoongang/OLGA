@@ -1,6 +1,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*.pyc
 *$py.class
 
 # C extensions
@@ -52,6 +53,7 @@ coverage.xml
 # Django stuff:
 *.log
 local_settings.py
+private.py
 
 # Flask stuff:
 instance/
@@ -87,3 +89,11 @@ ENV/
 
 # Rope project settings
 .ropeproject
+.idea/
+bin/
+include/
+pip-selfcheck.json
+requirement.txt
+
+migrations/
+*.sqlite3
