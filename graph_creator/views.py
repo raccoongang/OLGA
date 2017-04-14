@@ -28,6 +28,12 @@ class IndexView(View):
     """
 
     def get(self, request, *args, **kwargs):
+        """
+        Retrieve information about edx-platform from DB and serialize it into JSON.
+        
+        `edx_data_as_json` is a `DataStorage` containing all information about edx-platform.
+        """
+
         edx_data_as_json = serializers.serialize('json', DataStorage.objects.all())
         return render(request, 'graph_creator/index.html', {'edx_data': edx_data_as_json})
 
