@@ -74,8 +74,11 @@ class ReceiveData(View):
         if secret_token is None:
             secret_token = uuid.uuid4().hex
             DataStorage.objects.create(secret_token=secret_token, platform_url=platform_url)
+            # reverse_token = requests.post(
+            #     'http://192.168.1.139:8000/acceptor_data/', data={"reverse_token": secret_token}
+            # )
             reverse_token = requests.post(
-                'http://192.168.1.139:8000/acceptor_data/', data={"reverse_token": secret_token}
+                str(platform_url) + '/acceptor_data/', data={"reverse_token": secret_token}
             )
         else:
             DataStorage.objects.filter(secret_token=str(secret_token)).update(
