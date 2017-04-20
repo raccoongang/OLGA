@@ -84,8 +84,8 @@ class ReceiveData(View):
             )
             if settings.DEBUG:
                 reverse_token = requests.post(
-                    # Local address of the edx-platform running within VM.
-                    'http://192.168.1.139:8000/acceptor_data/', data={"reverse_token": secret_token}
+                    # Local IP address of the edx-platform running within VM.
+                    settings.EDX_PLATFORM_POST_URL_LOCAL, data={"reverse_token": secret_token}
                 )
             else:
                 reverse_token = requests.post(
