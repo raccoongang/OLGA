@@ -71,6 +71,7 @@ class ReceiveData(View):
         longitude = received_data.get('longitude')
         platform_url = received_data.get('platform_url')
         secret_token = received_data.get('secret_token')
+        site_name = received_data.get('site')
 
         if secret_token is None:
             secret_token = uuid.uuid4().hex
@@ -80,7 +81,8 @@ class ReceiveData(View):
                 courses_amount=int(courses_amount),
                 students_amount=int(students_amount),
                 latitude=float(latitude),
-                longitude=float(longitude)
+                longitude=float(longitude),
+                site_name=site_name
             )
             if settings.DEBUG:
                 reverse_token = requests.post(
@@ -97,7 +99,8 @@ class ReceiveData(View):
                 students_amount=int(students_amount),
                 latitude=float(latitude),
                 longitude=float(longitude),
-                platform_url=platform_url
+                platform_url=platform_url,
+                site_name=site_name
             )
 
         return redirect(reverse('graph_creator:index'))
