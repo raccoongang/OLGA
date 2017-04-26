@@ -6,11 +6,9 @@ from django.conf import settings
 from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from django.utils.decorators import method_decorator
-from django.urls import reverse
 
 from .models import DataStorage
 
@@ -86,13 +84,13 @@ class ReceiveData(View):
                 site_name=site_name
             )
             if settings.DEBUG:
-                reverse_token = requests.post(
+                requests.post(
                     # Local IP address of the edx-platform running within VM.
                     settings.EDX_PLATFORM_POST_URL_LOCAL, data={"reverse_token": secret_token}
                 )
                 return HttpResponse(status=200)
             else:
-                reverse_token = requests.post(
+                requests.post(
                     str(platform_url) + '/acceptor_data/', data={"reverse_token": secret_token}
                 )
                 return HttpResponse(status=200)
