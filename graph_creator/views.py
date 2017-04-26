@@ -72,7 +72,7 @@ class ReceiveData(View):
         secret_token = received_data.get('secret_token')
         site_name = received_data.get('site')
 
-        if secret_token is None:
+        if not secret_token:
             secret_token = uuid.uuid4().hex
             DataStorage.objects.create(
                 secret_token=secret_token,
@@ -86,12 +86,12 @@ class ReceiveData(View):
             if settings.DEBUG:
                 requests.post(
                     # Local IP address of the edx-platform running within VM.
-                    settings.EDX_PLATFORM_POST_URL_LOCAL, data={"reverse_token": secret_token}
+                    settings.EDX_PLATFORM_POST_URL_LOCAL, data={"secret_token": secret_token}
                 )
                 return HttpResponse(status=200)
             else:
                 requests.post(
-                    str(platform_url) + '/acceptor_data/', data={"reverse_token": secret_token}
+                    str(platform_url) + '/acceptor_data/', data={"secret_token": secret_token}
                 )
                 return HttpResponse(status=200)
         else:
