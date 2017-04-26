@@ -88,12 +88,12 @@ class ReceiveData(View):
                     # Local IP address of the edx-platform running within VM.
                     settings.EDX_PLATFORM_POST_URL_LOCAL, data={"secret_token": secret_token}
                 )
-                return HttpResponse(status=200)
+                return HttpResponse(status=201)
             else:
                 requests.post(
                     str(platform_url) + '/acceptor_data/', data={"secret_token": secret_token}
                 )
-                return HttpResponse(status=200)
+                return HttpResponse(status=201)
         else:
             DataStorage.objects.filter(secret_token=str(secret_token)).update(
                 courses_amount=int(courses_amount),
@@ -103,5 +103,4 @@ class ReceiveData(View):
                 platform_url=platform_url,
                 site_name=site_name
             )
-
             return HttpResponse(status=200)
