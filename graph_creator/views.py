@@ -4,6 +4,7 @@ import requests
 
 from django.conf import settings
 from django.core import serializers
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
@@ -89,10 +90,12 @@ class ReceiveData(View):
                     # Local IP address of the edx-platform running within VM.
                     settings.EDX_PLATFORM_POST_URL_LOCAL, data={"reverse_token": secret_token}
                 )
+                return HttpResponse(status=200)
             else:
                 reverse_token = requests.post(
                     str(platform_url) + '/acceptor_data/', data={"reverse_token": secret_token}
                 )
+                return HttpResponse(status=200)
         else:
             DataStorage.objects.filter(secret_token=str(secret_token)).update(
                 courses_amount=int(courses_amount),
@@ -103,4 +106,4 @@ class ReceiveData(View):
                 site_name=site_name
             )
 
-        return redirect(reverse('graph_creator:index'))
+            return HttpResponse(status=200)
