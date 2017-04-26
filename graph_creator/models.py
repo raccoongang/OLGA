@@ -18,3 +18,4 @@ class DataStorage(models.Model):
     longitude = models.FloatField(default=0)
     platform_url = models.URLField(null=True)
     secret_token = models.CharField(max_length=255, null=True)
+    site_name = models.CharField(max_length=255, null=True)

@@ -2,13 +2,13 @@ import uuid
 
 import requests
 
+from django.conf import settings
 from django.core import serializers
+from django.http import HttpResponse
 from django.shortcuts import render
-from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from django.utils.decorators import method_decorator
-from django.urls import reverse
 
 from .models import DataStorage
 
@@ -70,20 +70,37 @@ class ReceiveData(View):
         longitude = received_data.get('longitude')
         platform_url = received_data.get('platform_url')
         secret_token = received_data.get('secret_token')
+        site_name = received_data.get('site')
 
-        if secret_token is None:
+        if not secret_token:
             secret_token = uuid.uuid4().hex
-            DataStorage.objects.create(secret_token=secret_token, platform_url=platform_url)
-            reverse_token = requests.post(
-                'http://192.168.1.139:8000/acceptor_data/', data={"reverse_token": secret_token}
+            DataStorage.objects.create(
+                secret_token=secret_token,
+                platform_url=platform_url,
+                courses_amount=int(courses_amount),
+                students_amount=int(students_amount),
+                latitude=float(latitude),
+                longitude=float(longitude),
+                site_name=site_name
             )
+            if settings.DEBUG:
+                requests.post(
+                    # Local IP address of the edx-platform running within VM.
+                    settings.EDX_PLATFORM_POST_URL_LOCAL, data={"secret_token": secret_token}
+                )
+                return HttpResponse(status=201)
+            else:
+                requests.post(
+                    str(platform_url) + '/acceptor_data/', data={"secret_token": secret_token}
+                )
+                return HttpResponse(status=201)
         else:
             DataStorage.objects.filter(secret_token=str(secret_token)).update(
                 courses_amount=int(courses_amount),
                 students_amount=int(students_amount),
                 latitude=float(latitude),
                 longitude=float(longitude),
-                platform_url=platform_url
+                platform_url=platform_url,
+                site_name=site_name
             )
-
-        return redirect(reverse('graph_creator:index'))
+            return HttpResponse(status=200)
