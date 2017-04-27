@@ -13,9 +13,9 @@ class DataStorage(models.Model):
     """
 
     courses_amount = models.IntegerField(default=0)
-    students_amount = models.IntegerField(default=0)
-    latitude = models.FloatField(default=0)
-    longitude = models.FloatField(default=0)
-    platform_url = models.URLField(null=True)
+    latitude = models.FloatField(default=0, blank=True)
+    longitude = models.FloatField(default=0, blank=True)
+    platform_name = models.CharField(max_length=255, null=True, blank=True)
+    platform_url = models.URLField(null=True, blank=True)
     secret_token = models.CharField(max_length=255, null=True)
-    site_name = models.CharField(max_length=255, null=True)
+    students_amount = models.IntegerField(default=0)

@@ -10,7 +10,7 @@ class DataStorageAdmin(admin.ModelAdmin):
         'longitude',
         'platform_url',
         'secret_token',
-        'site_name'
+        'platform_name'
     ]
 
 admin.site.register(DataStorage, DataStorageAdmin)
