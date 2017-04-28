@@ -16,7 +16,7 @@ L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v10/tiles/256/{z}/{
 edxData.forEach(function(data){
     L.marker([data.fields.latitude, data.fields.longitude])
         .bindPopup('<strong>Courses amount: </strong>' + '<strong>' + data.fields.courses_amount + '</strong>' + '<br>' +
-            '<strong>Students amount: </strong>' + '<strong>' + data.fields.students_amount + '</strong>')
+            '<strong>Active students amount: </strong>' + '<strong>' + data.fields.active_students_amount + '</strong>')
         .addTo(mymap);
 });
 
