@@ -1,5 +1,6 @@
 """
 Django private(local) settings for acceptor project.
+This file is example of settings for local development.
 """
 
 DEBUG = True
