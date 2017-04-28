@@ -64,8 +64,8 @@ class ReceiveData(View):
         """
 
         received_data = self.request.POST
+        active_students_amount = received_data.get('active_students_amount')
         courses_amount = received_data.get('courses_amount')
-        students_amount = received_data.get('students_amount')
         latitude = received_data.get('latitude')
         longitude = received_data.get('longitude')
         platform_name = received_data.get('platform_name')
@@ -74,25 +74,25 @@ class ReceiveData(View):
 
         if secret_token:
             DataStorage.objects.filter(secret_token=str(secret_token)).update(
+                active_students_amount=int(active_students_amount),
                 courses_amount=int(courses_amount),
                 latitude=float(latitude),
                 longitude=float(longitude),
                 platform_url=platform_url,
                 platform_name=platform_name,
-                students_amount=int(students_amount)
             )
             return HttpResponse(status=200)
 
         else:
             secret_token = uuid.uuid4().hex
             DataStorage.objects.create(
+                active_students_amount=int(active_students_amount),
                 courses_amount=int(courses_amount),
                 latitude=float(latitude),
                 longitude=float(longitude),
                 platform_name=platform_name,
                 platform_url=platform_url,
-                secret_token=secret_token,
-                students_amount=int(students_amount)
+                secret_token=secret_token
             )
 
             if settings.DEBUG:
