@@ -68,39 +68,42 @@ class ReceiveData(View):
         students_amount = received_data.get('students_amount')
         latitude = received_data.get('latitude')
         longitude = received_data.get('longitude')
+        platform_name = received_data.get('platform_name')
         platform_url = received_data.get('platform_url')
         secret_token = received_data.get('secret_token')
-        site_name = received_data.get('site')
 
-        if not secret_token:
-            secret_token = uuid.uuid4().hex
-            DataStorage.objects.create(
-                secret_token=secret_token,
-                platform_url=platform_url,
+        if secret_token:
+            DataStorage.objects.filter(secret_token=str(secret_token)).update(
                 courses_amount=int(courses_amount),
-                students_amount=int(students_amount),
                 latitude=float(latitude),
                 longitude=float(longitude),
-                site_name=site_name
+                platform_url=platform_url,
+                platform_name=platform_name,
+                students_amount=int(students_amount)
             )
+            return HttpResponse(status=200)
+
+        else:
+            secret_token = uuid.uuid4().hex
+            DataStorage.objects.create(
+                courses_amount=int(courses_amount),
+                latitude=float(latitude),
+                longitude=float(longitude),
+                platform_name=platform_name,
+                platform_url=platform_url,
+                secret_token=secret_token,
+                students_amount=int(students_amount)
+            )
+
             if settings.DEBUG:
                 requests.post(
                     # Local IP address of the edx-platform running within VM.
                     settings.EDX_PLATFORM_POST_URL_LOCAL, data={"secret_token": secret_token}
                 )
                 return HttpResponse(status=201)
+
             else:
                 requests.post(
                     str(platform_url) + '/acceptor_data/', data={"secret_token": secret_token}
                 )
                 return HttpResponse(status=201)
-        else:
-            DataStorage.objects.filter(secret_token=str(secret_token)).update(
-                courses_amount=int(courses_amount),
-                students_amount=int(students_amount),
-                latitude=float(latitude),
-                longitude=float(longitude),
-                platform_url=platform_url,
-                site_name=site_name
-            )
-            return HttpResponse(status=200)
