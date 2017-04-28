@@ -72,6 +72,7 @@ class ReceiveData(View):
         platform_url = received_data.get('platform_url')
         secret_token = received_data.get('secret_token')
 
+        # TODO: make creation of data, not updating exist
         if secret_token:
             DataStorage.objects.filter(secret_token=str(secret_token)).update(
                 active_students_amount=int(active_students_amount),
