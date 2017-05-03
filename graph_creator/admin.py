@@ -3,6 +3,9 @@ from .models import DataStorage
 
 
 class DataStorageAdmin(admin.ModelAdmin):
+    """
+    Admin for edX`s instances storage.
+    """
     fields = [
         'courses_amount',
         'active_students_amount',

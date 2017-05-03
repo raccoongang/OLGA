@@ -1,3 +1,5 @@
+// TODO: make code look pretty with patterns and meaningful explanation
+
 var mymap = L.map('map', {
     center: [30.0, -0.0],
     zoom: 1

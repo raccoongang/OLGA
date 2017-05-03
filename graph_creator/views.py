@@ -63,6 +63,7 @@ class ReceiveData(View):
         Returns http response redirecting to the main page.
         """
 
+        # TODO: make serializer validation for received data
         received_data = self.request.POST
         active_students_amount = received_data.get('active_students_amount')
         courses_amount = received_data.get('courses_amount')
