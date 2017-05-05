@@ -95,7 +95,6 @@ include/
 pip-selfcheck.json
 requirement.txt
 
-migrations/
 *.sqlite3
 
 # Elastic Beanstalk Files
