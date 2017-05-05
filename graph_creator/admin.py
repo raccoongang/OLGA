@@ -7,16 +7,16 @@ class DataStorageAdmin(admin.ModelAdmin):
     Admin for edX`s instances storage.
     """
     fields = [
-        'courses_amount',
         'active_students_amount',
+        'courses_amount',
+        'last_data_update',
         'latitude',
-        'level',
         'longitude',
         'platform_url',
-        'secret_token',
-        'students_per_country',
         'platform_name',
-        'update'
+        'secret_token',
+        'statistics_level',
+        'students_per_country'
     ]
 
 admin.site.register(DataStorage, DataStorageAdmin)
