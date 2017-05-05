@@ -73,6 +73,40 @@ class ReceiveData(View):
 
         return students_per_country
 
+    def create_instance_data(self, received_data, secret_token):
+        """
+        Method provides saving instance data as object in database.
+
+        Arguments:
+            received_data (QueryDict'): Request data from edX instance.
+            secret_token (unicode): Secret key to allow edX instance send a data to server.
+        """
+
+        active_students_amount = int(received_data.get('active_students_amount'))
+        statistics_level = received_data.get('statistics_level')
+
+        instance_data = {
+            'active_students_amount': active_students_amount,
+            'courses_amount': int(received_data.get('courses_amount')),
+            'secret_token': secret_token,
+            'statistics_level': statistics_level
+        }
+
+        if statistics_level == 'enthusiast':
+            enthusiast_data = {
+                'latitude': float(received_data.get('latitude')),
+                'longitude': float(received_data.get('longitude')),
+                'platform_name': received_data.get('platform_name'),
+                'platform_url': received_data.get('platform_url'),
+                'students_per_country': self.students_per_country(
+                    active_students_amount, received_data.get('students_per_country')
+                )
+            }
+
+            instance_data.update(enthusiast_data)
+
+        DataStorage.objects.create(**instance_data)
+
     def post(self, request, *args, **kwargs):
         """
         Receive information from the edx-platform and processes it.
@@ -88,54 +122,16 @@ class ReceiveData(View):
         """
 
         received_data = self.request.POST
-        level = received_data.get('level')
+        platform_url = received_data.get('platform_url')
         secret_token = received_data.get('secret_token')
-        active_students_amount = int(received_data.get('active_students_amount'))
 
         if secret_token:
-            if level == 'enthusiast':
-
-                instance_data = {
-                    'active_students_amount': active_students_amount,
-                    'courses_amount': int(received_data.get('courses_amount')),
-                    'latitude': float(received_data.get('latitude')),
-                    'level': level,
-                    'longitude': float(received_data.get('longitude')),
-                    'platform_name': received_data.get('platform_name'),
-                    'platform_url': received_data.get('platform_url'),
-                    'secret_token': secret_token,
-                    'students_per_country': self.students_per_country(
-                        active_students_amount, received_data.get('students_per_country')
-                    )
-                }
-
-            else:  # level is paranoid
-                instance_data = {
-                    'active_students_amount': active_students_amount,
-                    'courses_amount': int(received_data.get('courses_amount')),
-                    'level': level,
-                    'secret_token': secret_token
-                }
-
-            DataStorage.objects.create(**instance_data)
+            self.create_instance_data(received_data, secret_token)
             return HttpResponse(status=200)
 
         else:
             secret_token = uuid.uuid4().hex
-
-            instance_data = {
-                'active_students_amount': active_students_amount,
-                'courses_amount': int(received_data.get('courses_amount')),
-                'latitude': float(received_data.get('latitude')),
-                'level': level,
-                'longitude': float(received_data.get('longitude')),
-                'platform_name': received_data.get('platform_name'),
-                'platform_url': received_data.get('platform_url'),
-                'secret_token': secret_token,
-                'students_per_country': self.students_per_country(
-                        active_students_amount, received_data.get('students_per_country')
-                )
-            }
+            self.create_instance_data(received_data, secret_token)
 
             if settings.DEBUG:
                 requests.post(
@@ -146,6 +142,6 @@ class ReceiveData(View):
 
             else:
                 requests.post(
-                    str(instance_data['platform_url']) + '/acceptor_data/', data={"secret_token": secret_token}
+                    platform_url + '/acceptor_data/', data={"secret_token": secret_token}
                 )
                 return HttpResponse(status=201)
