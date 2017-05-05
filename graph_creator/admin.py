@@ -10,10 +10,13 @@ class DataStorageAdmin(admin.ModelAdmin):
         'courses_amount',
         'active_students_amount',
         'latitude',
+        'level',
         'longitude',
         'platform_url',
         'secret_token',
-        'platform_name'
+        'students_per_country',
+        'platform_name',
+        'update'
     ]
 
 admin.site.register(DataStorage, DataStorageAdmin)
