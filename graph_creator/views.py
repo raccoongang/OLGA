@@ -14,6 +14,9 @@ from django.utils.decorators import method_decorator
 from .models import DataStorage
 
 
+HTTP_201_CREATED = 201
+
+
 class IndexView(View):
     """
     Displays information on a world map.
@@ -144,4 +147,4 @@ class ReceiveData(View):
                 edx_url, data={'secret_token': secret_token}
             )
 
-        return HttpResponse(status=201)
+        return HttpResponse(status=HTTP_201_CREATED)
