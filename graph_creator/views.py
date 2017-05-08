@@ -58,6 +58,13 @@ class ReceiveData(View):
         """
         Method calculates amount of students per country.
 
+        `students_per_country` have next form: '[{u'count': 0, u'country': None}, {u'count': 1, u'country': u'UA'},
+                                                {u'count': 1, u'country': u'RU'}, ...]'
+
+        Problem is a query does not count students without country.
+        To know how many students have no country, we need subtract all active students we got with edX`s
+        received data (post-request) from summarize amount of students with country.
+
         Arguments:
             active_students_amount (int): Count of active students.
             students_per_country (list): List of dictionaries, where one of them is country-count accordance.
