@@ -132,21 +132,18 @@ class ReceiveData(View):
 
         if secret_token:
             self.create_instance_data(received_data, secret_token)
-            return HttpResponse(status=200)
 
         else:
             secret_token = uuid.uuid4().hex
             self.create_instance_data(received_data, secret_token)
 
             if settings.DEBUG:
-                requests.post(
-                    # Local IP address of the edx-platform running within VM.
-                    settings.EDX_PLATFORM_POST_URL_LOCAL, data={"secret_token": secret_token}
-                )
-                return HttpResponse(status=201)
-
+                edx_url = settings.EDX_PLATFORM_POST_URL_LOCAL
             else:
-                requests.post(
-                    platform_url + '/acceptor_data/', data={"secret_token": secret_token}
-                )
-                return HttpResponse(status=201)
+                edx_url = platform_url + '/acceptor_data/'
+
+            requests.post(
+                edx_url, data={'secret_token': secret_token}
+            )
+
+        return HttpResponse(status=201)
