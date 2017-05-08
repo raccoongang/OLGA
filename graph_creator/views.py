@@ -138,20 +138,10 @@ class ReceiveData(View):
         platform_url = received_data.get('platform_url')
         secret_token = received_data.get('secret_token')
 
-        if secret_token:
-            self.create_instance_data(received_data, secret_token)
-
-        else:
+        if not secret_token:
             secret_token = uuid.uuid4().hex
-            self.create_instance_data(received_data, secret_token)
+            edx_url = settings.EDX_PLATFORM_POST_URL_LOCAL if settings.DEBUG else (platform_url + '/acceptor_data/')
+            requests.post(edx_url, data={'secret_token': secret_token})
 
-            if settings.DEBUG:
-                edx_url = settings.EDX_PLATFORM_POST_URL_LOCAL
-            else:
-                edx_url = platform_url + '/acceptor_data/'
-
-            requests.post(
-                edx_url, data={'secret_token': secret_token}
-            )
-
+        self.create_instance_data(received_data, secret_token)
         return HttpResponse(status=HTTP_201_CREATED)
