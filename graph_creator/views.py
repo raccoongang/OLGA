@@ -62,8 +62,8 @@ class ReceiveData(View):
                                                {u'count': 1, u'country': u'RU'}, ...]'
 
         Problem is a query (sql, group by `country`) does not count students without country.
-        To know how many students have no country, we need subtract all active students we got with edX`s
-        received data (post-request) from summarize amount of students with country.
+        To know how many students have no country, we need subtract summarize amount of students with country from
+        all active students we got with edX`s received data (post-request).
 
         Arguments:
             active_students_amount (int): Count of active students.
