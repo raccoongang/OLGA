@@ -19,14 +19,13 @@ class StudentsWithoutCountryTest(TestCase):
     """
 
     @data(
+        # (Amount of students per country, Active students amount, Expected result)
         (
             [
                 {u'count': 0, u'country': None},
                 {u'count': 1, u'country': u'UA'},
                 {u'count': 1, u'country': u'RU'}
-            ],  # Basic data with student`s per country amount
-            3,  # Active students amount
-            1   # Tesult, that we expect
+            ], 3, 1
         ),
         (
             [
