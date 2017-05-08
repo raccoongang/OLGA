@@ -51,25 +51,23 @@ class ReceiveData(View):
     """
 
     @staticmethod
-    def students_per_country(active_students_amount, students_per_country_to_decode):
+    def students_per_country(active_students_amount, students_per_country):
         """
         Method calculates amount of students per country.
 
         Arguments:
-            active_students_amount (int): Count of activate students.
-            students_per_country_to_decode (unicode): Unicode oriented to decode in list of dictionaries.
+            active_students_amount (int): Count of active students.
+            students_per_country (list): List of dictionaries, where one of them is country-count accordance.
+                                         Amount of students without country is empty.
 
         Returns:
-            students_per_country (str) : List of dictionaries, where one of them is country-count accordance.
+            students_per_country (list): List of dictionaries, where one of them is country-count accordance.
+                                         Amount of students without country has calculated.
         """
-
-        students_per_country = json.loads(students_per_country_to_decode)
 
         students_per_country[0]['count'] = active_students_amount - sum(
             [country['count'] for country in students_per_country]
         )
-
-        students_per_country = json.dumps(students_per_country)
 
         return students_per_country
 
@@ -78,34 +76,44 @@ class ReceiveData(View):
         Method provides saving instance data as object in database.
 
         Arguments:
-            received_data (QueryDict'): Request data from edX instance.
+            received_data (QueryDict): Request data from edX instance.
             secret_token (unicode): Secret key to allow edX instance send a data to server.
+                                    If token is empty, it will be generated with uuid.UUID in string format.
         """
 
         active_students_amount = int(received_data.get('active_students_amount'))
+        courses_amount = int(received_data.get('courses_amount'))
         statistics_level = received_data.get('statistics_level')
 
         instance_data = {
             'active_students_amount': active_students_amount,
-            'courses_amount': int(received_data.get('courses_amount')),
+            'courses_amount': courses_amount,
             'secret_token': secret_token,
             'statistics_level': statistics_level
         }
 
         if statistics_level == 'enthusiast':
+
+            # Decoded to process and encoded to save in database list of dictionaries,
+            # that contains amount of students per country
+            students_per_country = json.loads(received_data.get('students_per_country'))
+            students_per_country = json.dumps(self.students_per_country(
+                    active_students_amount, students_per_country
+            ))
+
             enthusiast_data = {
                 'latitude': float(received_data.get('latitude')),
                 'longitude': float(received_data.get('longitude')),
                 'platform_name': received_data.get('platform_name'),
                 'platform_url': received_data.get('platform_url'),
-                'students_per_country': self.students_per_country(
-                    active_students_amount, received_data.get('students_per_country')
-                )
+                'students_per_country': students_per_country
             }
 
             instance_data.update(enthusiast_data)
 
         DataStorage.objects.create(**instance_data)
+
+        return secret_token
 
     def post(self, request, *args, **kwargs):
         """
@@ -115,10 +123,7 @@ class ReceiveData(View):
         sends it back to the edx-platform for further data exchange abilities, otherwise
         updates data in the DB with the new incoming information from the edx-platform.
 
-        `secret_token` when generates is a uuid.UUID in string format.
-        `reverse_token` is a requests. Sends the secret token to edx-platform.
-
-        Returns http response redirecting to the main page.
+        Returns HTTP-response with status 201, that means object (instance data) was successfully created.
         """
 
         received_data = self.request.POST
