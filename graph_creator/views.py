@@ -113,8 +113,6 @@ class ReceiveData(View):
 
         DataStorage.objects.create(**instance_data)
 
-        return secret_token
-
     def post(self, request, *args, **kwargs):
         """
         Receive information from the edx-platform and processes it.
