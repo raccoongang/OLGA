@@ -54,14 +54,14 @@ class ReceiveData(View):
     """
 
     @staticmethod
-    def students_per_country(active_students_amount, students_per_country):
+    def update_students_without_no_country_value(active_students_amount, students_per_country):
         """
-        Method calculates amount of students per country.
+        Method calculates amount of students, that have no country and update overall variable (example below).
 
-        `students_per_country` have next form: '[{u'count': 0, u'country': None}, {u'count': 1, u'country': u'UA'},
-                                                {u'count': 1, u'country': u'RU'}, ...]'
+        `students_per_country` has next form: '[{u'count': 0, u'country': None}, {u'count': 1, u'country': u'UA'},
+                                               {u'count': 1, u'country': u'RU'}, ...]'
 
-        Problem is a query does not count students without country.
+        Problem is a query (sql, group by `country`) does not count students without country.
         To know how many students have no country, we need subtract all active students we got with edX`s
         received data (post-request) from summarize amount of students with country.
 
@@ -106,9 +106,9 @@ class ReceiveData(View):
 
             # Decoded to process and encoded to save in database list of dictionaries,
             # that contains amount of students per country
-            students_per_country = json.loads(received_data.get('students_per_country'))
-            students_per_country = json.dumps(self.students_per_country(
-                    active_students_amount, students_per_country
+            students_per_country_decoded = json.loads(received_data.get('students_per_country'))
+            students_per_country_encoded = json.dumps(self.update_students_without_no_country_value(
+                    active_students_amount, students_per_country_decoded
             ))
 
             enthusiast_data = {
@@ -116,7 +116,7 @@ class ReceiveData(View):
                 'longitude': float(received_data.get('longitude')),
                 'platform_name': received_data.get('platform_name'),
                 'platform_url': received_data.get('platform_url'),
-                'students_per_country': students_per_country
+                'students_per_country': students_per_country_encoded
             }
 
             instance_data.update(enthusiast_data)
