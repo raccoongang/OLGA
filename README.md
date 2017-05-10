@@ -9,4 +9,4 @@ python manage.py migrate
 # local development
 
 python manage.py runserver
-rename local_settings.py.example to local_settings.py
+rename local_settings.py.example to private.py
