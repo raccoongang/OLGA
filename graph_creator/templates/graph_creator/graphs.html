@@ -7,7 +7,10 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
-
+<script>
+    // Define JS global vars to work with external map.js file.
+    var timeline = JSON.parse('{{ timeline|safe }}');
+</script>
 <div id="instances"></div>
 
 <script src="{% static 'graph_creator/graphs.js' %}"></script>

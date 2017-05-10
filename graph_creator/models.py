@@ -23,3 +23,15 @@ class DataStorage(models.Model):
     secret_token = models.CharField(max_length=255, null=True)
     statistics_level = models.CharField(max_length=255)
     students_per_country = models.TextField()
+
+    @classmethod
+    def timeline(cls):
+        """
+        Provide timeline in days for plotting on y axis
+
+        Future: add weaks, or month for dynamic range on plots
+        """
+        timeline_datetimes =  cls.objects.order_by('last_data_update').values_list('last_data_update', flat=True).distinct()
+        timeline_dates = [x.date().strftime('%Y-%m-%d')for x in timeline_datetimes]
+        print timeline_dates
+        return timeline_dates

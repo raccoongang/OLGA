@@ -43,8 +43,21 @@ class IndexView(View):
 
 
 class GraphsView(View):
+    """
+    Provide data and plot 3 main graphs:
+
+    1. Number of students per date
+    2. Number of courses per date
+    3. Number of instances per date
+    """   
+
     def get(self, request, *args, **kwargs):
-        return render(request, 'graph_creator/graphs.html')
+        """
+        Pass graph data to frontend
+        """
+        return render(request, 'graph_creator/graphs.html', {
+            'timeline': json.dumps(DataStorage.timeline())
+        })
 
 
 @method_decorator(csrf_exempt, name='dispatch')
