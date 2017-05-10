@@ -2,26 +2,30 @@
 var d3 = Plotly.d3;
 
 var WIDTH_IN_PERCENT_OF_PARENT = 80,
-    HEIGHT_IN_PERCENT_OF_PARENT = 46;
+    HEIGHT_IN_PERCENT_OF_PARENT = 35;
 
-var gd3 = d3.select('#instances')
+// Instances
+var instances_gd3 = d3.select('#instances')
     .style({
         width: WIDTH_IN_PERCENT_OF_PARENT + '%',
         'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
 
         height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
-        'margin-top': (40 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
+        'margin-top': (35 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
     });
 
-var gd = gd3.node();
+var instances_gd = instances_gd3.node();
 
 instances_layout = {
   xaxis: {
     title: 'Instances'
+  },
+  yaxis: {
+    title: 'Count'
   }
 };
 
-Plotly.plot(gd, [
+Plotly.plot(instances_gd, [
   {
     x: timeline,
     y: students,
@@ -29,8 +33,69 @@ Plotly.plot(gd, [
   }
 ], instances_layout, {displayModeBar: false});
 
+// Courses
+var courses_gd3 = d3.select('#courses')
+    .style({
+        width: WIDTH_IN_PERCENT_OF_PARENT + '%',
+        'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
+
+        height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
+        'margin-top': (35 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
+    });
+
+var courses_gd = courses_gd3.node();
+
+courses_layout = {
+  xaxis: {
+    title: 'Courses'
+  },
+  yaxis: {
+    title: 'Count'
+  }
+};
+
+Plotly.plot(courses_gd, [
+  {
+    x: timeline,
+    y: courses,
+    type: 'scatter'
+  }
+], courses_layout, {displayModeBar: false});
+
+// Students
+var students_gd3 = d3.select('#students')
+    .style({
+        width: WIDTH_IN_PERCENT_OF_PARENT + '%',
+        'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
+
+        height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
+        'margin-top': (35 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
+    });
+
+var students_gd = students_gd3.node();
+
+students_layout = {
+  xaxis: {
+    title: 'Students'
+  },
+  yaxis: {
+    title: 'Count'
+  }
+};
+
+Plotly.plot(students_gd, [
+  {
+    x: timeline,
+    y: courses,
+    type: 'scatter'
+  }
+], students_layout, {displayModeBar: false});
+
+// Resize
 window.onresize = function() {
-    Plotly.Plots.resize(gd);
+    Plotly.Plots.resize(instances_gd);
+    Plotly.Plots.resize(courses_gd);
+    Plotly.Plots.resize(students_gd);
 };
 
 })();

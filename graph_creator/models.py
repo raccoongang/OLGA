@@ -34,8 +34,11 @@ class DataStorage(models.Model):
 
         Future: add weeks, or month for dynamic range on plots.
         """
-        timeline_datetimes =  cls.objects.order_by('last_data_update').values_list('last_data_update', flat=True).distinct()
-        timeline_dates = [x.date().strftime('%Y-%m-%d')for x in timeline_datetimes]
+        timeline_datetimes =  cls.objects.order_by(
+            'last_data_update'
+        ).values_list('last_data_update', flat=True).distinct()
+
+        timeline_dates = [x.date().strftime('%Y-%m-%d') for x in timeline_datetimes]
         return timeline_dates
 
     @classmethod
@@ -53,9 +56,12 @@ class DataStorage(models.Model):
 
         It may be possible to do with Func, but it looks like there is no TRUNC in django, 
         and Substr is not working well with datetime objects.
-        """        
-        if settings.DEBUG: # sqlite3 specific
-            datetime_to_days = {'date_in_days': 'django_date_trunc("day", "graph_creator_datastorage"."last_data_update")'}
+        """
+
+        if settings.DEBUG:  # sqlite3 specific
+            datetime_to_days = {
+                'date_in_days': 'django_date_trunc("day", "graph_creator_datastorage"."last_data_update")'
+            }
 
         subquery = cls.objects.order_by('last_data_update').annotate(
             date_in_days=Trunc('last_data_update', 'day', output_field=DateField())

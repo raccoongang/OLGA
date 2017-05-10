@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import uuid
 import json
 
@@ -10,6 +11,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from django.utils.decorators import method_decorator
+from django.db.models import Sum
 
 from .models import DataStorage
 
@@ -56,13 +58,24 @@ class GraphsView(View):
         Pass graph data to frontend
         """
         timeline = DataStorage.timeline()
-        students, courses, instances =  DataStorage.data_per_period()
+        students, courses, instances = DataStorage.data_per_period()
+
+        all_unique_instances = DataStorage.objects.filter(
+            last_data_update__lt=datetime.today(), last_data_update__gt=datetime.today() - timedelta(days=1)
+        )
+
+        instances_count = all_unique_instances.count()
+        courses_count = all_unique_instances.aggregate(Sum('courses_amount'))['courses_amount__sum']
+        students_count = all_unique_instances.aggregate(Sum('active_students_amount'))['active_students_amount__sum']
 
         context = {
             'timeline': json.dumps(timeline),
             'students': json.dumps(students),
             'courses': json.dumps(courses),
             'instances': json.dumps(instances),
+            'instances_count': instances_count,
+            'courses_count': courses_count,
+            'students_count': students_count
         }
 
         return render(request, 'graph_creator/graphs.html', context)
