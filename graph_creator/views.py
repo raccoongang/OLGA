@@ -42,6 +42,11 @@ class IndexView(View):
         return render(request, 'graph_creator/index.html', {'edx_data': edx_data_as_json})
 
 
+class GraphsView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'graph_creator/graphs.html')
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class ReceiveData(View):
     """
