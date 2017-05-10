@@ -55,14 +55,17 @@ class GraphsView(View):
         """
         Pass graph data to frontend
         """
-        students, courses =  DataStorage.data_per_period()
+        timeline = DataStorage.timeline()
+        students, courses, instances =  DataStorage.data_per_period()
 
-        return render(request, 'graph_creator/graphs.html', {
-            'timeline': json.dumps(DataStorage.timeline()),
+        context = {
+            'timeline': json.dumps(timeline),
             'students': json.dumps(students),
             'courses': json.dumps(courses),
-            'instances': json.dumps({}),
-        })
+            'instances': json.dumps(instances),
+        }
+
+        return render(request, 'graph_creator/graphs.html', context)
 
 
 @method_decorator(csrf_exempt, name='dispatch')

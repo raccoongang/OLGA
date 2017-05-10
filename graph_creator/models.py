@@ -7,8 +7,8 @@ from datetime import datetime
 
 from django.db import models
 from django.conf import settings
-from django.db.models import Sum, Count, Func, F, Value, functions
-
+from django.db.models import Sum, Count, DateField
+from django.db.models.functions import Trunc
 
 
 class DataStorage(models.Model):
@@ -41,10 +41,10 @@ class DataStorage(models.Model):
     @classmethod
     def data_per_period(cls):
         """
-        Provide total students and courses from all services per period, day by default.
+        Provide total students, courses and instances, from all services per period, day by default.
 
         We summarize values per day, because in same day we can receive data from multiple different instances.
-        Same instance send data only once per day.
+        We suppose, that every insance instance send data only once per day.
 
         Future: add weeks, month for dynamic range on plots.
 
@@ -57,14 +57,14 @@ class DataStorage(models.Model):
         if settings.DEBUG: # sqlite3 specific
             datetime_to_days = {'date_in_days': 'django_date_trunc("day", "graph_creator_datastorage"."last_data_update")'}
 
-        subquery = cls.objects.order_by('last_data_update').extra(datetime_to_days).values('date_in_days')
+        subquery = cls.objects.order_by('last_data_update').annotate(
+            date_in_days=Trunc('last_data_update', 'day', output_field=DateField())
+        ).values('date_in_days')
 
         students_per_day = subquery.annotate(students=Sum('active_students_amount')).values_list('students', flat=True)
         courses_per_day = subquery.annotate(courses=Sum('courses_amount')).values_list('courses', flat=True)
-        # instances_per_day = subquery.annotate(instances=Count('secret_token')).values_list('instances', flat=True)   
+        instances_per_day = subquery.annotate(instances=Count('secret_token')).values_list('instances', flat=True)
 
-
-        print list(students_per_day), list(courses_per_day)#, instances_per_day
-        return list(students_per_day), list(courses_per_day)#, instances_per_day
+        return list(students_per_day), list(courses_per_day), list(instances_per_day)
 
 
