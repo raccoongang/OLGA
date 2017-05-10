@@ -10,3 +10,4 @@ python manage.py migrate
 
 python manage.py runserver
 rename local_settings.py.example to private.py
+python manage.py createsuperuser
