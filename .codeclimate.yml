@@ -8,8 +8,7 @@ engines:
       languages:
       - javascript
       - python
-      eslint:
-    # Disabled since CodeClimate doesn't yet support eslint-config-edx plugin
+  eslint:
     enabled: true
     channel: "eslint-3"
   fixme:
