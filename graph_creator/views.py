@@ -1,4 +1,5 @@
 import uuid
+import json
 
 import requests
 
@@ -13,16 +14,19 @@ from django.utils.decorators import method_decorator
 from .models import DataStorage
 
 
+HTTP_201_CREATED = 201
+
+
 class IndexView(View):
     """
     Displays information on a world map.
-    
+
     Retrieve information about edx-platform from DB, serialize it into JSON format and
     pass serialized data to the template. The template displays a map of the world with the
     edx-platform marker on it.
-    
+
     `edx_data_as_json` is a `DataStorage` containing all information about edx-platform.
-    
+
     Returns http response and passes `edx_data_as_json` data as a context variable `edx_data`
     to the `index.html` template.
     """
@@ -30,7 +34,7 @@ class IndexView(View):
     def get(self, request, *args, **kwargs):
         """
         Retrieve information about edx-platform from DB and serialize it into JSON.
-        
+
         `edx_data_as_json` is a `DataStorage` containing all information about edx-platform.
         """
 
@@ -42,70 +46,102 @@ class IndexView(View):
 class ReceiveData(View):
     """
     Receives and processes data from the remote edx-platform.
-    
+
     If the platform has already registered, a normal data exchange happens.
     Otherwise generates a secret token, (registers)saves it to DB with the edx-platform's incoming URL
-    and sends newly generated token to the edx-platform for further 
+    and sends newly generated token to the edx-platform for further
     data interchange abilities with the server.
     """
+
+    @staticmethod
+    def update_students_without_no_country_value(active_students_amount, students_per_country):
+        """
+        Method calculates amount of students, that have no country and update overall variable (example below).
+
+        `students_per_country` has next form: '[{u'count': 0, u'country': None}, {u'count': 1, u'country': u'UA'},
+                                               {u'count': 1, u'country': u'RU'}, ...]'
+
+        Problem is a query (sql, group by `country`) does not count students without country.
+        To know how many students have no country, we need subtract summarize amount of students with country from
+        all active students we got with edX`s received data (post-request).
+
+        Arguments:
+            active_students_amount (int): Count of active students.
+            students_per_country (list): List of dictionaries, where one of them is country-count accordance.
+                                         Amount of students without country is empty.
+
+        Returns:
+            students_per_country (list): List of dictionaries, where one of them is country-count accordance.
+                                         Amount of students without country has calculated.
+        """
+
+        students_per_country[0]['count'] = active_students_amount - sum(
+            [country['count'] for country in students_per_country]
+        )
+
+        return students_per_country
+
+    def create_instance_data(self, received_data, secret_token):
+        """
+        Method provides saving instance data as object in database.
+
+        Arguments:
+            received_data (QueryDict): Request data from edX instance.
+            secret_token (unicode): Secret key to allow edX instance send a data to server.
+                                    If token is empty, it will be generated with uuid.UUID in string format.
+        """
+
+        active_students_amount = int(received_data.get('active_students_amount'))
+        courses_amount = int(received_data.get('courses_amount'))
+        statistics_level = received_data.get('statistics_level')
+
+        instance_data = {
+            'active_students_amount': active_students_amount,
+            'courses_amount': courses_amount,
+            'secret_token': secret_token,
+            'statistics_level': statistics_level
+        }
+
+        if statistics_level == 'enthusiast':
+
+            # Decoded to process and encoded to save in database list of dictionaries,
+            # that contains amount of students per country
+            students_per_country_decoded = json.loads(received_data.get('students_per_country'))
+            students_per_country_encoded = json.dumps(self.update_students_without_no_country_value(
+                    active_students_amount, students_per_country_decoded
+            ))
+
+            enthusiast_data = {
+                'latitude': float(received_data.get('latitude')),
+                'longitude': float(received_data.get('longitude')),
+                'platform_name': received_data.get('platform_name'),
+                'platform_url': received_data.get('platform_url'),
+                'students_per_country': students_per_country_encoded
+            }
+
+            instance_data.update(enthusiast_data)
+
+        DataStorage.objects.create(**instance_data)
 
     def post(self, request, *args, **kwargs):
         """
         Receive information from the edx-platform and processes it.
-        
+
         If the first time gets information from edx-platform, generates a secret token and
         sends it back to the edx-platform for further data exchange abilities, otherwise
         updates data in the DB with the new incoming information from the edx-platform.
-        
-        `secret_token` when generates is a uuid.UUID in string format.
-        `reverse_token` is a requests. Sends the secret token to edx-platform.
-        
-        Returns http response redirecting to the main page.
+
+        Returns HTTP-response with status 201, that means object (instance data) was successfully created.
         """
 
-        # TODO: make serializer validation for received data
         received_data = self.request.POST
-        active_students_amount = received_data.get('active_students_amount')
-        courses_amount = received_data.get('courses_amount')
-        latitude = received_data.get('latitude')
-        longitude = received_data.get('longitude')
-        platform_name = received_data.get('platform_name')
         platform_url = received_data.get('platform_url')
         secret_token = received_data.get('secret_token')
 
-        # TODO: make creation of data, not updating exist
-        if secret_token:
-            DataStorage.objects.filter(secret_token=str(secret_token)).update(
-                active_students_amount=int(active_students_amount),
-                courses_amount=int(courses_amount),
-                latitude=float(latitude),
-                longitude=float(longitude),
-                platform_url=platform_url,
-                platform_name=platform_name,
-            )
-            return HttpResponse(status=200)
-
-        else:
+        if not secret_token:
             secret_token = uuid.uuid4().hex
-            DataStorage.objects.create(
-                active_students_amount=int(active_students_amount),
-                courses_amount=int(courses_amount),
-                latitude=float(latitude),
-                longitude=float(longitude),
-                platform_name=platform_name,
-                platform_url=platform_url,
-                secret_token=secret_token
-            )
+            edx_url = settings.EDX_PLATFORM_POST_URL_LOCAL if settings.DEBUG else (platform_url + '/acceptor_data/')
+            requests.post(edx_url, data={'secret_token': secret_token})
 
-            if settings.DEBUG:
-                requests.post(
-                    # Local IP address of the edx-platform running within VM.
-                    settings.EDX_PLATFORM_POST_URL_LOCAL, data={"secret_token": secret_token}
-                )
-                return HttpResponse(status=201)
-
-            else:
-                requests.post(
-                    str(platform_url) + '/acceptor_data/', data={"secret_token": secret_token}
-                )
-                return HttpResponse(status=201)
+        self.create_instance_data(received_data, secret_token)
+        return HttpResponse(status=HTTP_201_CREATED)
