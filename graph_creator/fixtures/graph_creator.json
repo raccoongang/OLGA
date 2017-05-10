@@ -94,5 +94,21 @@
       "statistics_level": "1",
       "students_per_country": "[{'count': 0, 'country': None}, {'count': 1, 'country': 'UA'}, {'count': 1, 'country': 'DE'}]"
     }
+  },
+  {
+    "model": "graph_creator.datastorage",
+    "pk": 7,
+    "fields": {
+      "active_students_amount": 55,
+      "courses_amount": 71,
+      "last_data_update": "2017-04-20T07:08:19Z",
+      "latitude": 1.0,
+      "longitude": 1.0,
+      "platform_name": null,
+      "platform_url": null,
+      "secret_token": "platform1",
+      "statistics_level": "1",
+      "students_per_country": "[{'count': 0, 'country': None}, {'count': 1, 'country': 'UA'}, {'count': 1, 'country': 'DE'}]"
+    }
   }
 ]

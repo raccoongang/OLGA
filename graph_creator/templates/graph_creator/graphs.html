@@ -10,6 +10,9 @@
 <script>
     // Define JS global vars to work with external map.js file.
     var timeline = JSON.parse('{{ timeline|safe }}');
+    var students = JSON.parse('{{ students|safe }}');
+    var courses = JSON.parse('{{ courses|safe }}');
+    var instances = JSON.parse('{{ instances|safe }}');
 </script>
 <div id="instances"></div>
 

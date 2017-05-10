@@ -24,9 +24,7 @@ instances_layout = {
 Plotly.plot(gd, [
   {
     x: timeline,
-    y: [500, 389, 890, 654, 499,
-        487, 234, 874, 345, 543,
-        293, 942, 237, 214, 124],
+    y: students,
     type: 'scatter'
   }
 ], instances_layout, {displayModeBar: false});

@@ -55,8 +55,13 @@ class GraphsView(View):
         """
         Pass graph data to frontend
         """
+        students, courses =  DataStorage.data_per_period()
+
         return render(request, 'graph_creator/graphs.html', {
-            'timeline': json.dumps(DataStorage.timeline())
+            'timeline': json.dumps(DataStorage.timeline()),
+            'students': json.dumps(students),
+            'courses': json.dumps(courses),
+            'instances': json.dumps({}),
         })
 
 
