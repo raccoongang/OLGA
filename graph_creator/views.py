@@ -43,6 +43,11 @@ class IndexView(View):
         return render(request, 'graph_creator/index.html', {'edx_data': edx_data_as_json})
 
 
+class MapView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'graph_creator/worldmap.html')
+
+
 class GraphsView(View):
     """
     Provide data and plot 3 main graphs:
