@@ -3,10 +3,9 @@ Models used to store and operate all data received from the edx platform.
 """
 
 from __future__ import unicode_literals
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.db import models
-from django.conf import settings
 from django.db.models import Sum, Count, DateField
 from django.db.models.functions import Trunc
 
@@ -47,21 +46,13 @@ class DataStorage(models.Model):
         Provide total students, courses and instances, from all services per period, day by default.
 
         We summarize values per day, because in same day we can receive data from multiple different instances.
-        We suppose, that every insance instance send data only once per day.
+        We suppose, that every instance send data only once per day.
 
         Future: add weeks, month for dynamic range on plots.
 
         PostgreSQL: extra(select = {"month": '''DATE_TRUNC('month', creation_date)'''}) 
         SQlite3: extra(select={'date': 'django_date_trunc("day", "testapp_log"."datetime")'})
-
-        It may be possible to do with Func, but it looks like there is no TRUNC in django, 
-        and Substr is not working well with datetime objects.
         """
-
-        if settings.DEBUG:  # sqlite3 specific
-            datetime_to_days = {
-                'date_in_days': 'django_date_trunc("day", "graph_creator_datastorage"."last_data_update")'
-            }
 
         subquery = cls.objects.order_by('last_data_update').annotate(
             date_in_days=Trunc('last_data_update', 'day', output_field=DateField())
@@ -73,4 +64,18 @@ class DataStorage(models.Model):
 
         return list(students_per_day), list(courses_per_day), list(instances_per_day)
 
+    @classmethod
+    def overall_counts(cls):
+        """
+        Provide total count of all instances, courses and students from all services per period, day by default.
+        """
 
+        all_unique_instances = DataStorage.objects.filter(
+            last_data_update__lt=datetime.today(), last_data_update__gt=datetime.today() - timedelta(days=1)
+        )
+
+        instances_count = all_unique_instances.count()
+        courses_count = all_unique_instances.aggregate(Sum('courses_amount'))['courses_amount__sum']
+        students_count = all_unique_instances.aggregate(Sum('active_students_amount'))['active_students_amount__sum']
+
+        return instances_count, courses_count, students_count

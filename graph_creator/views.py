@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta
 import uuid
 import json
 
@@ -55,18 +54,11 @@ class GraphsView(View):
 
     def get(self, request, *args, **kwargs):
         """
-        Pass graph data to frontend
+        Pass graph data to frontend.
         """
         timeline = DataStorage.timeline()
         students, courses, instances = DataStorage.data_per_period()
-
-        all_unique_instances = DataStorage.objects.filter(
-            last_data_update__lt=datetime.today(), last_data_update__gt=datetime.today() - timedelta(days=1)
-        )
-
-        instances_count = all_unique_instances.count()
-        courses_count = all_unique_instances.aggregate(Sum('courses_amount'))['courses_amount__sum']
-        students_count = all_unique_instances.aggregate(Sum('active_students_amount'))['active_students_amount__sum']
+        instances_count, courses_count, students_count = DataStorage.overall_counts()
 
         context = {
             'timeline': json.dumps(timeline),
