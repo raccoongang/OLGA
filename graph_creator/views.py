@@ -2,6 +2,7 @@ import uuid
 import json
 
 import requests
+import pycountry
 
 from django.conf import settings
 from django.core import serializers
@@ -10,7 +11,6 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 from django.utils.decorators import method_decorator
-from django.db.models import Sum
 
 from .models import DataStorage
 
@@ -45,7 +45,21 @@ class IndexView(View):
 
 class MapView(View):
     def get(self, request, *args, **kwargs):
-        return render(request, 'graph_creator/worldmap.html')
+        worlds_students_per_country = DataStorage.worlds_students_per_country_statistics()
+
+        datamap_format_countries_list = []
+
+        for key, value in worlds_students_per_country.iteritems():
+            if key != 'null':
+                datamap_format_countries_list.append([
+                    str(pycountry.countries.get(alpha_2=key).alpha_3), value]
+                )
+
+        context = {
+            'countries_list': json.dumps(datamap_format_countries_list)
+        }
+
+        return render(request, 'graph_creator/worldmap.html', context)
 
 
 class GraphsView(View):

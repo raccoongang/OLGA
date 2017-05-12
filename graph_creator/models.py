@@ -4,6 +4,7 @@ Models used to store and operate all data received from the edx platform.
 
 from __future__ import unicode_literals
 from datetime import datetime, timedelta
+import json
 
 from django.db import models
 from django.db.models import Sum, Count, DateField
@@ -79,3 +80,21 @@ class DataStorage(models.Model):
         students_count = all_unique_instances.aggregate(Sum('active_students_amount'))['active_students_amount__sum']
 
         return instances_count, courses_count, students_count
+
+    @classmethod
+    def worlds_students_per_country_statistics(cls):
+        students_per_country_unicodes = list(cls.objects.values_list('students_per_country', flat=True))
+        students_per_country_dicts = [json.loads(
+            students_per_country_unicodes[instance]) for instance in range(len(students_per_country_unicodes)-1)
+        ]
+
+        world_students_per_country = {}
+
+        for instance in students_per_country_dicts:
+            for country, count in instance.iteritems():
+                if country in world_students_per_country:
+                    world_students_per_country[country] += count
+                else:
+                    world_students_per_country[country] = count
+
+        return world_students_per_country
