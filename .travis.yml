@@ -1,0 +1,13 @@
+language: python
+sudo: false
+python:
+- 2.7
+
+cache:
+  pip: true
+
+install:
+- pip install pydocstyle
+
+script:
+- pydocstyle
