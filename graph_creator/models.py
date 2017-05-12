@@ -16,9 +16,11 @@ class DataStorage(models.Model):
     Model that stores data received from the edx-platform.
     """
 
-    active_students_amount = models.IntegerField(default=0)
+    active_students_amount_day = models.IntegerField(default=0)
+    active_students_amount_week = models.IntegerField(default=0)
+    active_students_amount_month = models.IntegerField(default=0)
     courses_amount = models.IntegerField(default=0)
-    last_data_update = models.DateTimeField(default=datetime.now())
+    data_update = models.DateTimeField(default=datetime.now())
     latitude = models.FloatField(default=0, blank=True)
     longitude = models.FloatField(default=0, blank=True)
     platform_name = models.CharField(max_length=255, null=True, blank=True)

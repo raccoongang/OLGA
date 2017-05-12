@@ -69,7 +69,7 @@ class GraphsView(View):
     1. Number of students per date
     2. Number of courses per date
     3. Number of instances per date
-    """   
+    """
 
     def get(self, request, *args, **kwargs):
         """
@@ -108,26 +108,22 @@ class ReceiveData(View):
         """
         Method calculates amount of students, that have no country and update overall variable (example below).
 
-        `students_per_country` has next form: '[{u'count': 0, u'country': None}, {u'count': 1, u'country': u'UA'},
-                                               {u'count': 1, u'country': u'RU'}, ...]'
-
         Problem is a query (sql, group by `country`) does not count students without country.
         To know how many students have no country, we need subtract summarize amount of students with country from
         all active students we got with edX`s received data (post-request).
 
         Arguments:
             active_students_amount (int): Count of active students.
-            students_per_country (list): List of dictionaries, where one of them is country-count accordance.
-                                         Amount of students without country is empty.
+            students_per_country (dictionary): Country-count accordance as pair of key-value.
+                                               Amount of students without country is empty (key 'null' with value 0)
 
         Returns:
-            students_per_country (list): List of dictionaries, where one of them is country-count accordance.
-                                         Amount of students without country has calculated.
+            students_per_country (dictionary): Country-count accordance as pair of key-value.
+                                         Amount of students without country has calculated and inserted to
+                                         corresponding key ('null').
         """
 
-        students_per_country[0]['count'] = active_students_amount - sum(
-            [country['count'] for country in students_per_country]
-        )
+        students_per_country['null'] = active_students_amount - sum(students_per_country.values())
 
         return students_per_country
 
@@ -141,12 +137,16 @@ class ReceiveData(View):
                                     If token is empty, it will be generated with uuid.UUID in string format.
         """
 
-        active_students_amount = int(received_data.get('active_students_amount'))
+        active_students_amount_day = int(received_data.get('active_students_amount_day'))
+        active_students_amount_week = int(received_data.get('active_students_amount_week'))
+        active_students_amount_month = int(received_data.get('active_students_amount_month'))
         courses_amount = int(received_data.get('courses_amount'))
         statistics_level = received_data.get('statistics_level')
 
         instance_data = {
-            'active_students_amount': active_students_amount,
+            'active_students_amount_day': active_students_amount_day,
+            'active_students_amount_week': active_students_amount_week,
+            'active_students_amount_month': active_students_amount_month,
             'courses_amount': courses_amount,
             'secret_token': secret_token,
             'statistics_level': statistics_level
@@ -158,7 +158,7 @@ class ReceiveData(View):
             # that contains amount of students per country
             students_per_country_decoded = json.loads(received_data.get('students_per_country'))
             students_per_country_encoded = json.dumps(self.update_students_without_no_country_value(
-                    active_students_amount, students_per_country_decoded
+                active_students_amount_month, students_per_country_decoded
             ))
 
             enthusiast_data = {
