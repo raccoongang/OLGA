@@ -28,7 +28,7 @@ instances_layout = {
 Plotly.plot(instances_gd, [
   {
     x: timeline,
-    y: students,
+    y: instances,
     type: 'scatter'
   }
 ], instances_layout, {displayModeBar: false});
@@ -86,7 +86,7 @@ students_layout = {
 Plotly.plot(students_gd, [
   {
     x: timeline,
-    y: courses,
+    y: students,
     type: 'scatter'
   }
 ], students_layout, {displayModeBar: false});
