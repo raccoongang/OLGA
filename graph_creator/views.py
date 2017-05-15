@@ -48,15 +48,28 @@ class MapView(View):
         worlds_students_per_country = DataStorage.worlds_students_per_country_statistics()
 
         datamap_format_countries_list = []
+        tabular_format_countries_list = []
 
-        for key, value in worlds_students_per_country.iteritems():
-            if key != 'null':
+        for country, count in worlds_students_per_country.iteritems():
+            if country != 'null':
+                # Make data to datamap visualization format
                 datamap_format_countries_list.append([
-                    str(pycountry.countries.get(alpha_2=key).alpha_3), value]
-                )
+                    str(pycountry.countries.get(alpha_2=country).alpha_3), count
+                ])
+                # Make data to simple table visualization format
+                tabular_format_countries_list.append((
+                    pycountry.countries.get(alpha_2=country).name, count
+                ))
+            else:
+                # Create students without country amount
+                tabular_format_countries_list.append(('Unset', count))
+
+        # Sort in descending order
+        tabular_format_countries_list.sort(key=lambda row: row[1], reverse=True)
 
         context = {
-            'countries_list': json.dumps(datamap_format_countries_list)
+            'datamap_countries_list': json.dumps(datamap_format_countries_list),
+            'tabular_countries_list': tabular_format_countries_list
         }
 
         return render(request, 'graph_creator/worldmap.html', context)
