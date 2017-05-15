@@ -6,3 +6,69 @@ html, body, #map {
     height: 100%;
     width: 100%;
 }
+
+/*Navigation bar*/
+.navbar .navbar-nav {
+    display: inline-block;
+    float: none;
+    vertical-align: top;
+}
+
+.navbar .navbar-collapse {
+    text-align: center;
+}
+
+.navbar {
+    border-radius: 0 !important;
+}
+
+/*Map*/
+.map-header {
+    text-align: center;
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+.map-container {
+    display: flex;
+    justify-content: center;
+}
+
+#container1 {
+    /*border:1px solid #101010;*/
+    width: 1400px;
+    height: 650px;
+}
+
+/*Metrics*/
+.metrics-header {
+    text-align: center;
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+.metrics-container {
+    display: flex;
+    justify-content: center;
+}
+
+.metric-1 {
+    margin: auto;
+}
+
+.metric-2 {
+    margin: auto;
+}
+
+.thumbnail {
+    text-align: center;
+}
+
+/*Tables*/
+.table>tbody>tr>th {
+    text-align: center;
+}
+
+.table>tbody>tr>td {
+    text-align: center;
+}
