@@ -11,66 +11,28 @@
 </head>
 <body>
 
+<p style="margin-left:15%;">Students per country statistics</p>
+
 <div id="container1" style="margin-left:15%; border:1px dotted blue; width: 1200px; height: 650px; position: relative;"></div>
+
+<p style="margin-left:15%;">Tabular version</p>
+
+<table border="1" style="margin-left:15%;">
+  <tr><th>Country</th><th>Students amount</th></tr>
+  {% for country in tabular_countries_list %}
+      <tr><td>{{ country.0 }}</td><td>{{ country.1 }}</td></tr>
+  {% endfor %}
+</table>
+
+<script>
+    // Define JS global vars to work with external datamap.js file.
+    var countries_list = JSON.parse('{{ datamap_countries_list|safe }}');
+</script>
 
 <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
 <script src="{% static 'graph_creator/datamaps.world.min.js' %}"></script>
-
-<script>
-    var countries_list = JSON.parse('{{ countries_list|safe }}');
-
-    // Datamaps expect data in format:
-    // { "USA": { "fillColor": "#42a844", numberOfWhatever: 75},
-    //   "FRA": { "fillColor": "#8dc386", numberOfWhatever: 43 } }
-    var dataset = {};
-    // We need to colorize every country based on "numberOfWhatever"
-    // colors should be uniq for every value.
-    // For this purpose we create palette(using min/max series-value)
-    var onlyValues = countries_list.map(function(obj){ return obj[1]; });
-    var minValue = Math.min.apply(null, onlyValues),
-            maxValue = Math.max.apply(null, onlyValues);
-    // create color palette function
-    // color can be whatever you wish
-    var paletteScale = d3.scale.linear()
-            .domain([minValue,maxValue])
-            .range(["#EFEFFF","#02386F"]); // blue color
-    // fill dataset in appropriate format
-    countries_list.forEach(function(item){ //
-        // item example value ["USA", 70]
-        var iso = item[0],
-                value = item[1];
-        dataset[iso] = { numberOfThings: value, fillColor: paletteScale(value) };
-    });
-    // render map
-    new Datamap({
-        element: document.getElementById('container1'),
-        projection: 'mercator', // big world map
-        // countries don't listed in dataset will be painted with this color
-        fills: { defaultFill: '#F5F5F5' },
-        data: dataset,
-        geographyConfig: {
-            borderColor: '#DEDEDE',
-            highlightBorderWidth: 2,
-            // don't change color on mouse hover
-            highlightFillColor: function(geo) {
-                return geo['fillColor'] || '#F5F5F5';
-            },
-            // only change border
-            highlightBorderColor: '#B7B7B7',
-            // show desired information in tooltip
-            popupTemplate: function(geo, data) {
-                // don't show tooltip if country don't present in dataset
-                if (!data) { return ; }
-                // tooltip content
-                return ['<div class="hoverinfo">',
-                    '<strong>', geo.properties.name, '</strong>',
-                    '<br>Count: <strong>', data.numberOfThings, '</strong>',
-                    '</div>'].join('');
-            }
-        }
-    });
-</script>
+<script src="{% static 'graph_creator/worldmap.js' %}"></script>
 
 </body>
 </html>
