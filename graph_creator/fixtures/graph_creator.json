@@ -68,7 +68,7 @@
       "platform_url": null,
       "secret_token": "platform4",
       "statistics_level": "1",
-      "students_per_country": "{\"US\": 4312, \"AS\": 1003, \"UA\": 1023, \"null\": 1}"
+      "students_per_country": "{\"US\": 4312, \"FR\": 1003, \"UA\": 1023, \"null\": 1}"
     }
   },
     {
@@ -86,7 +86,7 @@
       "platform_url": null,
       "secret_token": "platform5",
       "statistics_level": "1",
-      "students_per_country": "{\"RS\": 1241, \"AS\": 1030, \"UA\": 10200, \"null\": 1}"
+      "students_per_country": "{\"RU\": 1241, \"GR\": 10330, \"UA\": 10200, \"null\": 32}"
     }
   },
   {
@@ -140,7 +140,43 @@
       "platform_url": null,
       "secret_token": "platform3",
       "statistics_level": "1",
-      "students_per_country": "{\"RS\": 1765, \"DE\": 10034, \"FR\": 10003, \"null\": 1}"
+      "students_per_country": "{\"RU\": 1765, \"DE\": 10034, \"FR\": 10003, \"null\": 1}"
+    }
+  },
+  {
+    "model": "graph_creator.datastorage",
+    "pk": 9,
+    "fields": {
+      "active_students_amount_day": 31675,
+      "active_students_amount_week": 26332,
+      "active_students_amount_month": 98432,
+      "courses_amount": 180,
+      "data_update": "2017-05-15T18:08:19Z",
+      "latitude": 1.0,
+      "longitude": 1.0,
+      "platform_name": null,
+      "platform_url": null,
+      "secret_token": "platform2",
+      "statistics_level": "1",
+      "students_per_country": "{\"RU\": 22312, \"FR\": 3602, \"UA\": 1320, \"null\": 1}"
+    }
+  },
+  {
+    "model": "graph_creator.datastorage",
+    "pk": 19,
+    "fields": {
+      "active_students_amount_day": 14623,
+      "active_students_amount_week": 23624,
+      "active_students_amount_month": 67123,
+      "courses_amount": 190,
+      "data_update": "2017-05-15T07:08:19Z",
+      "latitude": 1.0,
+      "longitude": 1.0,
+      "platform_name": null,
+      "platform_url": null,
+      "secret_token": "platform3",
+      "statistics_level": "1",
+      "students_per_country": "{\"RU\": 4523, \"DE\": 10034, \"FR\": 203, \"null\": 1}"
     }
   }
 ]
