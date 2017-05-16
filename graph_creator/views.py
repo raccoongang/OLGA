@@ -69,7 +69,9 @@ class MapView(View):
 
         context = {
             'datamap_countries_list': json.dumps(datamap_format_countries_list),
-            'tabular_countries_list': tabular_format_countries_list
+            'tabular_countries_list': tabular_format_countries_list,
+            'top_country': tabular_format_countries_list[0][0],
+            'countries_amount': len(tabular_format_countries_list)
         }
 
         return render(request, 'graph_creator/worldmap.html', context)

@@ -8,6 +8,11 @@ html, body, #map {
 }
 
 /*Navigation bar*/
+
+.nav-link {
+    font-size: 25px;
+}
+
 .navbar .navbar-nav {
     display: inline-block;
     float: none;
@@ -35,7 +40,8 @@ html, body, #map {
 }
 
 #container1 {
-    /*border:1px solid #101010;*/
+    border: 1px solid rgb(221, 221, 221);
+    border-radius: 4px;
     width: 1400px;
     height: 650px;
 }
@@ -52,11 +58,7 @@ html, body, #map {
     justify-content: center;
 }
 
-.metric-1 {
-    margin: auto;
-}
-
-.metric-2 {
+.metric {
     margin: auto;
 }
 
@@ -71,4 +73,11 @@ html, body, #map {
 
 .table>tbody>tr>td {
     text-align: center;
+}
+
+/*Charts*/
+.charts-header {
+    text-align: center;
+    margin-top: 24px;
+    margin-bottom: 0;
 }

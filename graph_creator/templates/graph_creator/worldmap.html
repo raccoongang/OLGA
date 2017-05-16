@@ -1,82 +1,76 @@
+{% extends 'graph_creator/base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html>
-<head>
+{% block head %}
     <style>
         .active { fill: blue !important;}
         /*.datamaps-key dt, .datamaps-key dd {float: none !important;}
         .datamaps-key {right: -50px; top: 0;}*/
     </style>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="{% static 'graph_creator/style.css' %}" />
-</head>
-<body>
+{% endblock %}
 
-<nav class="navbar navbar-inverse">
-    <div class="container-fluid">
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-            <ul class="nav navbar-nav">
-                <li><a href="{% url 'graph_creator:index' %}">Maps</a></li>
-            <li><a href="{% url 'graph_creator:graphs' %}">Graphics <span class="sr-only">(current)</span></a></li>
-          </ul>
-        </div>
+{% block body %}
+
+    <h4 class="map-header">Students per country statistics</h4>
+
+    <div class="container-fluid map-container">
+        <div id="container1"></div>
     </div>
-</nav>
 
-<h4 class="map-header">Students per country statistics</h4>
+    <h4 class="metrics-header">Enrollment Metrics</h4>
 
-<div class="container-fluid map-container">
-    <div id="container1"></div>
-</div>
-
-<h4 class="metrics-header">Metrics</h4>
-
-<div class="container metrics-container">
-    <div class="col-md-4">
-        <div class="row metric metric-1">
-            <div class="thumbnail">
-                <div class="caption">
-                    <h3>Metric 1</h3>
-                    <p>Some content</p>
+    <div class="container metrics-container">
+        <div class="col-md-4">
+            <div class="row metric">
+                <div class="thumbnail">
+                    <div class="caption">
+                        <h3>Top Country by Enrollment</h3>
+                        <p>{{ top_country }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="row metric">
+                <div class="thumbnail">
+                    <div class="caption">
+                        <h3>Countries in Statistics</h3>
+                        <p>{{ countries_amount }}</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="row metric metric-2">
-            <div class="thumbnail">
-                <div class="caption">
-                    <h3>Metric 2</h3>
-                    <p>Some content</p>
-                </div>
-            </div>
+
+    <h4 class="metrics-header">Students per country distribution</h4>
+
+    <div class="container">
+        <div class="table-responsive">
+            <table class="table">
+                <tr>
+                    <th>Country</th>
+                    <th>Students amount</th>
+                    <th>Students amount in %</th>
+                </tr>
+                    {% for country in tabular_countries_list %}
+                        <tr>
+                            <td>{{ country.0 }}</td>
+                            <td>{{ country.1 }}</td>
+                            <td>%</td>
+                        </tr>
+                    {% endfor %}
+            </table>
         </div>
     </div>
-</div>
+{% endblock %}
 
-<h4 class="metrics-header">Tabular view</h4>
-
-<div class="container">
-    <div class="table-responsive">
-        <table class="table">
-            <tr><th>Country</th><th>Students amount</th></tr>
-                {% for country in tabular_countries_list %}
-                    <tr><td>{{ country.0 }}</td><td>{{ country.1 }}</td></tr>
-                {% endfor %}
-        </table>
-    </div>
-</div>
-
-<script>
-    // Define JS global vars to work with external datamap.js file.
-    var countries_list = JSON.parse('{{ datamap_countries_list|safe }}');
-</script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-<script src="{% static 'graph_creator/datamaps.world.min.js' %}"></script>
-<script src="{% static 'graph_creator/worldmap.js' %}"></script>
-
-</body>
-</html>
+{% block script %}
+    <script>
+        // Define JS global vars to work with external datamap.js file.
+        var countries_list = JSON.parse('{{ datamap_countries_list|safe }}');
+    </script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
+    <script src="{% static 'graph_creator/datamaps.world.min.js' %}"></script>
+    <script src="{% static 'graph_creator/worldmap.js' %}"></script>
+{% endblock %}

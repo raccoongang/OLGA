@@ -1,26 +1,61 @@
+{% extends 'graph_creator/base.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
+{% block head %}
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-</head>
-<body>
-<script>
-    // Define JS global vars to work with external graph.js file.
-    var timeline = JSON.parse('{{ timeline|safe }}');
-    var students = JSON.parse('{{ students|safe }}');
-    var courses = JSON.parse('{{ courses|safe }}');
-    var instances = JSON.parse('{{ instances|safe }}');
-</script>
+{% endblock %}
 
-<h4>Instances: {{ instances_count }} Courses: {{ courses_count }} Students: {{ students_count }}</h4>
+{% block body %}
+    <script>
+        // Define JS global vars to work with external graph.js file.
+        var timeline = JSON.parse('{{ timeline|safe }}');
+        var students = JSON.parse('{{ students|safe }}');
+        var courses = JSON.parse('{{ courses|safe }}');
+        var instances = JSON.parse('{{ instances|safe }}');
+    </script>
 
-<div id="instances"></div>
-<div id="courses"></div>
-<div id="students"></div>
+    <h4 class="metrics-header">Metrics</h4>
 
-<script src="{% static 'graph_creator/graphs.js' %}"></script>
-</body>
-</html>
+    <div class="container metrics-container">
+        <div class="col-md-4">
+            <div class="row metric">
+                <div class="thumbnail">
+                    <div class="caption">
+                        <h3>Instances</h3>
+                        <p>{{ instances_count }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="row metric">
+                <div class="thumbnail">
+                    <div class="caption">
+                        <h3>Courses</h3>
+                        <p>{{ courses_count }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="row metric">
+                <div class="thumbnail">
+                    <div class="caption">
+                        <h3>Students</h3>
+                        <p>{{ students_count }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="charts-header">Charts</h4>
+
+    <div id="instances"></div>
+    <div id="courses"></div>
+    <div id="students"></div>
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'graph_creator/graphs.js' %}"></script>
+{% endblock %}
