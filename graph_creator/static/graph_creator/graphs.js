@@ -18,10 +18,10 @@ var instances_gd = instances_gd3.node();
 
 instances_layout = {
   xaxis: {
-    title: 'Instances'
+    title: 'Dates'
   },
   yaxis: {
-    title: 'Count'
+    title: 'Instances'
   }
 };
 
@@ -47,10 +47,10 @@ var courses_gd = courses_gd3.node();
 
 courses_layout = {
   xaxis: {
-    title: 'Courses'
+    title: 'Dates'
   },
   yaxis: {
-    title: 'Count'
+    title: 'Courses'
   }
 };
 
@@ -76,10 +76,10 @@ var students_gd = students_gd3.node();
 
 students_layout = {
   xaxis: {
-    title: 'Students'
+    title: 'Dates'
   },
   yaxis: {
-    title: 'Count'
+    title: 'Students'
   }
 };
 

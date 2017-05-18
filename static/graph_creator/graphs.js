@@ -2,40 +2,100 @@
 var d3 = Plotly.d3;
 
 var WIDTH_IN_PERCENT_OF_PARENT = 80,
-    HEIGHT_IN_PERCENT_OF_PARENT = 46;
+    HEIGHT_IN_PERCENT_OF_PARENT = 35;
 
-var gd3 = d3.select('#instances')
+// Instances
+var instances_gd3 = d3.select('#instances')
     .style({
         width: WIDTH_IN_PERCENT_OF_PARENT + '%',
         'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
 
         height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
-        'margin-top': (40 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
+        'margin-top': (35 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
     });
 
-var gd = gd3.node();
+var instances_gd = instances_gd3.node();
 
 instances_layout = {
   xaxis: {
-    title: 'Iourses'
+    title: 'Dates'
+  },
+  yaxis: {
+    title: 'Instances'
   }
 };
 
-Plotly.plot(gd, [
+Plotly.plot(instances_gd, [
   {
-    x: ['2018-05-07 12:16:00', '2018-05-08 12:16:00', '2018-05-09 12:16:00', '2018-05-10 12:16:00', '2018-05-11 12:16:00', '2018-05-12 12:16:00',
-        '2018-05-13 12:16:00', '2018-05-14 12:16:00', '2018-05-15 12:16:00', '2018-05-16 12:16:00', '2018-05-17 12:16:00', '2018-05-18 12:16:00',
-        '2018-05-18 12:16:00', '2018-05-19 12:16:00', '2018-05-20 12:16:00', '2018-05-21 12:16:00', '2018-05-22 12:16:00', '2018-05-22 12:16:00'
-    ],
-    y: [500, 389, 890, 654, 499,
-        487, 234, 874, 345, 543,
-        293, 942, 237, 214, 124],
+    x: timeline,
+    y: instances,
     type: 'scatter'
   }
 ], instances_layout, {displayModeBar: false});
 
+// Courses
+var courses_gd3 = d3.select('#courses')
+    .style({
+        width: WIDTH_IN_PERCENT_OF_PARENT + '%',
+        'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
+
+        height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
+        'margin-top': (35 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
+    });
+
+var courses_gd = courses_gd3.node();
+
+courses_layout = {
+  xaxis: {
+    title: 'Dates'
+  },
+  yaxis: {
+    title: 'Courses'
+  }
+};
+
+Plotly.plot(courses_gd, [
+  {
+    x: timeline,
+    y: courses,
+    type: 'scatter'
+  }
+], courses_layout, {displayModeBar: false});
+
+// Students
+var students_gd3 = d3.select('#students')
+    .style({
+        width: WIDTH_IN_PERCENT_OF_PARENT + '%',
+        'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
+
+        height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
+        'margin-top': (35 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
+    });
+
+var students_gd = students_gd3.node();
+
+students_layout = {
+  xaxis: {
+    title: 'Dates'
+  },
+  yaxis: {
+    title: 'Students'
+  }
+};
+
+Plotly.plot(students_gd, [
+  {
+    x: timeline,
+    y: students,
+    type: 'scatter'
+  }
+], students_layout, {displayModeBar: false});
+
+// Resize
 window.onresize = function() {
-    Plotly.Plots.resize(gd);
+    Plotly.Plots.resize(instances_gd);
+    Plotly.Plots.resize(courses_gd);
+    Plotly.Plots.resize(students_gd);
 };
 
 })();
