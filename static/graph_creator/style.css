@@ -56,6 +56,7 @@ html, body, #map {
 .metrics-container {
     display: flex;
     justify-content: center;
+    margin-top: 30px;
 }
 
 .metric {
@@ -73,11 +74,4 @@ html, body, #map {
 
 .table>tbody>tr>td {
     text-align: center;
-}
-
-/*Charts*/
-.charts-header {
-    text-align: center;
-    margin-top: 24px;
-    margin-bottom: 0;
 }
