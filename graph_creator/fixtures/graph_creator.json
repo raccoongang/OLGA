@@ -14,7 +14,7 @@
       "platform_url": null,
       "secret_token": "platform1",
       "statistics_level": "1",
-      "students_per_country": "{\"RU\": 1000, \"AS\": 1000, \"UA\": 1000, \"null\": 1}"
+      "students_per_country": "{\"RU\": 2632, \"CA\": 18543, \"UA\": 2011, \"null\": 1}"
     }
   },
   {
@@ -32,7 +32,7 @@
       "platform_url": null,
       "secret_token": "platform2",
       "statistics_level": "1",
-      "students_per_country": "{\"RU\": 1200, \"AS\": 1300, \"UA\": 1400, \"null\": 1}"
+      "students_per_country": "{\"FR\": 5412, \"DE\": 4560, \"UA\": 7830, \"null\": 1}"
     }
   },
     {
@@ -43,14 +43,14 @@
       "active_students_amount_week": 16324,
       "active_students_amount_month": 45753,
       "courses_amount": 91,
-      "data_update": "2017-01-20T07:08:19Z",
+      "data_update": "2017-02-11T07:08:19Z",
       "latitude": 1.0,
       "longitude": 1.0,
       "platform_name": null,
       "platform_url": null,
       "secret_token": "platform3",
       "statistics_level": "1",
-      "students_per_country": "{\"RU\": 1553, \"AS\": 1003, \"UA\": 1860, \"null\": 1}"
+      "students_per_country": "{\"IT\": 6423, \"PL\": 4535, \"PT\": 11860, \"null\": 1}"
     }
   },
   {
@@ -61,14 +61,14 @@
       "active_students_amount_week": 16324,
       "active_students_amount_month": 41323,
       "courses_amount": 115,
-      "data_update": "2017-05-14T07:08:19Z",
+      "data_update": "2017-02-28T07:08:19Z",
       "latitude": 1.0,
       "longitude": 1.0,
       "platform_name": null,
       "platform_url": null,
       "secret_token": "platform4",
       "statistics_level": "1",
-      "students_per_country": "{\"US\": 4312, \"FR\": 1003, \"UA\": 1023, \"null\": 1}"
+      "students_per_country": "{\"SZ\": 4312, \"FR\": 3461, \"US\": 2415, \"null\": 1}"
     }
   },
     {
@@ -79,14 +79,14 @@
       "active_students_amount_week": 21434,
       "active_students_amount_month": 51232,
       "courses_amount": 152,
-      "data_update": "2017-05-14T07:08:19Z",
+      "data_update": "2017-03-01T07:08:19Z",
       "latitude": 1.0,
       "longitude": 1.0,
       "platform_name": null,
       "platform_url": null,
       "secret_token": "platform5",
       "statistics_level": "1",
-      "students_per_country": "{\"RU\": 1241, \"GR\": 10330, \"UA\": 10200, \"null\": 32}"
+      "students_per_country": "{\"ES\": 1241, \"SZ\": 2145, \"US\": 6443, \"null\": 32}"
     }
   },
   {
@@ -97,14 +97,14 @@
       "active_students_amount_week": 221434,
       "active_students_amount_month": 49232,
       "courses_amount": 132,
-      "data_update": "2017-05-13T07:08:19Z",
+      "data_update": "2017-03-26T07:08:19Z",
       "latitude": 1.0,
       "longitude": 1.0,
       "platform_name": null,
       "platform_url": null,
-      "secret_token": "platform1",
+      "secret_token": "platform6",
       "statistics_level": "1",
-      "students_per_country": "{\"RU\": 4621, \"AS\": 1002, \"US\": 1032, \"null\": 1}"
+      "students_per_country": "{\"PL\": 4621, \"AS\": 1002, \"US\": 1032, \"null\": 1}"
     }
   },
     {
@@ -115,14 +115,14 @@
       "active_students_amount_week": 27332,
       "active_students_amount_month": 78432,
       "courses_amount": 180,
-      "data_update": "2017-05-11T18:08:19Z",
+      "data_update": "2017-04-03T18:08:19Z",
       "latitude": 1.0,
       "longitude": 1.0,
       "platform_name": null,
       "platform_url": null,
-      "secret_token": "platform2",
+      "secret_token": "platform7",
       "statistics_level": "1",
-      "students_per_country": "{\"RU\": 22312, \"FR\": 1002, \"UA\": 1300, \"null\": 1}"
+      "students_per_country": "{\"IL\": 213, \"FR\": 422, \"UA\": 1242, \"null\": 1}"
     }
   },
   {
@@ -133,14 +133,14 @@
       "active_students_amount_week": 29634,
       "active_students_amount_month": 75123,
       "courses_amount": 190,
-      "data_update": "2017-05-13T07:08:19Z",
+      "data_update": "2017-04-23T07:08:19Z",
       "latitude": 1.0,
       "longitude": 1.0,
       "platform_name": null,
       "platform_url": null,
       "secret_token": "platform3",
       "statistics_level": "1",
-      "students_per_country": "{\"RU\": 1765, \"DE\": 10034, \"FR\": 10003, \"null\": 1}"
+      "students_per_country": "{\"IT\": 12341, \"DE\": 1244, \"FR\": 5453, \"null\": 1}"
     }
   },
   {
@@ -151,14 +151,14 @@
       "active_students_amount_week": 26332,
       "active_students_amount_month": 98432,
       "courses_amount": 180,
-      "data_update": "2017-05-15T18:08:19Z",
+      "data_update": "2017-05-16T18:08:19Z",
       "latitude": 1.0,
       "longitude": 1.0,
       "platform_name": null,
       "platform_url": null,
       "secret_token": "platform2",
       "statistics_level": "1",
-      "students_per_country": "{\"RU\": 22312, \"FR\": 3602, \"UA\": 1320, \"null\": 1}"
+      "students_per_country": "{\"JP\": 3412, \"FR\": 3602, \"CA\": 1320, \"null\": 1}"
     }
   },
   {
@@ -169,14 +169,14 @@
       "active_students_amount_week": 23624,
       "active_students_amount_month": 67123,
       "courses_amount": 190,
-      "data_update": "2017-05-15T07:08:19Z",
+      "data_update": "2017-05-16T07:08:19Z",
       "latitude": 1.0,
       "longitude": 1.0,
       "platform_name": null,
       "platform_url": null,
       "secret_token": "platform3",
       "statistics_level": "1",
-      "students_per_country": "{\"RU\": 4523, \"DE\": 10034, \"FR\": 203, \"null\": 1}"
+      "students_per_country": "{\"FR\": 5232, \"DE\": 4251, \"FR\": 3422, \"null\": 1}"
     }
   }
 ]

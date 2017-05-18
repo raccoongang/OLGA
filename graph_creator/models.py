@@ -60,14 +60,15 @@ class DataStorage(models.Model):
         We suppose, that every instance send data only once per day.
 
         Future: add weeks, month for dynamic range on plots.
-
-        PostgreSQL: extra(select = {"month": '''DATE_TRUNC('month', creation_date)'''}) 
-        SQlite3: extra(select={'date': 'django_date_trunc("day", "testapp_log"."datetime")'})
         """
 
-        subquery = cls.objects.order_by('data_update').annotate(
+        subquery = cls.objects.annotate(
             date_in_days=Trunc('data_update', 'day', output_field=DateField())
-        ).values('date_in_days')
+        ).values('date_in_days').order_by()
+
+        #last order_by() is needed:
+        #http://chase-seibert.github.io/blog/2012/02/24/django-aggregation-group-by-day.html
+        #https://docs.djangoproject.com/en/dev/topics/db/aggregation/#interaction-with-default-ordering-or-order-by
 
         students_per_day = subquery.annotate(
             students=Sum('active_students_amount_day')

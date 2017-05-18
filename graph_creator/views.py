@@ -1,3 +1,4 @@
+from __future__ import division
 import uuid
 import json
 
@@ -46,10 +47,9 @@ class IndexView(View):
 class MapView(View):
     def get(self, request, *args, **kwargs):
         worlds_students_per_country = DataStorage.worlds_students_per_country_statistics()
-
         datamap_format_countries_list = []
         tabular_format_countries_list = []
-
+        all_active_students = sum(worlds_students_per_country.itervalues())
         for country, count in worlds_students_per_country.iteritems():
             if country != 'null':
                 # Make data to datamap visualization format
@@ -58,18 +58,19 @@ class MapView(View):
                 ])
                 # Make data to simple table visualization format
                 tabular_format_countries_list.append((
-                    pycountry.countries.get(alpha_2=country).name, count
+                    pycountry.countries.get(alpha_2=country).name, count, format(count/all_active_students*100, '.2f')
                 ))
             else:
                 # Create students without country amount
                 tabular_format_countries_list.append(('Unset', count))
-
         # Sort in descending order
         tabular_format_countries_list.sort(key=lambda row: row[1], reverse=True)
 
         context = {
             'datamap_countries_list': json.dumps(datamap_format_countries_list),
-            'tabular_countries_list': tabular_format_countries_list
+            'tabular_countries_list': tabular_format_countries_list,
+            'top_country': tabular_format_countries_list[0][0],
+            'countries_amount': len(tabular_format_countries_list)
         }
 
         return render(request, 'graph_creator/worldmap.html', context)

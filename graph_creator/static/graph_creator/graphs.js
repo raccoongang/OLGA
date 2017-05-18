@@ -18,10 +18,7 @@ var instances_gd = instances_gd3.node();
 
 instances_layout = {
   xaxis: {
-    title: 'Instances'
-  },
-  yaxis: {
-    title: 'Count'
+    title: 'Active Instances'
   }
 };
 
@@ -47,10 +44,7 @@ var courses_gd = courses_gd3.node();
 
 courses_layout = {
   xaxis: {
-    title: 'Courses'
-  },
-  yaxis: {
-    title: 'Count'
+    title: 'Active Courses'
   }
 };
 
@@ -76,10 +70,7 @@ var students_gd = students_gd3.node();
 
 students_layout = {
   xaxis: {
-    title: 'Students'
-  },
-  yaxis: {
-    title: 'Count'
+    title: 'Active Students'
   }
 };
 
