@@ -11,8 +11,11 @@ from django.db.models import Sum, Count, DateField
 from django.db.models.functions import Trunc
 
 
-def get_previous_day_start_and_end_dates():
-    current_datetime = datetime.datetime.today() - datetime.timedelta(days=1)
+def get_previous_day_start_and_end_dates(backtrack=1):
+    """
+    Get start and end of day from backtrack days ago.
+    """
+    current_datetime = datetime.datetime.today() - datetime.timedelta(days=backtrack)
     start_of_day = current_datetime.replace(hour=0, minute=0, second=0, microsecond=0)
     end_of_day = current_datetime.replace(hour=23, minute=59, second=59, microsecond=59)
 
@@ -105,7 +108,7 @@ class DataStorage(models.Model):
             world_students_per_country (dict): Country-count accordance as pair of key-value.
         """
 
-        start_of_day, end_of_day = get_previous_day_start_and_end_dates()
+        start_of_day, end_of_day = get_previous_day_start_and_end_dates(backtrack=20)
 
         students_per_country_unicodes = list(cls.objects.filter(
             data_update__gt=start_of_day, data_update__lt=end_of_day
