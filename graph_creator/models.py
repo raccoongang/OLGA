@@ -108,7 +108,7 @@ class DataStorage(models.Model):
             world_students_per_country (dict): Country-count accordance as pair of key-value.
         """
 
-        start_of_day, end_of_day = get_previous_day_start_and_end_dates(backtrack=20)
+        start_of_day, end_of_day = get_previous_day_start_and_end_dates(backtrack=1)
 
         students_per_country_unicodes = list(cls.objects.filter(
             data_update__gt=start_of_day, data_update__lt=end_of_day
