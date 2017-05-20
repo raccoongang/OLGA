@@ -66,6 +66,10 @@ class MapView(View):
         # Sort in descending order
         tabular_format_countries_list.sort(key=lambda row: row[1], reverse=True)
 
+        # workaround when there is no data for the given day
+        if not tabular_format_countries_list:
+            tabular_format_countries_list.append(('Unset', 0))
+
         context = {
             'datamap_countries_list': json.dumps(datamap_format_countries_list),
             'tabular_countries_list': tabular_format_countries_list,
