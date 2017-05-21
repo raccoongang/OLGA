@@ -8,7 +8,6 @@ html, body, #map {
 }
 
 /*Navigation bar*/
-
 .nav-link {
     font-size: 25px;
 }
@@ -17,6 +16,18 @@ html, body, #map {
     display: inline-block;
     float: none;
     vertical-align: top;
+}
+
+.navbar .navbar-nav li {
+    border-bottom: solid #222 4px;
+}
+
+.navbar .navbar-nav li a {
+    color: #65bebb;
+}
+
+.navbar-inverse .navbar-nav>li>a:focus, .navbar-inverse .navbar-nav>li>a:hover {
+    color: #65bebb;
 }
 
 .navbar .navbar-collapse {
@@ -41,9 +52,13 @@ html, body, #map {
 
 #container1 {
     border: 1px solid rgb(221, 221, 221);
-    border-radius: 4px;
+    border-radius: 10px;
     width: 1400px;
     height: 650px;
+}
+
+.hidden {
+    visibility: hidden;
 }
 
 /*Metrics*/
@@ -56,7 +71,14 @@ html, body, #map {
 .metrics-container {
     display: flex;
     justify-content: center;
-    margin-top: 30px;
+}
+
+.metric-title {
+    font-size: 14px;
+}
+
+.metric-value {
+    font-size: 24px;
 }
 
 .metric {
@@ -65,6 +87,7 @@ html, body, #map {
 
 .thumbnail {
     text-align: center;
+    border-radius: 10px;
 }
 
 /*Tables*/
@@ -74,4 +97,19 @@ html, body, #map {
 
 .table>tbody>tr>td {
     text-align: center;
+}
+
+#table-header {
+    background: #65bebb;
+}
+
+.table-responsive {
+    border-radius: 10px;
+}
+
+/*Charts*/
+.charts-header {
+    text-align: center;
+    margin-top: 24px;
+    margin-bottom: 0;
 }

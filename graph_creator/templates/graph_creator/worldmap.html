@@ -11,21 +11,13 @@
 
 {% block body %}
 
-    <h4 class="map-header">Students per country statistics</h4>
-
-    <div class="container-fluid map-container">
-        <div id="container1"></div>
-    </div>
-
-    <h4 class="metrics-header">Enrollment Metrics</h4>
-
     <div class="container metrics-container">
         <div class="col-md-4">
             <div class="row metric">
                 <div class="thumbnail">
                     <div class="caption">
-                        <h3>Top Country by Enrollment</h3>
-                        <p>{{ top_country }}</p>
+                        <h3 class="metric-title">Top Country by Enrollment</h3>
+                        <p class="metric-value">{{ top_country }}</p>
                     </div>
                 </div>
             </div>
@@ -34,20 +26,24 @@
             <div class="row metric">
                 <div class="thumbnail">
                     <div class="caption">
-                        <h3>Countries in Statistics</h3>
-                        <p>{{ countries_amount }}</p>
+                        <h3 class="metric-title">Countries in Statistics</h3>
+                        <p class="metric-value">{{ countries_amount }}</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <h4 class="metrics-header">Students per country distribution</h4>
+    <div class="map-container">
+        <div id="container1"></div>
+    </div>
+
+    <br>
 
     <div class="container">
         <div class="table-responsive">
             <table class="table">
-                <tr>
+                <tr id="table-header">
                     <th>Country</th>
                     <th>Students amount</th>
                     <th>Students amount in %</th>
@@ -62,6 +58,8 @@
             </table>
         </div>
     </div>
+    {#for nav tabs#}
+    <div class="hidden">map-id</div>
 {% endblock %}
 
 {% block script %}
