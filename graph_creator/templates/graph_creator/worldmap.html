@@ -1,74 +1,214 @@
 {% extends 'graph_creator/base.html' %}
 {% load static %}
-
 {% block head %}
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <style>
         .active { fill: blue !important;}
         /*.datamaps-key dt, .datamaps-key dd {float: none !important;}
         .datamaps-key {right: -50px; top: 0;}*/
     </style>
+    <link rel="stylesheet" href="{% static 'graph_creator/custom.css' %}">
 {% endblock %}
 
 {% block body %}
+<div id="wrap-content-push-footer-sock">
+    <a id="skip" href="#content" class="skip-link">Skip to content</a>
 
-    <div class="container metrics-container">
-        <div class="col-md-4">
-            <div class="row metric">
-                <div class="thumbnail">
-                    <div class="caption">
-                        <h3 class="metric-title">Top Country by Enrollment</h3>
-                        <p class="metric-value">{{ top_country }}</p>
+<header class="navbar navbar-default" id="nav">
+  <div class="grid-container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-nav" role="tab" aria-selected="false" aria-expanded="false" id="ui-collapse-671">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+        <a class="navbar-brand" href="/" data-track-type="click" data-track-event="edx.bi.ui.menu.navigated" data-track-url="/" data-track-target-scope="insights" data-track-target-lens="home" data-track-menu-depth="home" data-track-link-name="logo">
+          <div class="navbar-brand-logo" alt="demo"></div>
+          <span class="navbar-brand-app">OLGA</span>
+        </a>
+      <ul class="nav navbar-nav">
+        <li>
+            <a href="#" id="olga-dates" class="navbar-link active-course-name">
+                Open edX Learners Global Analytics for YYYY-MM - YYYY-MM</a>
+        </li>
+      </ul>
+    </div>
+    <!-- / navbar-collapse -->
+  </div>
+  <!-- / container -->
+</header>
+<!-- / navbar -->
+
+
+{#NAVBAR#}
+<nav class="navbar navbar-default lens-nav" role="navigation" aria-label="Application">
+<div class="grid-container">
+  <ul class="nav navbar-nav">
+    <li class="dropdown">
+      <button class="dropdown-toggle navbar-link" data-toggle="dropdown" id="lensPrimaryMenu" aria-controls="lensDropdownMenu" aria-haspopup="true" aria-expanded="false">
+        <span class="link-label">
+          Engagement
+        </span>
+      </button>
+    </li>
+    <li class=" nav-section">
+    <a href="{% url 'graph_creator:charts' %}">
+        <span class="link-label">
+            Numbers
+        </span>
+    </a>
+    </li>
+    <li class="active nav-section">
+    <a href="{% url 'graph_creator:map' %}" >
+        <span class="link-label">
+            Geography
+            <span class="sr-only">(Active)</span>
+        </span>
+    </a>
+    </li>
+  </ul>
+</div>
+</nav>
+
+<div class="grid-container grid-manual">
+<div class="row">
+  <main class="col col-12 sm-col-12 main" id="content" aria-label="Application">
+    <div class="view-head"></div>
+    <div class="view-intro row">
+      <p class="lead text-muted intro-text"></p>
+    </div>
+
+{#METRICS#}
+<section class="view-section">
+    <div class="section-heading bordered">
+      <h4 class="section-title">Global Activity Metrics</h4>
+    </div>
+    <div class="row">
+      <div class="col col-12 sm-col-12 md-col-3" data-activity-type="any">
+        <div class="summary-point text-center">
+          <div class="summary-point-wrapper">
+            <div class="summary-point-number" title="{{ top_country }}">{{ top_country }}</div>
+            <div class="summary-point-label">Top Country by Enrollment</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col col-12 sm-col-12 md-col-3" data-activity-type="any">
+        <div class="summary-point text-center">
+          <div class="summary-point-wrapper">
+            <div class="summary-point-number" title="{{ countries_amount }}">{{ countries_amount }}</div>
+            <div class="summary-point-label">Countries in Statistics</div>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+  <section class="view-section" aria-hidden="false">
+    <div class="section-heading">
+      <h4 class="section-title">Global Learners Engagement</h4>
+      <span class="section-heading-note small">Where are our learners?</span>
+    </div>
+        <div class="section-content section-data-graph">
+          <div class="section-content section-data-viz">
+                <div class="analytics-chart-container">
+                    <div style="display: flex; height: 550px;align-items: center;justify-content: center;">
+                        <div id="container1" style="width: 800px; height: 550px"></div>
+
                     </div>
                 </div>
-            </div>
+          </div>
         </div>
-        <div class="col-md-4">
-            <div class="row metric">
-                <div class="thumbnail">
-                    <div class="caption">
-                        <h3 class="metric-title">Countries in Statistics</h3>
-                        <p class="metric-value">{{ countries_amount }}</p>
-                    </div>
-                </div>
-            </div>
+
+  </section>
+
+ {#TABLES#}
+  <section class="view-section">
+      <div class="section-heading">
+        <h4 class="section-title">Geographic Breakdown</h4>
+      </div>
+
+        <div class="section-content section-data-table" data-role="enrollment-location-table"><div class="table-responsive"><div id="DataTables_Table_0_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer"><div><div>
+          <table class="table table-striped dataTable no-footer" id="DataTables_Table_0" role="grid">
+          <thead>
+            <tr role="row">
+                <th class="" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Country or Region" role="columnheader" scope="col">Country or Region</th>
+                <th class="text-right " tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Percent" role="columnheader" scope="col">Percent</th>
+                <th class="text-right" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-sort="descending" aria-label="Current Enrollment" role="columnheader" scope="col">Active Students</th>
+            </tr>
+          </thead>
+            <tbody>
+                {% for country in tabular_countries_list %}
+                    <tr role="row" class="odd">
+                        <td role="gridcell">{{ country.0 }}</td><td class=" text-right" role="gridcell">{{ country.2 }}</td><td class="text-right sorting_1" role="gridcell">{{ country.1 }}</td>
+                    </tr>
+                {% endfor %}
+{#              <tr role="row" class="odd">#}
+{#                <td role="gridcell">{{ country.0 }}</td><td class=" text-right" role="gridcell">{{ country.2 }}</td><td class="text-right sorting_1" role="gridcell">{{ country.1 }}</td></tr>#}
+{#              <tr role="row" class="even">#}
+{#                <td role="gridcell">Russian Federation</td><td class=" text-right" role="gridcell">11.35%</td><td class="text-right sorting_1" role="gridcell">26320</td></tr>#}
+{#              <tr role="row" class="odd">#}
+{#                <td role="gridcell">Ukraine</td><td class=" text-right" role="gridcell">8.67%</td><td class="text-right sorting_1" role="gridcell">20110</td></tr>#}
+{#              <tr role="row" class="even">#}
+{#                <td role="gridcell">Unknown/Unset Country</td><td class=" text-right" role="gridcell">0.0%</td><td class="text-right sorting_1" role="gridcell">10</td></tr>#}
+            </tbody>
+        </table>
+
         </div>
-    </div>
-
-    <div class="map-container">
-        <div id="container1"></div>
-    </div>
-
-    <br>
-
-    <div class="container">
-        <div class="table-responsive">
-            <table class="table">
-                <tr id="table-header">
-                    <th>Country</th>
-                    <th>Students amount</th>
-                    <th>Students amount in %</th>
-                </tr>
-                    {% for country in tabular_countries_list %}
-                        <tr>
-                            <td>{{ country.0 }}</td>
-                            <td>{{ country.1 }}</td>
-                            <td>{{ country.2 }}</td>
-                        </tr>
-                    {% endfor %}
-            </table>
         </div>
+      </div></div></div>
+  </section>
+
+
+  <div class="data-update-message">Course engagement data was last updated May 20, 2017 at 00:15 UTC+2.</div>
+
+      </main>
+  </div>
+</div>
+
+    <!-- Placed at the end of the document so the pages load faster -->
+    <div id="footer-sock-push"></div>
+  </div>
+
+<div id="footer-sock">
+
+<footer class="footer" aria-label="Application">
+
+  <div class="feedback">
+    <div class="grid-container grid-manual">
+      <div class="row">
+        <div class="col col-12">This information is gathered in anonymous manner from volunteered Open edX instances. Thanks a lot for participation! <br/>Want to be a part of this? <a class="support-email" href="mailto:olga@raccoongang.com?Subject=Participation">Contact OLGA team</a>. <br/>Comments or suggestions? Email <a class="feedback-email" href="mailto:olga@raccoongang.com?Subject=Feedback">olga@raccoongang.com</a>.
+
+        </div>
+      </div>
     </div>
-    {#for nav tabs#}
-    <div class="hidden">map-id</div>
+  </div>
+
+  <div class="legal">
+    <div class="grid-container grid-manual">
+      <div class="row">
+        <div class="col col-12 sm-col-12 md-col-6"></div>
+        <div class="col col-12 sm-col-12 md-col-6 text-right">
+          <p class="copyright">by Raccoon Gang, 2017</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+</div>
 {% endblock %}
 
 {% block script %}
-    <script>
+<script>
         // Define JS global vars to work with external datamap.js file.
         var countries_list = JSON.parse('{{ datamap_countries_list|safe }}');
     </script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.8/datamaps.all.js"></script>
     <script src="{% static 'graph_creator/datamaps.world.min.js' %}"></script>
     <script src="{% static 'graph_creator/worldmap.js' %}"></script>
+    <span class="gr__tooltip"><span class="gr__tooltip-content"></span><i class="gr__tooltip-logo"></i><span class="gr__triangle"></span></span><div class="nvtooltip xy-tooltip" id="nvtooltip-69536" style="top: 0px; left: 0px; opacity: 0; position: fixed; transform: translate(1007px, 383px) !important;"><table><thead><tr><td colspan="3"><strong class="x-value">Week Ending 9 Apr 2017</strong></td></tr></thead><tbody><tr><td class="legend-color-guide"><div style="background-color: rgb(141, 160, 203);"></div></td><td class="key">Active Learners</td><td class="value">1</td></tr><tr><td class="legend-color-guide"><div style="background-color: rgb(102, 194, 165);"></div></td><td class="key">Watched a Video</td><td class="value">0</td></tr><tr><td class="legend-color-guide"><div style="background-color: rgb(252, 141, 98);"></div></td><td class="key">Tried a Problem</td><td class="value">0</td></tr><tr><td class="legend-color-guide"><div style="background-color: rgb(231, 138, 195);"></div></td><td class="key">Participated in Discussions</td><td class="value">0</td></tr></tbody></table></div></html>
 {% endblock %}
