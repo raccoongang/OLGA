@@ -14,3 +14,12 @@
 #olga-dates {
     padding-top: 35px;
 }
+
+#footer-text {
+    width: 100%;
+    text-align: center;
+}
+
+div#container1 {
+    position: relative;
+}
