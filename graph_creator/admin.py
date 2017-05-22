@@ -1,3 +1,7 @@
+"""
+Django admin page for graph_creator application.
+"""
+
 from django.contrib import admin
 from .models import DataStorage
 

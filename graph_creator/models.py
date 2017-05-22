@@ -3,6 +3,7 @@ Models used to store and operate all data received from the edx platform.
 """
 
 from __future__ import unicode_literals
+from collections import defaultdict
 import datetime
 import json
 
@@ -11,13 +12,18 @@ from django.db.models import Sum, Count, DateField
 from django.db.models.functions import Trunc
 
 
-def get_previous_day_start_and_end_dates(backtrack=1):
+def get_previous_day_start_and_end_dates():  # pylint: disable=invalid-name
     """
-    Get start and end of day from backtrack days ago.
+    Get accurate start and end dates, that create segment between them equal to a full last calendar day.
+
+    Returns:
+        start_of_day (date): Previous day`s start. Example for 2017-05-15 is 2017-05-15.
+        end_of_day (date): Previous day`s end, it`s a next day (tomorrow) toward day`s start,
+                           that doesn't count in segment. Example for 2017-05-15 is 2017-05-16.
     """
-    current_datetime = datetime.datetime.today() - datetime.timedelta(days=backtrack)
-    start_of_day = current_datetime.replace(hour=0, minute=0, second=0, microsecond=0)
-    end_of_day = current_datetime.replace(hour=23, minute=59, second=59, microsecond=59)
+
+    end_of_day = datetime.date.today()
+    start_of_day = end_of_day - datetime.timedelta(days=1)
 
     return start_of_day, end_of_day
 
@@ -47,11 +53,10 @@ class DataStorage(models.Model):
 
         Future: add weeks, or month for dynamic range on plots.
         """
-        timeline_datetimes = cls.objects.order_by(
-            'data_update'
-        ).values_list('data_update', flat=True).distinct()
 
+        timeline_datetimes = cls.objects.order_by('data_update').values_list('data_update', flat=True).distinct()
         timeline_dates = [x.date().strftime('%Y-%m-%d') for x in timeline_datetimes]
+
         return timeline_dates
 
     @classmethod
@@ -69,9 +74,9 @@ class DataStorage(models.Model):
             date_in_days=Trunc('data_update', 'day', output_field=DateField())
         ).values('date_in_days').order_by()
 
-        #last order_by() is needed:
-        #http://chase-seibert.github.io/blog/2012/02/24/django-aggregation-group-by-day.html
-        #https://docs.djangoproject.com/en/dev/topics/db/aggregation/#interaction-with-default-ordering-or-order-by
+        # last order_by() is needed:
+        # http://chase-seibert.github.io/blog/2012/02/24/django-aggregation-group-by-day.html
+        # https://docs.djangoproject.com/en/dev/topics/db/aggregation/#interaction-with-default-ordering-or-order-by
 
         students_per_day = subquery.annotate(
             students=Sum('active_students_amount_day')
@@ -90,7 +95,7 @@ class DataStorage(models.Model):
 
         start_of_day, end_of_day = get_previous_day_start_and_end_dates()
 
-        all_unique_instances = DataStorage.objects.filter(data_update__gt=start_of_day, data_update__lt=end_of_day)
+        all_unique_instances = DataStorage.objects.filter(data_update__gte=start_of_day, data_update__lt=end_of_day)
 
         instances_count = all_unique_instances.count()
         courses_count = all_unique_instances.aggregate(Sum('courses_amount'))['courses_amount__sum']
@@ -100,7 +105,7 @@ class DataStorage(models.Model):
         return instances_count, courses_count, students_count
 
     @classmethod
-    def worlds_students_per_country_statistics(cls):
+    def worlds_students_per_country_statistics(cls):  # pylint: disable=invalid-name
         """
         Total of students amount per country to display on world map from all instances per previous calendar day.
 
@@ -108,23 +113,21 @@ class DataStorage(models.Model):
             world_students_per_country (dict): Country-count accordance as pair of key-value.
         """
 
-        start_of_day, end_of_day = get_previous_day_start_and_end_dates(backtrack=20)
+        start_of_day, end_of_day = get_previous_day_start_and_end_dates()
 
-        students_per_country_unicodes = list(cls.objects.filter(
-            data_update__gt=start_of_day, data_update__lt=end_of_day
-        ).values_list('students_per_country', flat=True))
+        # Get list of instances`s students per country data as unicode strings.
+        students_per_country = cls.objects.filter(
+            data_update__gte=start_of_day, data_update__lt=end_of_day
+        ).values_list('students_per_country', flat=True)
 
-        students_per_country_dicts = [json.loads(
-            students_per_country_unicodes[instance]) for instance in range(len(students_per_country_unicodes))
-        ]
+        # Convert unicode strings into native dictionaries.
+        students_per_country = [json.loads(students_per_country[instance_students]) for instance_students
+                                in range(len(students_per_country))]
 
-        world_students_per_country = {}
+        world_students_per_country = defaultdict(int)
 
-        for instance in students_per_country_dicts:
-            for country, count in instance.iteritems():
-                if country in world_students_per_country:
-                    world_students_per_country[country] += count
-                else:
-                    world_students_per_country[country] = count
+        for instance_students in students_per_country:
+            for country, count in instance_students.iteritems():
+                world_students_per_country[country] += count
 
-        return world_students_per_country
+        return dict(world_students_per_country.items())
