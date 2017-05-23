@@ -14,6 +14,35 @@
 </head>
 
 <body class="view-course-engagement view-dashboard" data-gr-c-s-loaded="true">
+
+    <header class="navbar navbar-default" id="nav">
+      <div class="grid-container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-nav" role="tab" aria-selected="false" aria-expanded="false" id="ui-collapse-671">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+
+            <a class="navbar-brand" href="/" data-track-type="click" data-track-event="edx.bi.ui.menu.navigated" data-track-url="/" data-track-target-scope="insights" data-track-target-lens="home" data-track-menu-depth="home" data-track-link-name="logo">
+              <div class="navbar-brand-logo" alt="demo"></div>
+              <span class="navbar-brand-app">OLGA</span>
+            </a>
+
+            <ul class="nav navbar-nav">
+            <li>
+                <a href="#" id="olga-dates" class="navbar-link active-course-name">
+                    Open edX Learners Global Analytics for {{ first_datetime_of_update_data|date:"Y-m" }} — {{ last_datetime_of_update_data|date:"Y-m" }}</a>
+            </li>
+            </ul>
+        </div>
+        <!-- / navbar-collapse -->
+      </div>
+      <!-- / container -->
+    </header>
+    <!-- / navbar -->
+
     {% block body %}
     {% endblock %}
     <script
