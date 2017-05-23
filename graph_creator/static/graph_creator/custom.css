@@ -1,3 +1,17 @@
+.navbar-brand .navbar-brand-logo {
+    display:inline-block;
+    vertical-align:middle;
+    margin-right:10px;
+    background:url('/static/graph_creator/olga_logo.svg') no-repeat;
+    background-size:contain;
+    width:158.24176px;
+    height:54px;
+}
+
+.navbar-brand .navbar-brand-app {
+    padding-top:8px;
+}
+
 .navbar-default .navbar-brand {
     display: flex;
     align-items: center;
