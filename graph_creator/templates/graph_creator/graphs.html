@@ -1,8 +1,8 @@
 {% extends 'graph_creator/base.html' %}
 {% load static %}
-
 {% block head %}
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="stylesheet" href="{% static 'graph_creator/custom.css' %}">
 {% endblock %}
 
 {% block body %}
@@ -14,46 +14,173 @@
         var instances = JSON.parse('{{ instances|safe }}');
     </script>
 
-    <div class="container metrics-container">
-        <div class="col-md-4">
-            <div class="row metric">
-                <div class="thumbnail">
-                    <div class="caption">
-                        <h3 class="metric-title">Instances</h3>
-                        <p class="metric-value">{{ instances_count }}</p>
-                    </div>
+<div id="wrap-content-push-footer-sock">
+    <a id="skip" href="#content" class="skip-link">Skip to content</a>
+
+<header class="navbar navbar-default" id="nav">
+  <div class="grid-container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-nav" role="tab" aria-selected="false" aria-expanded="false" id="ui-collapse-671">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+
+        <a class="navbar-brand" href="/" data-track-type="click" data-track-event="edx.bi.ui.menu.navigated" data-track-url="/" data-track-target-scope="insights" data-track-target-lens="home" data-track-menu-depth="home" data-track-link-name="logo">
+          <div class="navbar-brand-logo" alt="demo"></div>
+          <span class="navbar-brand-app">OLGA</span>
+        </a>
+
+        <ul class="nav navbar-nav">
+        <li>
+            <a href="#" id="olga-dates" class="navbar-link active-course-name">
+                Open edX Learners Global Analytics for YYYY-MM - YYYY-MM</a>
+        </li>
+        </ul>
+    </div>
+    <!-- / navbar-collapse -->
+  </div>
+  <!-- / container -->
+</header>
+<!-- / navbar -->
+
+
+{#NAVBAR#}
+<nav class="navbar navbar-default lens-nav" role="navigation" aria-label="Application">
+    <div class="grid-container">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+          <button class="dropdown-toggle navbar-link" data-toggle="dropdown" id="lensPrimaryMenu" aria-controls="lensDropdownMenu" aria-haspopup="true" aria-expanded="false">
+            <span class="link-label">
+              Engagement
+            </span>
+          </button>
+        </li>
+        <li class="active nav-section">
+            <a href="{% url 'graph_creator:charts' %}" data-track-type="click" data-track-event="edx.bi.ui.menu.navigated" data-track-text="Content" data-track-url="#" data-track-target-scope="course" data-track-target-lens="engagement" data-track-target-report="content" data-track-target-depth="" data-track-menu-depth="report" data-track-link-name="content">
+                <span class="link-label">
+                    Numbers
+                        <span class="sr-only">(Active)</span>
+                </span>
+            </a>
+        </li>
+        <li class=" nav-section">
+            <a href="{% url 'graph_creator:map' %}" data-track-type="click" data-track-event="edx.bi.ui.menu.navigated" data-track-text="Videos" data-track-url="/courses/course-v1:Raccoon_Gang+04+2017/engagement/videos/" data-track-target-scope="course" data-track-target-lens="engagement" data-track-target-report="videos" data-track-target-depth="" data-track-menu-depth="report" data-track-link-name="videos">
+                <span class="link-label">
+                    Geography
+
+                </span>
+            </a>
+        </li>
+      </ul>
+    </div>
+</nav>
+
+<div class="grid-container grid-manual">
+  <div class="row">
+      <main class="col col-12 sm-col-12 main" id="content" aria-label="Application">
+          <div class="view-head"></div>
+              <div class="view-intro row">
+              <p class="lead text-muted intro-text"></p>
+          </div>
+
+{#METRICS#}
+<section class="view-section">
+    <div class="section-heading bordered">
+        <h4 class="section-title">Global Activity Metrics</h4>
+    </div>
+    <div class="row">
+        <div class="col col-12 sm-col-12 md-col-3" data-activity-type="any">
+            <div class="summary-point text-center">
+                <div class="summary-point-wrapper">
+                    <div class="summary-point-number" title="{{ instances_count }}">{{ instances_count }}</div>
+                    <div class="summary-point-label">Instances</div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="row metric">
-                <div class="thumbnail">
-                    <div class="caption">
-                        <h3 class="metric-title" >Courses</h3>
-                        <p class="metric-value">{{ courses_count }}</p>
-                    </div>
+        <div class="col col-12 sm-col-12 md-col-3" data-activity-type="any">
+            <div class="summary-point text-center">
+                <div class="summary-point-wrapper">
+                    <div class="summary-point-number" title="{{ courses_count }}">{{ courses_count }}</div>
+                    <div class="summary-point-label">Courses</div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="row metric">
-                <div class="thumbnail">
-                    <div class="caption">
-                        <h3 class="metric-title">Students</h3>
-                        <p class="metric-value">{{ students_count }}</p>
+        <div class="col col-12 sm-col-12 md-col-3" data-activity-type="any">
+            <div class="summary-point text-center">
+                <div class="summary-point-wrapper">
+                    <div class="summary-point-number" title="{{ students_count }}">{{ students_count }}</div>
+                    <div class="summary-point-label">Active Students</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{#CHARTS#}
+<section class="view-section" aria-hidden="true">
+    <div class="section-heading">
+      <h4 class="section-title">Global Learners Engagement</h4>
+      <span class="section-heading-note small">How many learners are interacting with Open edX courses?</span>
+    </div>
+    <div class="section-content section-data-graph">
+        <div class="section-content section-data-viz">
+            <div class="analytics-chart-container">
+{#                <div class="chart-info">Learners</div>#}
+                <div >
+                    <div>
+                        <div id="instances"></div>
+                        <div id="courses"></div>
+                        <div id="students"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</section>
 
-    <div id="instances"></div>
-    <div id="courses"></div>
-    <div id="students"></div>
-    {#for nav tabs#}
-    <div class="hidden">graphs-id</div>
+{#UPDATE TIME#}
+<div class="data-update-message">Course engagement data was last updated May 20, 2017 at 00:15 UTC+2.</div>
+
+        </main>
+    </div>
+</div>
+
+<!-- Placed at the end of the document so the pages load faster -->
+<div id="footer-sock-push"></div>
+</div>
+
+{#FOOTER#}
+<div id="footer-sock">
+    <footer class="footer" aria-label="Application">
+    <div class="feedback">
+    <div class="grid-container grid-manual">
+      <div class="row">
+        <div class="col col-12">This information is gathered in anonymous manner from volunteered Open edX instances. Thanks a lot for participation! <br/>Want to be a part of this?
+            <a class="support-email" href="mailto:olga@raccoongang.com?Subject=Participation">Contact OLGA team</a>.<br/>
+            Comments or suggestions? Email <a class="feedback-email" href="mailto:olga@raccoongang.com?Subject=Feedback">olga@raccoongang.com</a>.
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <div class="legal">
+    <div class="grid-container grid-manual">
+      <div class="row">
+{#        <div class="col col-12 sm-col-12 md-col-6">#}
+{#            &nbsp;#}
+{#        </div>#}
+        <div id="footer-text" class="col col-12 sm-col-12 md-col-6 text-right">
+            <p class="copyright">by Raccoon Gang, 2017</p>
+        </div>
+      </div>
+    </div>
+</div>
+</footer>
+</div>
 {% endblock %}
 
 {% block script %}
     <script src="{% static 'graph_creator/graphs.js' %}"></script>
-{% endblock %}
+{% endblock %} }}

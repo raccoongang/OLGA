@@ -1,0 +1,25 @@
+.navbar-default .navbar-brand {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand .navbar-brand-logo {
+    margin-top: 10px;
+}
+
+.navbar-brand .navbar-brand-app {
+    padding-top: 0;
+}
+
+#olga-dates {
+    padding-top: 35px;
+}
+
+#footer-text {
+    width: 100%;
+    text-align: center;
+}
+
+div#container1 {
+    position: relative;
+}

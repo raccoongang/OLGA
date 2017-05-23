@@ -54,4 +54,11 @@
             }
         }
     });
+
+// Instances
+d3.select('svg')
+    .style({
+        width: $(this).parent().width(),
+        height: $(this).parent().height()
+    });
 }());
