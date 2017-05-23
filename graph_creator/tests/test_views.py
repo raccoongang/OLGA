@@ -3,6 +3,7 @@
 Tests for graph_creator application views.
 """
 
+# pylint: disable-all
 
 from ddt import ddt, data, unpack
 

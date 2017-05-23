@@ -1,3 +1,7 @@
+"""
+Views for the graph_creator application.
+"""
+
 from __future__ import division
 import uuid
 import json
@@ -14,35 +18,55 @@ from django.utils.decorators import method_decorator
 
 from .models import DataStorage
 
-
 HTTP_201_CREATED = 201
 
 
 class MapView(View):
-    def get(self, request, *args, **kwargs):
+    """
+    Displays information on a world map and tabular view.
+    """
+
+    @staticmethod
+    def get(request):
+        """
+        Pass graph data to frontend.
+        """
+
         worlds_students_per_country = DataStorage.worlds_students_per_country_statistics()
+
         datamap_format_countries_list = []
         tabular_format_countries_list = []
+
         all_active_students = sum(worlds_students_per_country.itervalues())
+
         for country, count in worlds_students_per_country.iteritems():
+            student_amount_percentage = format(count/all_active_students*100, '.2f')
+
+            # Too small percentage doesn't show real numbers. More than two numbers after point is ugly.
+            if student_amount_percentage == '0.00':
+                student_amount_percentage = '~0'
+
             if country != 'null':
-                # Make data to datamap visualization format
+                # Make data to datamap visualization format.
                 datamap_format_countries_list.append([
                     str(pycountry.countries.get(alpha_2=country).alpha_3), count
                 ])
-                # Make data to simple table visualization format
+
+                # Make data to simple table visualization format.
                 tabular_format_countries_list.append((
-                    pycountry.countries.get(alpha_2=country).name, count, format(count/all_active_students*100, '.2f')
+                    pycountry.countries.get(alpha_2=country).name, count, student_amount_percentage
                 ))
+
             else:
-                # Create students without country amount
-                tabular_format_countries_list.append(('Unset', count))
-        # Sort in descending order
+                # Create students without country amount.
+                tabular_format_countries_list.append(('Unset', count, student_amount_percentage))
+
+        # Sort in descending order.
         tabular_format_countries_list.sort(key=lambda row: row[1], reverse=True)
 
-        # workaround when there is no data for the given day
+        # Workaround when there is no data for the given day.
         if not tabular_format_countries_list:
-            tabular_format_countries_list.append(('Unset', 0))
+            tabular_format_countries_list.append(('Unset', 0, 0))
 
         context = {
             'datamap_countries_list': json.dumps(datamap_format_countries_list),
@@ -56,17 +80,18 @@ class MapView(View):
 
 class GraphsView(View):
     """
-    Provide data and plot 3 main graphs:
-
-    1. Number of students per date
-    2. Number of courses per date
-    3. Number of instances per date
+    Provides data and plot 3 main graphs:
+    1. Number of students per date.
+    2. Number of courses per date.
+    3. Number of instances per date.
     """
 
-    def get(self, request, *args, **kwargs):
+    @staticmethod
+    def get(request):
         """
         Pass graph data to frontend.
         """
+
         timeline = DataStorage.timeline()
         students, courses, instances = DataStorage.data_per_period()
         instances_count, courses_count, students_count = DataStorage.overall_counts()
@@ -97,6 +122,7 @@ class ReceiveData(View):
 
     @staticmethod
     def update_students_without_no_country_value(active_students_amount, students_per_country):
+        # pylint: disable=invalid-name
         """
         Method calculates amount of students, that have no country and update overall variable (example below).
 
@@ -165,9 +191,9 @@ class ReceiveData(View):
 
         DataStorage.objects.create(**instance_data)
 
-    def post(self, request, *args, **kwargs):
+    def post(self):
         """
-        Receive information from the edx-platform and processes it.
+        Receives information from the edx-platform and processes it.
 
         If the first time gets information from edx-platform, generates a secret token and
         sends it back to the edx-platform for further data exchange abilities, otherwise
