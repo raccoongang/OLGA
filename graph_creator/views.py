@@ -32,6 +32,9 @@ class MapView(View):
         Pass graph data to frontend.
         """
 
+        first_datetime_of_update_data = DataStorage.objects.first().data_update
+        last_datetime_of_update_data = DataStorage.objects.last().data_update
+
         worlds_students_per_country = DataStorage.worlds_students_per_country_statistics()
 
         datamap_format_countries_list = []
@@ -72,7 +75,9 @@ class MapView(View):
             'datamap_countries_list': json.dumps(datamap_format_countries_list),
             'tabular_countries_list': tabular_format_countries_list,
             'top_country': tabular_format_countries_list[0][0],
-            'countries_amount': len(tabular_format_countries_list)
+            'countries_amount': len(tabular_format_countries_list),
+            'first_datetime_of_update_data': first_datetime_of_update_data,
+            'last_datetime_of_update_data': last_datetime_of_update_data
         }
 
         return render(request, 'graph_creator/worldmap.html', context)
@@ -96,6 +101,9 @@ class GraphsView(View):
         students, courses, instances = DataStorage.data_per_period()
         instances_count, courses_count, students_count = DataStorage.overall_counts()
 
+        first_datetime_of_update_data = DataStorage.objects.first().data_update
+        last_datetime_of_update_data = DataStorage.objects.last().data_update
+
         context = {
             'timeline': json.dumps(timeline),
             'students': json.dumps(students),
@@ -103,7 +111,9 @@ class GraphsView(View):
             'instances': json.dumps(instances),
             'instances_count': instances_count,
             'courses_count': courses_count,
-            'students_count': students_count
+            'students_count': students_count,
+            'first_datetime_of_update_data': first_datetime_of_update_data,
+            'last_datetime_of_update_data': last_datetime_of_update_data
         }
 
         return render(request, 'graph_creator/graphs.html', context)
@@ -191,7 +201,7 @@ class ReceiveData(View):
 
         DataStorage.objects.create(**instance_data)
 
-    def post(self):
+    def post(self, request):
         """
         Receives information from the edx-platform and processes it.
 
