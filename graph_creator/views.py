@@ -201,7 +201,7 @@ class ReceiveData(View):
 
         DataStorage.objects.create(**instance_data)
 
-    def post(self):
+    def post(self, request):
         """
         Receives information from the edx-platform and processes it.
 

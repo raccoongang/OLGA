@@ -1,6 +1,8 @@
 .navbar-default .navbar-brand {
     display: flex;
     align-items: center;
+    padding-top: 1px;
+    padding-bottom: 30px;
 }
 
 .navbar-brand .navbar-brand-logo {
