@@ -6,7 +6,6 @@ import requests
 import pycountry
 
 from django.conf import settings
-from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
@@ -17,31 +16,6 @@ from .models import DataStorage
 
 
 HTTP_201_CREATED = 201
-
-
-class IndexView(View):
-    """
-    Displays information on a world map.
-
-    Retrieve information about edx-platform from DB, serialize it into JSON format and
-    pass serialized data to the template. The template displays a map of the world with the
-    edx-platform marker on it.
-
-    `edx_data_as_json` is a `DataStorage` containing all information about edx-platform.
-
-    Returns http response and passes `edx_data_as_json` data as a context variable `edx_data`
-    to the `index.html` template.
-    """
-
-    def get(self, request, *args, **kwargs):
-        """
-        Retrieve information about edx-platform from DB and serialize it into JSON.
-
-        `edx_data_as_json` is a `DataStorage` containing all information about edx-platform.
-        """
-
-        edx_data_as_json = serializers.serialize('json', DataStorage.objects.all())
-        return render(request, 'graph_creator/index.html', {'edx_data': edx_data_as_json})
 
 
 class MapView(View):

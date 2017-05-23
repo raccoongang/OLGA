@@ -1,4 +1,6 @@
-Django==1.11
-requests==2.13.0
 ddt==1.1.1
+Django==1.11
+psycopg2==2.7.1
 pycountry==17.1.8
+requests==2.13.0
+uWSGI==2.0.15
