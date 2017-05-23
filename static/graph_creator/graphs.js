@@ -2,7 +2,7 @@
 var d3 = Plotly.d3;
 
 var WIDTH_IN_PERCENT_OF_PARENT = 80,
-    HEIGHT_IN_PERCENT_OF_PARENT = 35;
+    HEIGHT_IN_PERCENT_OF_PARENT = 60;
 
 // Instances
 var instances_gd3 = d3.select('#instances')

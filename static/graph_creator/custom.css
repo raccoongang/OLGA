@@ -39,3 +39,7 @@
 div#container1 {
     position: relative;
 }
+
+#instances, #courses, #students {
+    margin-top: 0 !important;
+}
