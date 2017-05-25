@@ -2,10 +2,6 @@
 {% load static %}
 {% block head %}
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-
-    <style>
-        .active { fill: blue !important;}
-    </style>
     <link rel="stylesheet" href="{% static 'graph_creator/custom.css' %}">
 {% endblock %}
 
@@ -84,7 +80,7 @@
                         <div class="section-content section-data-viz">
                             <div class="analytics-chart-container">
                                 <div style="display: flex; height: 550px;align-items: center;justify-content: center;">
-                                    <div id="container1" style="width: 800px; height: 550px"></div>
+                                    <div id="datamap-container"></div>
                                 </div>
                             </div>
                         </div>

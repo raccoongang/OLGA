@@ -1,3 +1,7 @@
+.active {
+    fill: blue !important;
+}
+
 .navbar-brand .navbar-brand-logo {
     display:inline-block;
     vertical-align:middle;
@@ -36,8 +40,10 @@
     text-align: center;
 }
 
-div#container1 {
+div#datamap-container {
     position: relative;
+    width: 800px;
+    height: 550px;
 }
 
 #instances, #courses, #students {
