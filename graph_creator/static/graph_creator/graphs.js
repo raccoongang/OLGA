@@ -1,92 +1,65 @@
+/**
+ * @overview Makes three chart for instances, courses and students.
+ * @module graph_creator/static/graph_creator/graph.js
+ */
+
+/**
+ * Makes three chart for instances, courses and students based on back-end data as timeline (array of dates)
+ * and corresponding counts (array of counts).
+ */
 (function() {
-var d3 = Plotly.d3;
+    var WIDTH_IN_PERCENT_OF_PARENT = 100,
+        HEIGHT_IN_PERCENT_OF_PARENT = 60;
 
-var WIDTH_IN_PERCENT_OF_PARENT = 100,
-    HEIGHT_IN_PERCENT_OF_PARENT = 60;
+    /**
+     * Calculates chart`s size by per id.
+     * @param {String} id : id-name.
+     */
+    function calculateChartSize(id) {
+        return Plotly.d3.select(id)
+        .style({
+            width: WIDTH_IN_PERCENT_OF_PARENT + '%',
+            'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
 
-// Instances
-var instances_gd3 = d3.select('#instances')
-    .style({
-        width: WIDTH_IN_PERCENT_OF_PARENT + '%',
-        'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
+            height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
+            'margin-top': (35 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
+        });
+    }
 
-        height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
-        'margin-top': (35 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
-    });
+    var instances_gd = calculateChartSize('#instances').node(),
+        courses_gd = calculateChartSize('#courses').node(),
+        students_gd = calculateChartSize('#students').node();
 
-var instances_gd = instances_gd3.node();
+    /**
+     * Appends data to chart
+     * @param {Object} chart : Plotly object.
+     * @param {Array} chart_data : Array of data to corresponding chart.
+     * @param {String} chart_title : Char title.
+     */
+    function appendChartData(chart, chart_data, chart_title) {
+        layout = {
+          xaxis: {
+            title: chart_title
+          }
+        };
 
-instances_layout = {
-  xaxis: {
-    title: 'Active Instances'
-  }
-};
+        Plotly.plot(chart, [
+          {
+            x: timeline,
+            y: chart_data,
+            type: 'scatter'
+          }
+        ], layout, {displayModeBar: false});
+    }
 
-Plotly.plot(instances_gd, [
-  {
-    x: timeline,
-    y: instances,
-    type: 'scatter'
-  }
-], instances_layout, {displayModeBar: false});
+    appendChartData(instances_gd, instances, 'Active Instances');
+    appendChartData(courses_gd, courses, 'Active Courses');
+    appendChartData(students_gd, students, 'Active Students');
 
-// Courses
-var courses_gd3 = d3.select('#courses')
-    .style({
-        width: WIDTH_IN_PERCENT_OF_PARENT + '%',
-        'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
-
-        height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
-        'margin-top': (35 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
-    });
-
-var courses_gd = courses_gd3.node();
-
-courses_layout = {
-  xaxis: {
-    title: 'Active Courses'
-  }
-};
-
-Plotly.plot(courses_gd, [
-  {
-    x: timeline,
-    y: courses,
-    type: 'scatter'
-  }
-], courses_layout, {displayModeBar: false});
-
-// Students
-var students_gd3 = d3.select('#students')
-    .style({
-        width: WIDTH_IN_PERCENT_OF_PARENT + '%',
-        'margin-left': (100 - WIDTH_IN_PERCENT_OF_PARENT) / 2 + '%',
-
-        height: HEIGHT_IN_PERCENT_OF_PARENT + 'vh',
-        'margin-top': (35 - HEIGHT_IN_PERCENT_OF_PARENT) / 2 + 'vh'
-    });
-
-var students_gd = students_gd3.node();
-
-students_layout = {
-  xaxis: {
-    title: 'Active Students'
-  }
-};
-
-Plotly.plot(students_gd, [
-  {
-    x: timeline,
-    y: students,
-    type: 'scatter'
-  }
-], students_layout, {displayModeBar: false});
-
-// Resize
-window.onresize = function() {
-    Plotly.Plots.resize(instances_gd);
-    Plotly.Plots.resize(courses_gd);
-    Plotly.Plots.resize(students_gd);
-};
+    window.onresize = function() {
+        Plotly.Plots.resize(instances_gd);
+        Plotly.Plots.resize(courses_gd);
+        Plotly.Plots.resize(students_gd);
+    };
 
 })();
