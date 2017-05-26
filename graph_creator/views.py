@@ -71,11 +71,18 @@ class MapView(View):
         if not tabular_format_countries_list:
             tabular_format_countries_list.append(('Unset', 0, 0))
 
+            # Unset is not a country
+            countries_amount = 0
+
+        else:
+            # Delete unset country point from list
+            countries_amount = len(tabular_format_countries_list) - 1
+
         context = {
             'datamap_countries_list': json.dumps(datamap_format_countries_list),
             'tabular_countries_list': tabular_format_countries_list,
             'top_country': tabular_format_countries_list[0][0],
-            'countries_amount': len(tabular_format_countries_list),
+            'countries_amount': countries_amount,
             'first_datetime_of_update_data': first_datetime_of_update_data,
             'last_datetime_of_update_data': last_datetime_of_update_data
         }
