@@ -1,11 +1,12 @@
 """
-Models used to store and operate all data received from the edx platform.
+Models for analytics application. Models used to store and operate all data received from the edx platform.
 """
 
 from __future__ import unicode_literals
-from collections import defaultdict
+
 import datetime
 import json
+from collections import defaultdict
 
 from django.db import models
 from django.db.models import Sum, Count, DateField

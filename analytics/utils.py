@@ -89,7 +89,7 @@ def generate_model():
                 students = students_dict.get(instance_num, 0)
 
                 instance = {
-                    "model": "charts.datastorage",
+                    "model": "analytics.datastorage",
                     "pk": instance_num * cl.days + day,
                     "fields": {
                         "active_students_amount_day": students,

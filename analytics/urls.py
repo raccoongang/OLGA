@@ -1,5 +1,5 @@
 """
-URLs for the graph_creator application.
+URLs for the analytics application.
 """
 
 from django.conf.urls import url

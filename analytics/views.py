@@ -1,4 +1,7 @@
-from django.shortcuts import render
+"""
+Views for the analytics application.
+"""
+
 from django.views.generic import View
 import uuid
 from django.views.decorators.csrf import csrf_exempt
