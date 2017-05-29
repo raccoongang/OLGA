@@ -1,7 +1,7 @@
 """
 Utilities
 
-How to: from graph_creator folder run:
+How to: from analytics folder run:
 python utils.py
 python ../manage.py loaddata test_fixture.json
 and reload page.
@@ -89,7 +89,7 @@ def generate_model():
                 students = students_dict.get(instance_num, 0)
 
                 instance = {
-                    "model": "graph_creator.datastorage",
+                    "model": "charts.datastorage",
                     "pk": instance_num * cl.days + day,
                     "fields": {
                         "active_students_amount_day": students,
