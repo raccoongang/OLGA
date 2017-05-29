@@ -1,0 +1,26 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+<script>
+    // Define JS global vars to work with external graph.js file.
+    var timeline = JSON.parse('{{ timeline|safe }}');
+    var students = JSON.parse('{{ students|safe }}');
+    var courses = JSON.parse('{{ courses|safe }}');
+    var instances = JSON.parse('{{ instances|safe }}');
+</script>
+
+<h4>Instances: {{ instances_count }} Courses: {{ courses_count }} Students: {{ students_count }}</h4>
+
+<div id="instances"></div>
+<div id="courses"></div>
+<div id="students"></div>
+
+<script src="{% static 'graph_creator/graphs.js' %}"></script>
+</body>
+</html>

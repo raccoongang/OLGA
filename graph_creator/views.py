@@ -2,6 +2,7 @@ import uuid
 import json
 
 import requests
+import pycountry
 
 from django.conf import settings
 from django.core import serializers
@@ -42,6 +43,68 @@ class IndexView(View):
         return render(request, 'graph_creator/index.html', {'edx_data': edx_data_as_json})
 
 
+class MapView(View):
+    def get(self, request, *args, **kwargs):
+        worlds_students_per_country = DataStorage.worlds_students_per_country_statistics()
+
+        datamap_format_countries_list = []
+        tabular_format_countries_list = []
+
+        for country, count in worlds_students_per_country.iteritems():
+            if country != 'null':
+                # Make data to datamap visualization format
+                datamap_format_countries_list.append([
+                    str(pycountry.countries.get(alpha_2=country).alpha_3), count
+                ])
+                # Make data to simple table visualization format
+                tabular_format_countries_list.append((
+                    pycountry.countries.get(alpha_2=country).name, count
+                ))
+            else:
+                # Create students without country amount
+                tabular_format_countries_list.append(('Unset', count))
+
+        # Sort in descending order
+        tabular_format_countries_list.sort(key=lambda row: row[1], reverse=True)
+
+        context = {
+            'datamap_countries_list': json.dumps(datamap_format_countries_list),
+            'tabular_countries_list': tabular_format_countries_list
+        }
+
+        return render(request, 'graph_creator/worldmap.html', context)
+
+
+class GraphsView(View):
+    """
+    Provide data and plot 3 main graphs:
+
+    1. Number of students per date
+    2. Number of courses per date
+    3. Number of instances per date
+    """
+
+    def get(self, request, *args, **kwargs):
+        """
+        Pass graph data to frontend.
+        """
+        timeline = DataStorage.timeline()
+        students, courses, instances = DataStorage.data_per_period()
+        instances_count, courses_count, students_count = DataStorage.overall_counts()
+
+        context = {
+            'timeline': json.dumps(timeline),
+            'students': json.dumps(students),
+            'courses': json.dumps(courses),
+            'instances': json.dumps(instances),
+            'instances_count': instances_count,
+            'courses_count': courses_count,
+            'students_count': students_count
+        }
+
+        return render(request, 'graph_creator/graphs.html', context)
+
+
 @method_decorator(csrf_exempt, name='dispatch')
 class ReceiveData(View):
     """
@@ -58,26 +121,22 @@ class ReceiveData(View):
         """
         Method calculates amount of students, that have no country and update overall variable (example below).
 
-        `students_per_country` has next form: '[{u'count': 0, u'country': None}, {u'count': 1, u'country': u'UA'},
-                                               {u'count': 1, u'country': u'RU'}, ...]'
-
         Problem is a query (sql, group by `country`) does not count students without country.
         To know how many students have no country, we need subtract summarize amount of students with country from
         all active students we got with edX`s received data (post-request).
 
         Arguments:
             active_students_amount (int): Count of active students.
-            students_per_country (list): List of dictionaries, where one of them is country-count accordance.
-                                         Amount of students without country is empty.
+            students_per_country (dictionary): Country-count accordance as pair of key-value.
+                                               Amount of students without country is empty (key 'null' with value 0)
 
         Returns:
-            students_per_country (list): List of dictionaries, where one of them is country-count accordance.
-                                         Amount of students without country has calculated.
+            students_per_country (dictionary): Country-count accordance as pair of key-value.
+                                         Amount of students without country has calculated and inserted to
+                                         corresponding key ('null').
         """
 
-        students_per_country[0]['count'] = active_students_amount - sum(
-            [country['count'] for country in students_per_country]
-        )
+        students_per_country['null'] = active_students_amount - sum(students_per_country.values())
 
         return students_per_country
 
@@ -91,12 +150,16 @@ class ReceiveData(View):
                                     If token is empty, it will be generated with uuid.UUID in string format.
         """
 
-        active_students_amount = int(received_data.get('active_students_amount'))
+        active_students_amount_day = int(received_data.get('active_students_amount_day'))
+        active_students_amount_week = int(received_data.get('active_students_amount_week'))
+        active_students_amount_month = int(received_data.get('active_students_amount_month'))
         courses_amount = int(received_data.get('courses_amount'))
         statistics_level = received_data.get('statistics_level')
 
         instance_data = {
-            'active_students_amount': active_students_amount,
+            'active_students_amount_day': active_students_amount_day,
+            'active_students_amount_week': active_students_amount_week,
+            'active_students_amount_month': active_students_amount_month,
             'courses_amount': courses_amount,
             'secret_token': secret_token,
             'statistics_level': statistics_level
@@ -108,7 +171,7 @@ class ReceiveData(View):
             # that contains amount of students per country
             students_per_country_decoded = json.loads(received_data.get('students_per_country'))
             students_per_country_encoded = json.dumps(self.update_students_without_no_country_value(
-                    active_students_amount, students_per_country_decoded
+                active_students_amount_month, students_per_country_decoded
             ))
 
             enthusiast_data = {

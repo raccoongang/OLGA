@@ -1,0 +1,38 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .active { fill: blue !important;}
+        /*.datamaps-key dt, .datamaps-key dd {float: none !important;}
+        .datamaps-key {right: -50px; top: 0;}*/
+    </style>
+</head>
+<body>
+
+<p style="margin-left:15%;">Students per country statistics</p>
+
+<div id="container1" style="margin-left:15%; border:1px dotted blue; width: 1200px; height: 650px; position: relative;"></div>
+
+<p style="margin-left:15%;">Tabular version</p>
+
+<table border="1" style="margin-left:15%;">
+  <tr><th>Country</th><th>Students amount</th></tr>
+  {% for country in tabular_countries_list %}
+      <tr><td>{{ country.0 }}</td><td>{{ country.1 }}</td></tr>
+  {% endfor %}
+</table>
+
+<script>
+    // Define JS global vars to work with external datamap.js file.
+    var countries_list = JSON.parse('{{ datamap_countries_list|safe }}');
+</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
+<script src="{% static 'graph_creator/datamaps.world.min.js' %}"></script>
+<script src="{% static 'graph_creator/worldmap.js' %}"></script>
+
+</body>
+</html>
