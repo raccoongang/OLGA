@@ -27,33 +27,43 @@ def get_previous_day_start_and_end_dates():  # pylint: disable=invalid-name
     return start_of_day, end_of_day
 
 
-class DataStorage(models.Model):
+class EdxInstallation(models.Model):
     """
-    Model that stores data received from the edx-platform.
+    Model that stores overall data received from the edx-platform.
     """
 
+    secret_token = models.CharField(max_length=255, null=True)
+    platform_name = models.CharField(max_length=255, null=True, blank=True)
+    platform_url = models.URLField(null=True, blank=True)
+    latitude = models.FloatField(default=0, blank=True)
+    longitude = models.FloatField(default=0, blank=True)
+
+
+class InstallationStatistics(models.Model):
+    """
+    Model that stores statistics data received from the edx-platform.
+    """
+
+    edx_installation = models.ForeignKey(EdxInstallation)
+    statistics_level = models.CharField(max_length=255)
     active_students_amount_day = models.IntegerField(default=0)
     active_students_amount_week = models.IntegerField(default=0)
     active_students_amount_month = models.IntegerField(default=0)
     courses_amount = models.IntegerField(default=0)
-    data_update = models.DateTimeField(default=datetime.datetime.now())
-    latitude = models.FloatField(default=0, blank=True)
-    longitude = models.FloatField(default=0, blank=True)
-    platform_name = models.CharField(max_length=255, null=True, blank=True)
-    platform_url = models.URLField(null=True, blank=True)
-    secret_token = models.CharField(max_length=255, null=True)
-    statistics_level = models.CharField(max_length=255)
     students_per_country = models.TextField()
+    data_created_datetime = models.DateTimeField(default=datetime.datetime.now())
 
     @classmethod
     def timeline(cls):
         """
         Provide timeline in days for plotting on x axis.
-
         Future: add weeks, or month for dynamic range on plots.
         """
 
-        timeline_datetimes = cls.objects.order_by('data_update').values_list('data_update', flat=True).distinct()
+        timeline_datetimes = cls.objects.order_by(
+            'data_created_datetime'
+        ).values_list('data_created_datetime', flat=True).distinct()
+
         timeline_dates = [x.date().strftime('%Y-%m-%d') for x in timeline_datetimes]
 
         return timeline_dates
@@ -62,15 +72,13 @@ class DataStorage(models.Model):
     def data_per_period(cls):
         """
         Provide total students, courses and instances, from all services per period, day by default.
-
         We summarize values per day, because in same day we can receive data from multiple different instances.
         We suppose, that every instance send data only once per day.
-
         Future: add weeks, month for dynamic range on plots.
         """
 
         subquery = cls.objects.annotate(
-            date_in_days=Trunc('data_update', 'day', output_field=DateField())
+            date_in_days=Trunc('data_created_datetime', 'day', output_field=DateField())
         ).values('date_in_days').order_by()
 
         # last order_by() is needed:
@@ -82,7 +90,9 @@ class DataStorage(models.Model):
         ).values_list('students', flat=True)
 
         courses_per_day = subquery.annotate(courses=Sum('courses_amount')).values_list('courses', flat=True)
-        instances_per_day = subquery.annotate(instances=Count('secret_token')).values_list('instances', flat=True)
+        instances_per_day = subquery.annotate(
+            instances=Count('edx_installation__secret_token')
+        ).values_list('instances', flat=True)
 
         return list(students_per_day), list(courses_per_day), list(instances_per_day)
 
@@ -94,7 +104,9 @@ class DataStorage(models.Model):
 
         start_of_day, end_of_day = get_previous_day_start_and_end_dates()
 
-        all_unique_instances = DataStorage.objects.filter(data_update__gte=start_of_day, data_update__lt=end_of_day)
+        all_unique_instances = cls.objects.filter(
+            data_created_datetime__gte=start_of_day, data_created_datetime__lt=end_of_day
+        )
 
         instances_count = all_unique_instances.count()
         courses_count = all_unique_instances.aggregate(Sum('courses_amount'))['courses_amount__sum']
@@ -107,7 +119,6 @@ class DataStorage(models.Model):
     def worlds_students_per_country_statistics(cls):  # pylint: disable=invalid-name
         """
         Total of students amount per country to display on world map from all instances per previous calendar day.
-
         Returns:
             world_students_per_country (dict): Country-count accordance as pair of key-value.
         """
@@ -116,7 +127,7 @@ class DataStorage(models.Model):
 
         # Get list of instances`s students per country data as unicode strings.
         students_per_country = cls.objects.filter(
-            data_update__gte=start_of_day, data_update__lt=end_of_day
+            data_created_datetime__gte=start_of_day, data_created_datetime__lt=end_of_day
         ).values_list('students_per_country', flat=True)
 
         # Convert unicode strings into native dictionaries.

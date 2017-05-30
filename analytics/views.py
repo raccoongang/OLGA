@@ -13,7 +13,7 @@ from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
-from .models import DataStorage
+from .models import InstallationStatistics
 
 HTTP_201_CREATED = 201
 
@@ -98,7 +98,7 @@ class ReceiveData(View):
 
             instance_data.update(enthusiast_data)
 
-        DataStorage.objects.create(**instance_data)
+        InstallationStatistics.objects.create(**instance_data)
 
     def post(self, request):
         """

@@ -90,26 +90,37 @@ def generate_model():
 
                 students = students_dict.get(instance_num, 0)
 
-                instance = {
-                    "model": "analytics.datastorage",
-                    "pk": instance_num * cl.days + day,
+                pk = instance_num * cl.days + day
+
+                edx_installation = {
+                    "model": "analytics.edxinstallation",
+                    "pk": pk,
+                    "fields": {
+                        "secret_token": "platform" + " " + str(instance_num),
+                        "latitude": 1.0,
+                        "longitude": 1.0,
+                        "platform_name": "test",
+                        "platform_url": "test",
+                    }
+                }
+
+                installation_statistics = {
+                    "model": "analytics.installationstatistics",
+                    "pk": pk,
                     "fields": {
                         "active_students_amount_day": students,
                         "active_students_amount_week": 1000,
                         "active_students_amount_month": 1000,
                         "courses_amount": courses,
-                        "data_update": dt,
-                        "latitude": 1.0,
-                        "longitude": 1.0,
-                        "platform_name": "test",
-                        "platform_url": "test",
-                        "secret_token": "platform" + " " + str(instance_num),
+                        "data_created_datetime": dt,
+                        "edx_installation": pk,
                         "statistics_level": "1",
                         "students_per_country": "{\"RU\": 2632, \"CA\": 18543, \"UA\": 2011, \"null\": 1}"
                     }
                 }
 
-                instance_list.append(instance)
+                instance_list.append(installation_statistics)
+                instance_list.append(edx_installation)
 
     return json.dumps(instance_list)
 
