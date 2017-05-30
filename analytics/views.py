@@ -111,7 +111,7 @@ class ReceiveData(View):
         Returns HTTP-response with status 201, that means object (instance data) was successfully created.
         """
 
-        received_data = self.request.POST
+        received_data = request.POST
         platform_url = received_data.get('platform_url')
         secret_token = received_data.get('secret_token')
 
