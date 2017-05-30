@@ -68,11 +68,8 @@ class DataStorage(models.Model):
 
         Future: add weeks, month for dynamic range on plots.
         """
-        start_of_day, end_of_day = get_previous_day_start_and_end_dates()
 
-        subquery = cls.objects.filter(
-            data_update__gte=start_of_day, data_update__lt=end_of_day
-        ).annotate(
+        subquery = cls.objects.annotate(
             date_in_days=Trunc('data_update', 'day', output_field=DateField())
         ).values('date_in_days').order_by()
 
