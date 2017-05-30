@@ -52,6 +52,7 @@ coverage.xml
 # Django stuff:
 *.log
 acceptor/private.py
+analytics/test_fixture.json
 
 # Scrapy stuff:
 .scrapy

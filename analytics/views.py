@@ -1,122 +1,21 @@
 """
-Views for the graph_creator application.
+Views for the analytics application.
 """
 
-from __future__ import division
-import uuid
 import json
+import uuid
 
 import requests
-import pycountry
 
 from django.conf import settings
 from django.http import HttpResponse
-from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
+from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
 from .models import DataStorage
 
 HTTP_201_CREATED = 201
-
-
-class MapView(View):
-    """
-    Displays information on a world map and tabular view.
-    """
-
-    @staticmethod
-    def get(request):
-        """
-        Pass graph data to frontend.
-        """
-
-        first_datetime_of_update_data = DataStorage.objects.first().data_update
-        last_datetime_of_update_data = DataStorage.objects.last().data_update
-
-        worlds_students_per_country = DataStorage.worlds_students_per_country_statistics()
-
-        datamap_format_countries_list = []
-        tabular_format_countries_list = []
-
-        all_active_students = sum(worlds_students_per_country.itervalues())
-
-        for country, count in worlds_students_per_country.iteritems():
-            student_amount_percentage = format(count/all_active_students*100, '.2f')
-
-            # Too small percentage doesn't show real numbers. More than two numbers after point is ugly.
-            if student_amount_percentage == '0.00':
-                student_amount_percentage = '~0'
-
-            if country != 'null':
-                # Make data to datamap visualization format.
-                datamap_format_countries_list.append([
-                    str(pycountry.countries.get(alpha_2=country).alpha_3), count
-                ])
-
-                # Make data to simple table visualization format.
-                tabular_format_countries_list.append((
-                    pycountry.countries.get(alpha_2=country).name, count, student_amount_percentage
-                ))
-
-            else:
-                # Create students without country amount.
-                tabular_format_countries_list.append(('Unset', count, student_amount_percentage))
-
-        # Sort in descending order.
-        tabular_format_countries_list.sort(key=lambda row: row[1], reverse=True)
-
-        # Workaround when there is no data for the given day.
-        if not tabular_format_countries_list:
-            tabular_format_countries_list.append(('Unset', 0, 0))
-
-        context = {
-            'datamap_countries_list': json.dumps(datamap_format_countries_list),
-            'tabular_countries_list': tabular_format_countries_list,
-            'top_country': tabular_format_countries_list[0][0],
-            'countries_amount': len(tabular_format_countries_list),
-            'first_datetime_of_update_data': first_datetime_of_update_data,
-            'last_datetime_of_update_data': last_datetime_of_update_data
-        }
-
-        return render(request, 'graph_creator/worldmap.html', context)
-
-
-class GraphsView(View):
-    """
-    Provides data and plot 3 main graphs:
-    1. Number of students per date.
-    2. Number of courses per date.
-    3. Number of instances per date.
-    """
-
-    @staticmethod
-    def get(request):
-        """
-        Pass graph data to frontend.
-        """
-
-        timeline = DataStorage.timeline()
-        students, courses, instances = DataStorage.data_per_period()
-        instances_count, courses_count, students_count = DataStorage.overall_counts()
-
-        first_datetime_of_update_data = DataStorage.objects.first().data_update
-        last_datetime_of_update_data = DataStorage.objects.last().data_update
-
-        context = {
-            'timeline': json.dumps(timeline),
-            'students': json.dumps(students),
-            'courses': json.dumps(courses),
-            'instances': json.dumps(instances),
-            'instances_count': instances_count,
-            'courses_count': courses_count,
-            'students_count': students_count,
-            'first_datetime_of_update_data': first_datetime_of_update_data,
-            'last_datetime_of_update_data': last_datetime_of_update_data
-        }
-
-        return render(request, 'graph_creator/graphs.html', context)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -212,7 +111,7 @@ class ReceiveData(View):
         Returns HTTP-response with status 201, that means object (instance data) was successfully created.
         """
 
-        received_data = self.request.POST
+        received_data = request.POST
         platform_url = received_data.get('platform_url')
         secret_token = received_data.get('secret_token')
 

@@ -1,8 +1,8 @@
-{% extends 'graph_creator/base.html' %}
+{% extends 'charts/base.html' %}
 {% load static %}
 {% block head %}
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <link rel="stylesheet" href="{% static 'graph_creator/custom.css' %}">
+    <link rel="stylesheet" href="{% static 'charts/custom.css' %}">
 {% endblock %}
 
 {% block body %}
@@ -32,7 +32,7 @@
                     </li>
 
                     <li class="active nav-section">
-                        <a href="{% url 'graph_creator:charts' %}" data-track-type="click"
+                        <a href="{% url 'charts:charts' %}" data-track-type="click"
                            data-track-event="edx.bi.ui.menu.navigated" data-track-text="Content"
                            data-track-url="#" data-track-target-scope="course" data-track-target-lens="engagement"
                            data-track-target-report="content" data-track-target-depth="" data-track-menu-depth="report"
@@ -45,7 +45,7 @@
                     </li>
 
                     <li class=" nav-section">
-                        <a href="{% url 'graph_creator:map' %}" data-track-type="click"
+                        <a href="{% url 'charts:map' %}" data-track-type="click"
                            data-track-event="edx.bi.ui.menu.navigated" data-track-text="Videos"
                            data-track-url="/courses/course-v1:Raccoon_Gang+04+2017/engagement/videos/"
                            data-track-target-scope="course" data-track-target-lens="engagement"
@@ -141,5 +141,5 @@
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'graph_creator/graphs.js' %}"></script>
+    <script src="{% static 'charts/graphs.js' %}"></script>
 {% endblock %} }}
