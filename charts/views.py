@@ -10,7 +10,7 @@ import pycountry
 from django.shortcuts import render
 from django.views.generic import View
 
-from analytics.models import DataStorage
+from analytics.models import InstallationStatistics
 
 
 class MapView(View):
@@ -24,10 +24,10 @@ class MapView(View):
         Pass graph data to frontend.
         """
 
-        first_datetime_of_update_data = DataStorage.objects.first().data_update
-        last_datetime_of_update_data = DataStorage.objects.last().data_update
+        first_datetime_of_update_data = InstallationStatistics.objects.first().data_created_datetime
+        last_datetime_of_update_data = InstallationStatistics.objects.last().data_created_datetime
 
-        worlds_students_per_country = DataStorage.worlds_students_per_country_statistics()
+        worlds_students_per_country = InstallationStatistics.worlds_students_per_country_statistics()
 
         datamap_format_countries_list = []
         tabular_format_countries_list = []
@@ -96,12 +96,12 @@ class GraphsView(View):
         Pass graph data to frontend.
         """
 
-        timeline = DataStorage.timeline()
-        students, courses, instances = DataStorage.data_per_period()
-        instances_count, courses_count, students_count = DataStorage.overall_counts()
+        timeline = InstallationStatistics.timeline()
+        students, courses, instances = InstallationStatistics.data_per_period()
+        instances_count, courses_count, students_count = InstallationStatistics.overall_counts()
 
-        first_datetime_of_update_data = DataStorage.objects.first().data_update
-        last_datetime_of_update_data = DataStorage.objects.last().data_update
+        first_datetime_of_update_data = InstallationStatistics.objects.first().data_created_datetime
+        last_datetime_of_update_data = InstallationStatistics.objects.last().data_created_datetime
 
         context = {
             'timeline': json.dumps(timeline),

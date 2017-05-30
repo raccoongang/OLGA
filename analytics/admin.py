@@ -3,26 +3,36 @@ Django admin page for analytics application.
 """
 
 from django.contrib import admin
-from .models import DataStorage
+from .models import EdxInstallation, InstallationStatistics
 
 
-class DataStorageAdmin(admin.ModelAdmin):
+class EdxInstallationAdmin(admin.ModelAdmin):
     """
-    Admin for edX`s instances storage.
+    Admin for edX`s instances storage as EdxInstallation model with overall information.
+    """
+    fields = [
+        'latitude',
+        'longitude',
+        'platform_url',
+        'platform_name',
+        'secret_token'
+    ]
+
+
+class InstallationStatisticsAdmin(admin.ModelAdmin):
+    """
+    Admin for edX`s instances storage as InstallationStatistics model with overall information.
     """
     fields = [
         'active_students_amount_day',
         'active_students_amount_week',
         'active_students_amount_month',
         'courses_amount',
-        'data_update',
-        'latitude',
-        'longitude',
-        'platform_url',
-        'platform_name',
-        'secret_token',
+        'data_created_datetime',
+        'edx_installation',
         'statistics_level',
         'students_per_country'
     ]
 
-admin.site.register(DataStorage, DataStorageAdmin)
+admin.site.register(EdxInstallation, EdxInstallationAdmin)
+admin.site.register(InstallationStatistics, InstallationStatisticsAdmin)
