@@ -1,11 +1,10 @@
 """
-Models used to store and operate all data received from the edx platform.
+Models for analytics application. Models used to store and operate all data received from the edx platform.
 """
 
-from __future__ import unicode_literals
-from collections import defaultdict
 import datetime
 import json
+from collections import defaultdict
 
 from django.db import models
 from django.db.models import Sum, Count, DateField
@@ -69,8 +68,11 @@ class DataStorage(models.Model):
 
         Future: add weeks, month for dynamic range on plots.
         """
+        start_of_day, end_of_day = get_previous_day_start_and_end_dates()
 
-        subquery = cls.objects.annotate(
+        subquery = cls.objects.filter(
+            data_update__gte=start_of_day, data_update__lt=end_of_day
+        ).annotate(
             date_in_days=Trunc('data_update', 'day', output_field=DateField())
         ).values('date_in_days').order_by()
 

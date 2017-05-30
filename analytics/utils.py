@@ -1,12 +1,12 @@
 """
-Utilities
+Utilities/
 
-How to: from graph_creator folder run:
-python utils.py
-python ../manage.py loaddata test_fixture.json
-and reload page.
-
+How to. From analytics folder run:
+- python utils.py
+- python ../manage.py loaddata test_fixture.json
+- reload page.
 """
+
 import datetime
 import json
 from random import random
@@ -89,7 +89,7 @@ def generate_model():
                 students = students_dict.get(instance_num, 0)
 
                 instance = {
-                    "model": "graph_creator.datastorage",
+                    "model": "analytics.datastorage",
                     "pk": instance_num * cl.days + day,
                     "fields": {
                         "active_students_amount_day": students,

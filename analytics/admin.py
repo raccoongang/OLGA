@@ -1,5 +1,5 @@
 """
-Django admin page for graph_creator application.
+Django admin page for analytics application.
 """
 
 from django.contrib import admin
