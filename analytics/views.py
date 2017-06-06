@@ -107,10 +107,10 @@ class ReceiveData(View):
 
         try:
             edx_installation = EdxInstallation.objects.get(platform_url=edx_installation['platform_url'])
-            InstallationStatistics.objects.create(edx_installation=edx_installation, **installation_statistics)
         except EdxInstallation.DoesNotExist:
             edx_installation = EdxInstallation.objects.create(**edx_installation)
-            InstallationStatistics.objects.create(edx_installation=edx_installation, **installation_statistics)
+
+        InstallationStatistics.objects.create(edx_installation=edx_installation, **installation_statistics)
 
     def post(self, request):
         """
