@@ -13,7 +13,7 @@ from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
-from .models import InstallationStatistics
+from .models import InstallationStatistics, EdxInstallation
 
 HTTP_201_CREATED = 201
 
@@ -70,12 +70,15 @@ class ReceiveData(View):
         courses_amount = int(received_data.get('courses_amount'))
         statistics_level = received_data.get('statistics_level')
 
-        instance_data = {
+        edx_installation = {
+            'secret_token': secret_token
+        }
+
+        installation_statistics = {
             'active_students_amount_day': active_students_amount_day,
             'active_students_amount_week': active_students_amount_week,
             'active_students_amount_month': active_students_amount_month,
             'courses_amount': courses_amount,
-            'secret_token': secret_token,
             'statistics_level': statistics_level
         }
 
@@ -88,17 +91,26 @@ class ReceiveData(View):
                 active_students_amount_month, students_per_country_decoded
             ))
 
-            enthusiast_data = {
+            enthusiast_edx_installation = {
                 'latitude': float(received_data.get('latitude')),
                 'longitude': float(received_data.get('longitude')),
                 'platform_name': received_data.get('platform_name'),
                 'platform_url': received_data.get('platform_url'),
+            }
+
+            enthusiast_installation_statistics = {
                 'students_per_country': students_per_country_encoded
             }
 
-            instance_data.update(enthusiast_data)
+            edx_installation.update(enthusiast_edx_installation)
+            installation_statistics.update(enthusiast_installation_statistics)
 
-        InstallationStatistics.objects.create(**instance_data)
+        try:
+            edx_installation = EdxInstallation.objects.get(platform_url=edx_installation['platform_url'])
+        except EdxInstallation.DoesNotExist:
+            edx_installation = EdxInstallation.objects.create(**edx_installation)
+
+        InstallationStatistics.objects.create(edx_installation=edx_installation, **installation_statistics)
 
     def post(self, request):
         """
