@@ -1,3 +1,5 @@
+some changes
+
 # acceptor
 Acceptor server which takes specific data from edx-platform and visualizes the data on the world map.
 
