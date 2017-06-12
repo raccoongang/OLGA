@@ -34,5 +34,9 @@ class InstallationStatisticsAdmin(admin.ModelAdmin):
         'students_per_country'
     ]
 
+    readonly_fields = (
+        'data_created_datetime',
+    )
+
 admin.site.register(EdxInstallation, EdxInstallationAdmin)
 admin.site.register(InstallationStatistics, InstallationStatisticsAdmin)
