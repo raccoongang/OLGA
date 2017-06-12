@@ -51,7 +51,7 @@ class InstallationStatistics(models.Model):
     active_students_amount_month = models.IntegerField(default=0)
     courses_amount = models.IntegerField(default=0)
     students_per_country = models.TextField()
-    data_created_datetime = models.DateTimeField(default=datetime.datetime.now())
+    data_created_datetime = models.DateTimeField(auto_now_add=True)
 
     @classmethod
     def timeline(cls):
