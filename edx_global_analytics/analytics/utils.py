@@ -1,11 +1,12 @@
 # pylint: disable-all
 
 """
-Utilities/
+Utilities, that creates test data for charts and map.
+Needed to be deleted in production.
 
-How to. From analytics folder run:
+How to. From `edx_global_analytics/analytics` folder run:
 - python utils.py
-- python ../manage.py loaddata test_fixture.json
+- python ../../manage.py loaddata test_fixture.json
 - reload page.
 """
 
@@ -114,7 +115,7 @@ def generate_model():
                         "courses_amount": courses,
                         "data_created_datetime": dt,
                         "edx_installation": pk,
-                        "statistics_level": "1",
+                        "statistics_level": 1,
                         "students_per_country": "{\"RU\": 2632, \"CA\": 18543, \"UA\": 2011, \"null\": 1}"
                     }
                 }

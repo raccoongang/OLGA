@@ -16,8 +16,8 @@ def get_previous_day_start_and_end_dates():  # pylint: disable=invalid-name
     Get accurate start and end dates, that create segment between them equal to a full last calendar day.
 
     Returns:
-        start_of_day (date): Previous day`s start. Example for 2017-05-15 is 2017-05-15.
-        end_of_day (date): Previous day`s end, it`s a next day (tomorrow) toward day`s start,
+        start_of_day (date): Previous day's start. Example for 2017-05-15 is 2017-05-15.
+        end_of_day (date): Previous day's end, it's a next day (tomorrow) toward day's start,
                            that doesn't count in segment. Example for 2017-05-15 is 2017-05-16.
     """
 
@@ -45,7 +45,14 @@ class InstallationStatistics(models.Model):
     """
 
     edx_installation = models.ForeignKey(EdxInstallation)
-    statistics_level = models.CharField(max_length=255)
+    statistics_level = models.CharField(
+        choices=(
+            (1, 'enthusiast'),
+            (2, 'paranoid')
+        ),
+        max_length=255,
+        default='paranoid'
+    )
     active_students_amount_day = models.IntegerField(default=0)
     active_students_amount_week = models.IntegerField(default=0)
     active_students_amount_month = models.IntegerField(default=0)
@@ -57,7 +64,6 @@ class InstallationStatistics(models.Model):
     def timeline(cls):
         """
         Provide timeline in days for plotting on x axis.
-        Future: add weeks, or month for dynamic range on plots.
         """
 
         timeline_datetimes = cls.objects.order_by(
@@ -74,7 +80,6 @@ class InstallationStatistics(models.Model):
         Provide total students, courses and instances, from all services per period, day by default.
         We summarize values per day, because in same day we can receive data from multiple different instances.
         We suppose, that every instance send data only once per day.
-        Future: add weeks, month for dynamic range on plots.
         """
 
         subquery = cls.objects.annotate(
@@ -100,6 +105,8 @@ class InstallationStatistics(models.Model):
     def overall_counts(cls):
         """
         Provide total count of all instances, courses and students from all instances per previous calendar day.
+
+        Returns overall counts as int-value.
         """
 
         start_of_day, end_of_day = get_previous_day_start_and_end_dates()
@@ -119,20 +126,19 @@ class InstallationStatistics(models.Model):
     def worlds_students_per_country_statistics(cls):  # pylint: disable=invalid-name
         """
         Total of students amount per country to display on world map from all instances per previous calendar day.
+
         Returns:
             world_students_per_country (dict): Country-count accordance as pair of key-value.
         """
 
         start_of_day, end_of_day = get_previous_day_start_and_end_dates()
 
-        # Get list of instances`s students per country data as unicode strings.
+        # Get list of instances's students per country data as unicode strings.
         students_per_country = cls.objects.filter(
             data_created_datetime__gte=start_of_day, data_created_datetime__lt=end_of_day
         ).values_list('students_per_country', flat=True)
 
-        # Convert unicode strings into native dictionaries.
-        students_per_country = [json.loads(students_per_country[instance_students]) for instance_students
-                                in range(len(students_per_country))]
+        students_per_country = [json.loads(instance_students) for instance_students in students_per_country]
 
         world_students_per_country = defaultdict(int)
 

@@ -11,4 +11,4 @@ class AnalyticsConfig(AppConfig):
     """
     Django AppConfig class for the analytics application.
     """
-    name = 'analytics'
+    name = 'edx_global_analytics.analytics'

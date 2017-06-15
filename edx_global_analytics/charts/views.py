@@ -3,14 +3,14 @@ Views for the charts application.
 """
 
 from __future__ import division
+
 import json
 
 import pycountry
-
 from django.shortcuts import render
 from django.views.generic import View
 
-from analytics.models import InstallationStatistics
+from edx_global_analytics.analytics.models import InstallationStatistics
 
 
 class MapView(View):
@@ -21,7 +21,7 @@ class MapView(View):
     @staticmethod
     def get(request):
         """
-        Pass graph data to frontend.
+        Passes graph data to frontend.
         """
 
         first_datetime_of_update_data = InstallationStatistics.objects.first().data_created_datetime
@@ -93,7 +93,7 @@ class GraphsView(View):
     @staticmethod
     def get(request):
         """
-        Pass graph data to frontend.
+        Passes graph data to frontend.
         """
 
         timeline = InstallationStatistics.timeline()

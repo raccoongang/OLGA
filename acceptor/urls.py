@@ -7,6 +7,6 @@ from django.contrib import admin
 
 urlpatterns = [  # pylint: disable=invalid-name
     url(r'^admin/', admin.site.urls),
-    url(r'^', include('charts.urls')),
-    url(r'^', include('analytics.urls')),
+    url(r'^', include('edx_global_analytics.charts.urls')),
+    url(r'^', include('edx_global_analytics.analytics.urls')),
 ]

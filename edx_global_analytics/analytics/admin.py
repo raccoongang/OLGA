@@ -8,7 +8,7 @@ from .models import EdxInstallation, InstallationStatistics
 
 class EdxInstallationAdmin(admin.ModelAdmin):
     """
-    Admin for edX`s instances storage as EdxInstallation model with overall information.
+    Admin for edX's instances storage as EdxInstallation model with overall information.
     """
     fields = [
         'latitude',
@@ -21,7 +21,7 @@ class EdxInstallationAdmin(admin.ModelAdmin):
 
 class InstallationStatisticsAdmin(admin.ModelAdmin):
     """
-    Admin for edX`s instances storage as InstallationStatistics model with overall information.
+    Admin for edX's instances storage as InstallationStatistics model with overall information.
     """
     fields = [
         'active_students_amount_day',
