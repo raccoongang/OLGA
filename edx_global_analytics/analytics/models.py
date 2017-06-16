@@ -95,6 +95,7 @@ class InstallationStatistics(models.Model):
         ).values_list('students', flat=True)
 
         courses_per_day = subquery.annotate(courses=Sum('courses_amount')).values_list('courses', flat=True)
+
         instances_per_day = subquery.annotate(
             instances=Count('edx_installation__secret_token')
         ).values_list('instances', flat=True)
