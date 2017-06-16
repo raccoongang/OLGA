@@ -1,7 +1,7 @@
 {% extends 'charts/base.html' %}
 {% load static %}
 {% block head %}
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-1.27.1.min.js"></script>
     <link rel="stylesheet" href="{% static 'charts/custom.css' %}">
 {% endblock %}
 
@@ -47,7 +47,7 @@
                     <li class=" nav-section">
                         <a href="{% url 'charts:map' %}" data-track-type="click"
                            data-track-event="edx.bi.ui.menu.navigated" data-track-text="Videos"
-                           data-track-url="/courses/course-v1:Raccoon_Gang+04+2017/engagement/videos/"
+                           data-track-url="#"
                            data-track-target-scope="course" data-track-target-lens="engagement"
                            data-track-target-report="videos" data-track-target-depth=""
                            data-track-menu-depth="report" data-track-link-name="videos">

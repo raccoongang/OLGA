@@ -62,4 +62,4 @@
         Plotly.Plots.resize(students_gd);
     };
 
-})();
+}());
