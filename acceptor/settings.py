@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'graph_creator.apps.GraphCreatorConfig',
+    'edx_global_analytics.analytics.apps.AnalyticsConfig',
+    'edx_global_analytics.charts.apps.ChartsConfig',
 ]
 
 MIDDLEWARE = [
