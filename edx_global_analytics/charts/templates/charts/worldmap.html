@@ -1,0 +1,162 @@
+{% extends 'charts/base.html' %}
+{% load static %}
+{% block head %}
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <link rel="stylesheet" href="{% static 'charts/custom.css' %}">
+{% endblock %}
+
+{% block body %}
+<div id="wrap-content-push-footer-sock">
+    <a id="skip" href="#content" class="skip-link">Skip to content</a>
+
+    {#NAVBAR#}
+    <nav class="navbar navbar-default lens-nav" role="navigation" aria-label="Application">
+        <div class="grid-container">
+              <ul class="nav navbar-nav">
+                    <li class="dropdown">
+                          <button class="dropdown-toggle navbar-link" data-toggle="dropdown" id="lensPrimaryMenu"
+                                  aria-controls="lensDropdownMenu" aria-haspopup="true" aria-expanded="false">
+                                <span class="link-label">
+                                  Engagement
+                                </span>
+                          </button>
+                    </li>
+                    <li class=" nav-section">
+                        <a href="{% url 'charts:charts' %}">
+                            <span class="link-label">Numbers</span>
+                        </a>
+                    </li>
+                    <li class="active nav-section">
+                        <a href="{% url 'charts:map' %}" >
+                            <span class="link-label">Geography
+                                <span class="sr-only">(Active)</span>
+                            </span>
+                        </a>
+                    </li>
+              </ul>
+        </div>
+    </nav>
+
+    <div class="grid-container grid-manual">
+        <div class="row">
+            <main class="col col-12 sm-col-12 main" id="content" aria-label="Application">
+                <div class="view-head"></div>
+                <div class="view-intro row"><p class="lead text-muted intro-text"></p></div>
+
+                {#METRICS#}
+                <section class="view-section">
+                    <div class="section-heading bordered"><h4 class="section-title">
+                        Global Activity Metrics</h4>
+                    </div>
+
+                    <div class="row">
+                        <div class="col col-12 sm-col-12 md-col-3" data-activity-type="any">
+                            <div class="summary-point text-center">
+                                <div class="summary-point-wrapper">
+                                    <div class="summary-point-number" title="{{ top_country }}">{{ top_country }}</div>
+                                    <div class="summary-point-label">Top Country by Enrollment</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col col-12 sm-col-12 md-col-3" data-activity-type="any">
+                            <div class="summary-point text-center">
+                                <div class="summary-point-wrapper">
+                                    <div class="summary-point-number" title="{{ countries_amount }}">{{ countries_amount }}</div>
+                                    <div class="summary-point-label">Countries in Statistics</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="view-section" aria-hidden="false">
+                    <div class="section-heading">
+                        <h4 class="section-title">Global Learners Engagement</h4>
+                        <span class="section-heading-note small">Where are our learners?</span>
+                    </div>
+
+                    <div class="section-content section-data-graph">
+                        <div class="section-content section-data-viz">
+                            <div class="analytics-chart-container">
+                                <div style="display: flex; height: 550px;align-items: center;justify-content: center;">
+                                    <div id="datamap-container"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {#TABLES#}
+                <section class="view-section">
+                    <div class="section-heading">
+                        <h4 class="section-title">Geographic Breakdown</h4>
+                    </div>
+
+                    <div class="section-content section-data-table" data-role="enrollment-location-table">
+                        <div class="table-responsive">
+                            <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
+                                <div>
+                                    <div>
+                                        <table class="table table-striped dataTable no-footer" id="DataTables_Table_0" role="grid">
+                                            <thead>
+                                                <tr role="row">
+                                                    <th class="" tabindex="0" aria-controls="DataTables_Table_0"
+                                                        rowspan="1" colspan="1" aria-label="Country or Region"
+                                                        role="columnheader" scope="col">Country or Region</th>
+
+                                                    <th class="text-right " tabindex="0" aria-controls="DataTables_Table_0"
+                                                        rowspan="1" colspan="1" aria-label="Percent" role="columnheader"
+                                                        scope="col">Percent</th>
+                                                    <th class="text-right" tabindex="0" aria-controls="DataTables_Table_0"
+                                                        rowspan="1" colspan="1" aria-sort="descending"
+                                                        aria-label="Current Enrollment" role="columnheader"
+                                                        scope="col">Active Students</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for country in tabular_countries_list %}
+                                                    <tr role="row" class="odd">
+                                                        <td role="gridcell">{{ country.0 }}</td>
+                                                        <td class=" text-right" role="gridcell">{{ country.2 }}</td>
+                                                        <td class="text-right sorting_1" role="gridcell">{{ country.1 }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <div class="data-update-message">Course engagement data was last updated
+                    {{ last_datetime_of_update_data|date:"Y-m-d" }} at {{ last_datetime_of_update_data|date:"H:i" }} UTC+2.
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Placed at the end of the document so the pages load faster -->
+    <div id="footer-sock-push"></div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
+
+{% block script %}
+<script>
+    // Define JS global vars to work with external datamap.js file.
+    var countries_list = JSON.parse('{{ datamap_countries_list|safe }}');
+</script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.8/datamaps.all.js"></script>
+    <script src="{% static 'charts/datamaps.world.min.js' %}"></script>
+    <script src="{% static 'charts/worldmap.js' %}"></script>
+    <span class="gr__tooltip"><span class="gr__tooltip-content"></span><i class="gr__tooltip-logo"></i><span class="gr__triangle"></span></span><div class="nvtooltip xy-tooltip" id="nvtooltip-69536" style="top: 0px; left: 0px; opacity: 0; position: fixed; transform: translate(1007px, 383px) !important;"><table><thead><tr><td colspan="3"><strong class="x-value">Week Ending 9 Apr 2017</strong></td></tr></thead><tbody><tr><td class="legend-color-guide"><div style="background-color: rgb(141, 160, 203);"></div></td><td class="key">Active Learners</td><td class="value">1</td></tr><tr><td class="legend-color-guide"><div style="background-color: rgb(102, 194, 165);"></div></td><td class="key">Watched a Video</td><td class="value">0</td></tr><tr><td class="legend-color-guide"><div style="background-color: rgb(252, 141, 98);"></div></td><td class="key">Tried a Problem</td><td class="value">0</td></tr><tr><td class="legend-color-guide"><div style="background-color: rgb(231, 138, 195);"></div></td><td class="key">Participated in Discussions</td><td class="value">0</td></tr></tbody></table></div></html>
+{% endblock %}

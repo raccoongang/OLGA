@@ -1,7 +1,6 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
-*.pyc
 *$py.class
 
 # C extensions
@@ -52,12 +51,8 @@ coverage.xml
 
 # Django stuff:
 *.log
-local_settings.py
-private.py
-
-# Flask stuff:
-instance/
-.webassets-cache
+acceptor/private.py
+analytics/test_fixture.json
 
 # Scrapy stuff:
 .scrapy
@@ -98,6 +93,6 @@ requirement.txt
 *.sqlite3
 
 # Elastic Beanstalk Files
-.elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+.elasticbeanstalk/

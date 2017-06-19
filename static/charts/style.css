@@ -1,0 +1,115 @@
+body {
+    padding: 0;
+    margin: 0;
+}
+html, body, #map {
+    height: 100%;
+    width: 100%;
+}
+
+/*Navigation bar*/
+.nav-link {
+    font-size: 25px;
+}
+
+.navbar .navbar-nav {
+    display: inline-block;
+    float: none;
+    vertical-align: top;
+}
+
+.navbar .navbar-nav li {
+    border-bottom: solid #222 4px;
+}
+
+.navbar .navbar-nav li a {
+    color: #65bebb;
+}
+
+.navbar-inverse .navbar-nav>li>a:focus, .navbar-inverse .navbar-nav>li>a:hover {
+    color: #65bebb;
+}
+
+.navbar .navbar-collapse {
+    text-align: center;
+}
+
+.navbar {
+    border-radius: 0 !important;
+}
+
+/*Map*/
+.map-header {
+    text-align: center;
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+.map-container {
+    display: flex;
+    justify-content: center;
+}
+
+#container1 {
+    border: 1px solid rgb(221, 221, 221);
+    border-radius: 10px;
+    width: 1400px;
+    height: 650px;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+/*Metrics*/
+.metrics-header {
+    text-align: center;
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+.metrics-container {
+    display: flex;
+    justify-content: center;
+}
+
+.metric-title {
+    font-size: 14px;
+}
+
+.metric-value {
+    font-size: 24px;
+}
+
+.metric {
+    margin: auto;
+}
+
+.thumbnail {
+    text-align: center;
+    border-radius: 10px;
+}
+
+/*Tables*/
+.table>tbody>tr>th {
+    text-align: center;
+}
+
+.table>tbody>tr>td {
+    text-align: center;
+}
+
+#table-header {
+    background: #65bebb;
+}
+
+.table-responsive {
+    border-radius: 10px;
+}
+
+/*Charts*/
+.charts-header {
+    text-align: center;
+    margin-top: 24px;
+    margin-bottom: 0;
+}
