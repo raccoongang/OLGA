@@ -48,7 +48,7 @@ class InstallationStatistics(models.Model):
     statistics_level = models.CharField(
         choices=(
             (1, 'enthusiast'),
-            (2, 'paranoid')
+            (2, 'paranoid'),
         ),
         max_length=255,
         default='paranoid'
