@@ -30,22 +30,22 @@ class ReceiveData(View):
     """
 
     @staticmethod
-    def update_students_without_no_country_value(active_students_amount, students_per_country):
+    def update_students_without_country_value(active_students_amount, students_per_country):
         # pylint: disable=invalid-name
         """
         Method calculates amount of students, that have no country and update overall variable (example below).
 
         Problem is a query (sql, group by `country`) does not count students without country.
         To know how many students have no country, we need subtract summarize amount of students with country from
-        all active students we got with edX`s received data (post-request).
+        all active students we got with edX's received data (post-request).
 
         Arguments:
             active_students_amount (int): Count of active students.
-            students_per_country (dictionary): Country-count accordance as pair of key-value.
-                                               Amount of students without country is empty (key 'null' with value 0)
+            students_per_country (dict): Country-count accordance as pair of key-value.
+                                         Amount of students without country is empty (key 'null' with value 0)
 
         Returns:
-            students_per_country (dictionary): Country-count accordance as pair of key-value.
+            students_per_country (dict): Country-count accordance as pair of key-value.
                                          Amount of students without country has calculated and inserted to
                                          corresponding key ('null').
         """
@@ -54,7 +54,7 @@ class ReceiveData(View):
 
         return students_per_country
 
-    def create_instance_data(self, received_data, secret_token):
+    def create_instance_data(self, received_data, secret_token):  # pylint: disable=too-many-locals
         """
         Method provides saving instance data as object in database.
 
@@ -87,7 +87,7 @@ class ReceiveData(View):
             # Decoded to process and encoded to save in database list of dictionaries,
             # that contains amount of students per country
             students_per_country_decoded = json.loads(received_data.get('students_per_country'))
-            students_per_country_encoded = json.dumps(self.update_students_without_no_country_value(
+            students_per_country_encoded = json.dumps(self.update_students_without_country_value(
                 active_students_amount_month, students_per_country_decoded
             ))
 
@@ -98,19 +98,19 @@ class ReceiveData(View):
                 'platform_url': received_data.get('platform_url'),
             }
 
-            enthusiast_installation_statistics = {
+            enthusiast_installation_statistics = {  # pylint: disable=invalid-name
                 'students_per_country': students_per_country_encoded
             }
 
             edx_installation.update(enthusiast_edx_installation)
             installation_statistics.update(enthusiast_installation_statistics)
 
-        try:
-            edx_installation = EdxInstallation.objects.get(platform_url=edx_installation['platform_url'])
-        except EdxInstallation.DoesNotExist:
-            edx_installation = EdxInstallation.objects.create(**edx_installation)
+        edx_installation_object, _ = EdxInstallation.objects.get_or_create(
+            platform_url=edx_installation['platform_url'],
+            defaults=edx_installation
+        )
 
-        InstallationStatistics.objects.create(edx_installation=edx_installation, **installation_statistics)
+        InstallationStatistics.objects.create(edx_installation=edx_installation_object, **installation_statistics)
 
     def post(self, request):
         """
