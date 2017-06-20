@@ -1,10 +1,10 @@
 # pylint: disable-all
 
 """
-Utilities, that creates test data for charts and map.
-Needed to be deleted in production.
+Utilities, that create test data for charts and map.
+Needed to be deleted in production as well as `olga/analytics/test_fixture.json`.
 
-How to. From `edx_global_analytics/analytics` folder run:
+How to. From `olga/analytics` folder run:
 - python utils.py
 - python ../../manage.py loaddata test_fixture.json
 - reload page.

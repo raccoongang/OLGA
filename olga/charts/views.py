@@ -10,7 +10,7 @@ import pycountry
 from django.shortcuts import render
 from django.views.generic import View
 
-from edx_global_analytics.analytics.models import InstallationStatistics
+from olga.analytics.models import InstallationStatistics
 
 
 class MapView(View):

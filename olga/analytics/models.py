@@ -48,7 +48,7 @@ class InstallationStatistics(models.Model):
     statistics_level = models.CharField(
         choices=(
             (1, 'enthusiast'),
-            (2, 'paranoid')
+            (2, 'paranoid'),
         ),
         max_length=255,
         default='paranoid'
@@ -95,6 +95,7 @@ class InstallationStatistics(models.Model):
         ).values_list('students', flat=True)
 
         courses_per_day = subquery.annotate(courses=Sum('courses_amount')).values_list('courses', flat=True)
+
         instances_per_day = subquery.annotate(
             instances=Count('edx_installation__secret_token')
         ).values_list('instances', flat=True)
