@@ -9,8 +9,7 @@ engines:
       - javascript
       - python
   eslint:
-    # Disabled since CodeClimate doesn't yet support eslint-config-edx plugin
-    enabled: false
+    enabled: true
     channel: "eslint-3"
   fixme:
     enabled: true
@@ -19,6 +18,8 @@ engines:
     checks:
       MD024: # Multiple headers with the same content
         enabled: false # Disabled because of CHANGELOG.md
+  pep8:
+    enabled: true
   radon:
     enabled: true
 ratings:
