@@ -40,7 +40,7 @@
     text-align: center;
 }
 
-div#datamap-container {
+#datamap-container {
     position: relative;
     width: 800px;
     height: 550px;
