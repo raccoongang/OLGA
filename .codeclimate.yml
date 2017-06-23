@@ -30,3 +30,5 @@ ratings:
   - "**.py"
 exclude_paths:
 - "**/vendor/**/*"
+- "**/vendored/**/*"
+

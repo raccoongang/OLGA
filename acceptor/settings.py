@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'graph_creator.apps.GraphCreatorConfig',
+    'olga.analytics.apps.AnalyticsConfig',
+    'olga.charts.apps.ChartsConfig',
 ]
 
 MIDDLEWARE = [
