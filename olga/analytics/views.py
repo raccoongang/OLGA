@@ -19,9 +19,18 @@ HTTP_401_UNAUTHORIZED = 401
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AccessTokenRegistration(View):
+    """
+    Provides access token registration functionality.
+    """
 
     @staticmethod
     def post(request):  # pylint: disable=unused-argument
+        """
+        Receives primary edX installation request for getting access for dispatch statistics via token.
+
+        Returns HTTP-response with status 201, that means object (installation token) was successfully created.
+        """
+
         access_token = uuid.uuid4().hex
         EdxInstallation.objects.create(access_token=access_token)
 
@@ -34,9 +43,19 @@ class AccessTokenRegistration(View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AccessTokenAuthorization(View):
+    """
+    Provides access token authorization functionality.
+    """
 
     @staticmethod
     def post(request):
+        """
+        Verifies that installation is allowed access to dispatch installation statistics.
+
+        Returns HTTP-response with status 200, that means object (installation) with received token exists.
+        Returns HTTP-response with status 401 and refreshed access token, that means object (installation) with
+        received token does not exist and edX installation need to get new one,
+        """
         access_token = request.POST.get('access_token')
 
         try:
@@ -57,19 +76,14 @@ class AccessTokenAuthorization(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class ReceiveInstallationStatistics(View):
     """
-    Receives and processes data from the remote edx-platform.
-
-    If the platform has already registered, a normal data exchange happens.
-    Otherwise generates a secret token, (registers)saves it to DB with the edx-platform's incoming URL
-    and sends newly generated token to the edx-platform for further
-    data interchange abilities with the server.
+    Provides edX installation statistics reception and processing functionality.
     """
 
     @staticmethod
     def update_students_without_country_value(active_students_amount, students_per_country):
         # pylint: disable=invalid-name
         """
-        Method calculates amount of students, that have no country and update overall variable (example below).
+        Calculates amount of students, that have no country and update overall variable (example below).
 
         Problem is a query (sql, group by `country`) does not count students without country.
         To know how many students have no country, we need subtract summarize amount of students with country from
@@ -92,7 +106,7 @@ class ReceiveInstallationStatistics(View):
 
     def create_instance_data(self, received_data, access_token):  # pylint: disable=too-many-locals
         """
-        Method provides saving edX installation data in database.
+        Provides saving edX installation data in database.
 
         Arguments:
             received_data (QueryDict): Request data from edX instance.
@@ -149,6 +163,10 @@ class ReceiveInstallationStatistics(View):
 
     @staticmethod
     def is_access_token_authorized(access_token):
+        """
+        Check if access token belongs to any EdxInstallation object.
+        """
+
         try:
             EdxInstallation.objects.get(access_token=access_token)
             return True
@@ -157,13 +175,10 @@ class ReceiveInstallationStatistics(View):
 
     def post(self, request):
         """
-        Receives information from the edx-platform and processes it.
+        Receives edX installation statistics and create corresponding data in database.
 
-        If the first time gets information from edx-platform, generates a secret token and
-        sends it back to the edx-platform for further data exchange abilities, otherwise
-        updates data in the DB with the new incoming information from the edx-platform.
-
-        Returns HTTP-response with status 201, that means object (instance data) was successfully created.
+        Returns HTTP-response with status 201, that means object (installation data) was successfully created.
+        Returns HTTP-response with status 401, that means edX installation is not authorized via token.
         """
 
         received_data = request.POST
