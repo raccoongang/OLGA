@@ -3,6 +3,7 @@ Django admin page for analytics application.
 """
 
 from django.contrib import admin
+
 from .models import EdxInstallation, InstallationStatistics
 
 
@@ -11,11 +12,11 @@ class EdxInstallationAdmin(admin.ModelAdmin):
     Admin for edX's instances storage as EdxInstallation model with overall information.
     """
     fields = [
+        'access_token',
         'latitude',
         'longitude',
         'platform_url',
         'platform_name',
-        'secret_token'
     ]
 
 

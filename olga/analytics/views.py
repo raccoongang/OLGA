@@ -5,9 +5,6 @@ Views for the analytics application.
 import json
 import uuid
 
-import requests
-
-from django.conf import settings
 from django.http import HttpResponse
 from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
@@ -15,11 +12,50 @@ from django.utils.decorators import method_decorator
 
 from .models import InstallationStatistics, EdxInstallation
 
+HTTP_200_OK = 200
 HTTP_201_CREATED = 201
+HTTP_401_UNAUTHORIZED = 401
 
 
 @method_decorator(csrf_exempt, name='dispatch')
-class ReceiveData(View):
+class AccessTokenRegistration(View):
+
+    @staticmethod
+    def post(request):  # pylint: disable=unused-argument
+        access_token = uuid.uuid4().hex
+        EdxInstallation.objects.create(access_token=access_token)
+
+        token_registration_response = json.dumps({
+            'access_token': access_token
+        })
+
+        return HttpResponse(token_registration_response, status=HTTP_201_CREATED)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class AccessTokenAuthorization(View):
+
+    @staticmethod
+    def post(request):
+        access_token = request.POST.get('access_token')
+
+        try:
+            EdxInstallation.objects.get(access_token=access_token)
+            return HttpResponse(status=HTTP_200_OK)
+
+        except EdxInstallation.DoesNotExist:
+            access_token = uuid.uuid4().hex
+            EdxInstallation.objects.create(access_token=access_token)
+
+            token_authorization_response = json.dumps({
+                'refreshed_access_token': access_token
+            })
+
+            return HttpResponse(token_authorization_response, status=HTTP_401_UNAUTHORIZED)
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ReceiveInstallationStatistics(View):
     """
     Receives and processes data from the remote edx-platform.
 
@@ -54,13 +90,13 @@ class ReceiveData(View):
 
         return students_per_country
 
-    def create_instance_data(self, received_data, secret_token):  # pylint: disable=too-many-locals
+    def create_instance_data(self, received_data, access_token):  # pylint: disable=too-many-locals
         """
-        Method provides saving instance data as object in database.
+        Method provides saving edX installation data in database.
 
         Arguments:
             received_data (QueryDict): Request data from edX instance.
-            secret_token (unicode): Secret key to allow edX instance send a data to server.
+            access_token (unicode): Secret key to allow edX instance send a data to server.
                                     If token is empty, it will be generated with uuid.UUID in string format.
         """
 
@@ -70,10 +106,6 @@ class ReceiveData(View):
         courses_amount = int(received_data.get('courses_amount'))
         statistics_level = received_data.get('statistics_level')
 
-        edx_installation = {
-            'secret_token': secret_token
-        }
-
         installation_statistics = {
             'active_students_amount_day': active_students_amount_day,
             'active_students_amount_week': active_students_amount_week,
@@ -81,6 +113,8 @@ class ReceiveData(View):
             'courses_amount': courses_amount,
             'statistics_level': statistics_level
         }
+
+        edx_installation_object = EdxInstallation.objects.get(access_token=access_token)
 
         if statistics_level == 'enthusiast':
 
@@ -102,15 +136,24 @@ class ReceiveData(View):
                 'students_per_country': students_per_country_encoded
             }
 
-            edx_installation.update(enthusiast_edx_installation)
             installation_statistics.update(enthusiast_installation_statistics)
 
-        edx_installation_object, _ = EdxInstallation.objects.get_or_create(
-            platform_url=edx_installation['platform_url'],
-            defaults=edx_installation
-        )
+            if not edx_installation_object.platform_url:
+                edx_installation_object.latitude = enthusiast_edx_installation['latitude']
+                edx_installation_object.longitude = enthusiast_edx_installation['longitude']
+                edx_installation_object.platform_name = enthusiast_edx_installation['platform_name']
+                edx_installation_object.platform_url = enthusiast_edx_installation['platform_url']
+                edx_installation_object.save()
 
         InstallationStatistics.objects.create(edx_installation=edx_installation_object, **installation_statistics)
+
+    @staticmethod
+    def is_access_token_authorized(access_token):
+        try:
+            EdxInstallation.objects.get(access_token=access_token)
+            return True
+        except EdxInstallation.DoesNotExist:
+            return False
 
     def post(self, request):
         """
@@ -124,13 +167,10 @@ class ReceiveData(View):
         """
 
         received_data = request.POST
-        platform_url = received_data.get('platform_url')
-        secret_token = received_data.get('secret_token')
+        access_token = received_data.get('access_token')
 
-        if not secret_token:
-            secret_token = uuid.uuid4().hex
-            edx_url = settings.EDX_PLATFORM_POST_URL_LOCAL if settings.DEBUG else (platform_url + '/acceptor_data/')
-            requests.post(edx_url, data={'secret_token': secret_token})
+        if self.is_access_token_authorized(access_token):
+            self.create_instance_data(received_data, access_token)
+            return HttpResponse(status=HTTP_201_CREATED)
 
-        self.create_instance_data(received_data, secret_token)
-        return HttpResponse(status=HTTP_201_CREATED)
+        return HttpResponse(status=HTTP_401_UNAUTHORIZED)

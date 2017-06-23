@@ -32,7 +32,7 @@ class EdxInstallation(models.Model):
     Model that stores overall data received from the edx-platform.
     """
 
-    secret_token = models.CharField(max_length=255, null=True)
+    access_token = models.CharField(max_length=255, null=True)
     platform_name = models.CharField(max_length=255, null=True, blank=True)
     platform_url = models.URLField(null=True, blank=True)
     latitude = models.FloatField(default=0, blank=True)
@@ -97,7 +97,7 @@ class InstallationStatistics(models.Model):
         courses_per_day = subquery.annotate(courses=Sum('courses_amount')).values_list('courses', flat=True)
 
         instances_per_day = subquery.annotate(
-            instances=Count('edx_installation__secret_token')
+            instances=Count('edx_installation__access_token')
         ).values_list('instances', flat=True)
 
         return list(students_per_day), list(courses_per_day), list(instances_per_day)
