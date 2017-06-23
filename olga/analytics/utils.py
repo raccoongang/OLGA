@@ -97,7 +97,7 @@ def generate_model():
                     "model": "analytics.edxinstallation",
                     "pk": pk,
                     "fields": {
-                        "secret_token": "platform" + " " + str(instance_num),
+                        "access_token": "platform" + " " + str(instance_num),
                         "latitude": 1.0,
                         "longitude": 1.0,
                         "platform_name": "test",

@@ -26,7 +26,7 @@
     });
 
     // Render map.
-    new Datamap({
+    var datamap = new Datamap({
         element: document.getElementById('datamap-container'),
         projection: 'mercator', // Big world map.
 
@@ -59,6 +59,8 @@
             }
         }
     });
+
+    Datamap();
 
     /**
      * Scaling map.
