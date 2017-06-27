@@ -10,7 +10,9 @@ from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
+from .forms import AccessTokenForm
 from .models import InstallationStatistics, EdxInstallation
+from .utils import installation_statistics_forms_checker
 
 HTTP_200_OK = 200
 HTTP_201_CREATED = 201
@@ -56,21 +58,26 @@ class AccessTokenAuthorization(View):
         Returns HTTP-response with status 401 and refreshed access token, that means object (installation) with
         received token does not exist and edX installation need to get new one,
         """
-        access_token = request.POST.get('access_token')
+        access_token_serializer = AccessTokenForm(request.POST)
 
-        try:
-            EdxInstallation.objects.get(access_token=access_token)
-            return HttpResponse(status=HTTP_200_OK)
+        if access_token_serializer.is_valid():
+            access_token = request.POST.get('access_token')
 
-        except EdxInstallation.DoesNotExist:
-            access_token = uuid.uuid4().hex
-            EdxInstallation.objects.create(access_token=access_token)
+            try:
+                EdxInstallation.objects.get(access_token=access_token)
+                return HttpResponse(status=HTTP_200_OK)
 
-            token_authorization_response = json.dumps({
-                'refreshed_access_token': access_token
-            })
+            except EdxInstallation.DoesNotExist:
+                access_token = uuid.uuid4().hex
+                EdxInstallation.objects.create(access_token=access_token)
 
-            return HttpResponse(token_authorization_response, status=HTTP_401_UNAUTHORIZED)
+                token_authorization_response = json.dumps({
+                    'refreshed_access_token': access_token
+                })
+
+                return HttpResponse(token_authorization_response, status=HTTP_401_UNAUTHORIZED)
+
+        return HttpResponse(status=HTTP_401_UNAUTHORIZED)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -173,6 +180,7 @@ class ReceiveInstallationStatistics(View):
         except EdxInstallation.DoesNotExist:
             return False
 
+    @method_decorator(installation_statistics_forms_checker)
     def post(self, request):
         """
         Receives edX installation statistics and create corresponding data in database.
