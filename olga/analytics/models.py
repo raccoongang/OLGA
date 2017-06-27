@@ -32,7 +32,7 @@ class EdxInstallation(models.Model):
     Model that stores overall data received from the edx-platform.
     """
 
-    access_token = models.CharField(max_length=255, null=True)
+    access_token = models.UUIDField(max_length=255, null=True)
     platform_name = models.CharField(max_length=255, null=True, blank=True)
     platform_url = models.URLField(null=True, blank=True)
     latitude = models.FloatField(default=0, blank=True)
@@ -44,21 +44,21 @@ class InstallationStatistics(models.Model):
     Model that stores statistics data received from the edx-platform.
     """
 
-    edx_installation = models.ForeignKey(EdxInstallation)
-    statistics_level = models.CharField(
-        choices=(
-            (1, 'enthusiast'),
-            (2, 'paranoid'),
-        ),
-        max_length=255,
-        default='paranoid'
-    )
     active_students_amount_day = models.IntegerField(default=0)
     active_students_amount_week = models.IntegerField(default=0)
     active_students_amount_month = models.IntegerField(default=0)
     courses_amount = models.IntegerField(default=0)
-    students_per_country = models.TextField()
     data_created_datetime = models.DateTimeField(auto_now_add=True)
+    edx_installation = models.ForeignKey(EdxInstallation)
+    statistics_level = models.CharField(
+        choices=(
+            ('enthusiast', 'enthusiast'),
+            ('paranoid', 'paranoid'),
+        ),
+        max_length=255,
+        default='paranoid'
+    )
+    students_per_country = models.TextField()
 
     @classmethod
     def timeline(cls):

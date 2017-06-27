@@ -5,13 +5,14 @@ Utilities, that create test data for charts and map.
 Needed to be deleted in production as well as `olga/analytics/test_fixture.json`.
 
 How to. From `olga/analytics` folder run:
-- python utils.py
+- python create_test_fixture.py
 - python ../../manage.py loaddata test_fixture.json
 - reload page.
 """
 
 import datetime
 import json
+import uuid
 from random import random
 
 
@@ -97,7 +98,7 @@ def generate_model():
                     "model": "analytics.edxinstallation",
                     "pk": pk,
                     "fields": {
-                        "access_token": "platform" + " " + str(instance_num),
+                        "access_token": uuid.uuid4().hex,
                         "latitude": 1.0,
                         "longitude": 1.0,
                         "platform_name": "test",

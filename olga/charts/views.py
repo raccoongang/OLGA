@@ -4,9 +4,11 @@ Views for the charts application.
 
 from __future__ import division
 
+import datetime
 import json
 
 import pycountry
+
 from django.shortcuts import render
 from django.views.generic import View
 
@@ -100,8 +102,12 @@ class GraphsView(View):
         students, courses, instances = InstallationStatistics.data_per_period()
         instances_count, courses_count, students_count = InstallationStatistics.overall_counts()
 
-        first_datetime_of_update_data = InstallationStatistics.objects.first().data_created_datetime
-        last_datetime_of_update_data = InstallationStatistics.objects.last().data_created_datetime
+        try:
+            first_datetime_of_update_data = InstallationStatistics.objects.first().data_created_datetime
+            last_datetime_of_update_data = InstallationStatistics.objects.last().data_created_datetime
+        except AttributeError:
+            first_datetime_of_update_data = datetime.datetime.now
+            last_datetime_of_update_data = datetime.datetime.now
 
         context = {
             'timeline': json.dumps(timeline),
