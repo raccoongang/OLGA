@@ -1,0 +1,51 @@
+.active {
+    fill: blue !important;
+}
+
+.navbar-brand .navbar-brand-logo {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+    background: url('/static/charts/olga_logo.svg') no-repeat;
+    background-size: contain;
+    width: 158.24176px;
+    height: 54px;
+}
+
+.navbar-brand .navbar-brand-app {
+    padding-top: 8px;
+}
+
+.navbar-default .navbar-brand {
+    display: flex;
+    align-items: center;
+    padding-top: 1px;
+    padding-bottom: 30px;
+}
+
+.navbar-brand .navbar-brand-logo {
+    margin-top: 10px;
+}
+
+.navbar-brand .navbar-brand-app {
+    padding-top: 0;
+}
+
+#olga-dates {
+    padding-top: 35px;
+}
+
+#footer-text {
+    width: 100%;
+    text-align: center;
+}
+
+#datamap-container {
+    position: relative;
+    width: 800px;
+    height: 550px;
+}
+
+#instances, #courses, #students {
+    margin-top: 0 !important;
+}
