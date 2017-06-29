@@ -2,9 +2,14 @@
 Models for analytics application. Models used to store and operate all data received from the edx platform.
 """
 
+from __future__ import division
+
 import datetime
 import json
 from collections import defaultdict
+
+
+import pycountry
 
 from django.db import models
 from django.db.models import Sum, Count, DateField
@@ -35,8 +40,8 @@ class EdxInstallation(models.Model):
     access_token = models.UUIDField(max_length=255, null=True)
     platform_name = models.CharField(max_length=255, null=True, blank=True)
     platform_url = models.URLField(null=True, blank=True)
-    latitude = models.FloatField(default=0, blank=True)
-    longitude = models.FloatField(default=0, blank=True)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
 
 
 class InstallationStatistics(models.Model):
@@ -117,9 +122,14 @@ class InstallationStatistics(models.Model):
         )
 
         instances_count = all_unique_instances.count()
-        courses_count = all_unique_instances.aggregate(Sum('courses_amount'))['courses_amount__sum']
+
+        courses_count = all_unique_instances.aggregate(
+            Sum('courses_amount')
+        )['courses_amount__sum']
+
         students_count = all_unique_instances.aggregate(
-            Sum('active_students_amount_day'))['active_students_amount_day__sum']
+            Sum('active_students_amount_day')
+        )['active_students_amount_day__sum']
 
         return instances_count, courses_count, students_count
 
@@ -148,3 +158,54 @@ class InstallationStatistics(models.Model):
                 world_students_per_country[country] += count
 
         return dict(world_students_per_country.items())
+
+    @classmethod
+    def create_worlds_students_per_country_formatted_for_render(cls):  # pylint: disable=invalid-name
+        """
+        Create convenient and necessary data formats to render it from view.
+        Graphs require list-format data.
+        """
+        worlds_students_per_country = cls.worlds_students_per_country_statistics()
+
+        datamap_format_countries_list = []
+        tabular_format_countries_list = []
+
+        all_active_students = sum(worlds_students_per_country.itervalues())
+
+        for country, count in worlds_students_per_country.iteritems():
+            student_amount_percentage = format(count / all_active_students * 100, '.2f')
+
+            # Too small percentage doesn't show real numbers. More than two numbers after point is ugly.
+            if student_amount_percentage == '0.00':
+                student_amount_percentage = '~0'
+
+            if country != 'null':
+                # Make data to datamap visualization format.
+                datamap_format_countries_list.append([
+                    str(pycountry.countries.get(alpha_2=country).alpha_3), count
+                ])
+
+                # Make data to simple table visualization format.
+                tabular_format_countries_list.append((
+                    pycountry.countries.get(alpha_2=country).name, count, student_amount_percentage
+                ))
+
+            else:
+                # Create students without country amount.
+                tabular_format_countries_list.append(('Unset', count, student_amount_percentage))
+
+        # Sort in descending order.
+        tabular_format_countries_list.sort(key=lambda row: row[1], reverse=True)
+
+        # Workaround when there is no data for the given day.
+        if not tabular_format_countries_list:
+            tabular_format_countries_list.append(('Unset', 0, 0))
+
+            # Unset is not a country
+            countries_amount = 0
+
+        else:
+            # Delete unset country point from list
+            countries_amount = len(tabular_format_countries_list) - 1
+
+        return countries_amount, datamap_format_countries_list, tabular_format_countries_list

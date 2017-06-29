@@ -26,18 +26,26 @@ class AccessTokenRegistration(View):
     """
 
     @staticmethod
-    def post(request):  # pylint: disable=unused-argument
+    def registry_a_token_and_return_it():
+        """
+        Create UUID based access token ans store it in database.
+
+        Returns same access token.
+        """
+        access_token = uuid.uuid4().hex
+        EdxInstallation.objects.create(access_token=access_token)
+
+        return access_token
+
+    def post(self, request):  # pylint: disable=unused-argument
         """
         Receives primary edX installation request for getting access for dispatch statistics via token.
 
         Returns HTTP-response with status 201, that means object (installation token) was successfully created.
         """
 
-        access_token = uuid.uuid4().hex
-        EdxInstallation.objects.create(access_token=access_token)
-
         token_registration_response = json.dumps({
-            'access_token': access_token
+            'access_token': self.registry_a_token_and_return_it()
         })
 
         return HttpResponse(token_registration_response, status=HTTP_201_CREATED)
@@ -68,11 +76,8 @@ class AccessTokenAuthorization(View):
                 return HttpResponse(status=HTTP_200_OK)
 
             except EdxInstallation.DoesNotExist:
-                access_token = uuid.uuid4().hex
-                EdxInstallation.objects.create(access_token=access_token)
-
                 token_authorization_response = json.dumps({
-                    'refreshed_access_token': access_token
+                    'refreshed_access_token': AccessTokenRegistration.registry_a_token_and_return_it()
                 })
 
                 return HttpResponse(token_authorization_response, status=HTTP_401_UNAUTHORIZED)
