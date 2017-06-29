@@ -15,6 +15,17 @@ from django.views.generic import View
 from olga.analytics.models import InstallationStatistics
 
 
+def get_first_and_last_datetime_of_update_data():
+    try:
+        first_datetime_of_update_data = InstallationStatistics.objects.first().data_created_datetime
+        last_datetime_of_update_data = InstallationStatistics.objects.last().data_created_datetime
+    except AttributeError:
+        first_datetime_of_update_data = datetime.datetime.now
+        last_datetime_of_update_data = datetime.datetime.now
+
+    return first_datetime_of_update_data, last_datetime_of_update_data
+
+
 class MapView(View):
     """
     Displays information on a world map and tabular view.
@@ -26,8 +37,7 @@ class MapView(View):
         Passes graph data to frontend.
         """
 
-        first_datetime_of_update_data = InstallationStatistics.objects.first().data_created_datetime
-        last_datetime_of_update_data = InstallationStatistics.objects.last().data_created_datetime
+        first_datetime_of_update_data, last_datetime_of_update_data = get_first_and_last_datetime_of_update_data()
 
         worlds_students_per_country = InstallationStatistics.worlds_students_per_country_statistics()
 
@@ -102,12 +112,7 @@ class GraphsView(View):
         students, courses, instances = InstallationStatistics.data_per_period()
         instances_count, courses_count, students_count = InstallationStatistics.overall_counts()
 
-        try:
-            first_datetime_of_update_data = InstallationStatistics.objects.first().data_created_datetime
-            last_datetime_of_update_data = InstallationStatistics.objects.last().data_created_datetime
-        except AttributeError:
-            first_datetime_of_update_data = datetime.datetime.now
-            last_datetime_of_update_data = datetime.datetime.now
+        first_datetime_of_update_data, last_datetime_of_update_data = get_first_and_last_datetime_of_update_data()
 
         context = {
             'timeline': json.dumps(timeline),

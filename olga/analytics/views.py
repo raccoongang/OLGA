@@ -143,7 +143,7 @@ class ReceiveInstallationStatistics(View):
             # that contains amount of students per country
             students_per_country_decoded = json.loads(received_data.get('students_per_country'))
             students_per_country_encoded = json.dumps(self.update_students_without_country_value(
-                active_students_amount_month, students_per_country_decoded
+                active_students_amount_day, students_per_country_decoded
             ))
 
             enthusiast_edx_installation = {
