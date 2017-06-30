@@ -32,6 +32,7 @@ class AccessTokenRegistration(View):
 
         Returns same access token.
         """
+
         access_token = uuid.uuid4().hex
         EdxInstallation.objects.create(access_token=access_token)
 
@@ -66,6 +67,7 @@ class AccessTokenAuthorization(View):
         Returns HTTP-response with status 401 and refreshed access token, that means object (installation) with
         received token does not exist and edX installation need to get new one,
         """
+
         access_token_serializer = AccessTokenForm(request.POST)
 
         if access_token_serializer.is_valid():
@@ -116,6 +118,46 @@ class ReceiveInstallationStatistics(View):
 
         return students_per_country
 
+
+    def extend_statistics_to_enthusiast_level(self, received_data, installation_statistics, edx_installation_object):
+        """
+        Extends installation statistics level from `Paranoid` to `Enthusiast`.
+
+        It contains additional information about installation:
+            - latitude, longitude;
+            - platform name, platform url;
+            - students per country.
+        """
+
+        active_students_amount_day = int(received_data.get('active_students_amount_day'))
+
+        # Decoded to process and encoded to save in database list of dictionaries,
+        # that contains amount of students per country
+        students_per_country_decoded = json.loads(received_data.get('students_per_country'))
+        students_per_country_encoded = json.dumps(self.update_students_without_country_value(
+            active_students_amount_day, students_per_country_decoded
+        ))
+
+        enthusiast_edx_installation = {
+            'latitude': float(received_data.get('latitude')),
+            'longitude': float(received_data.get('longitude')),
+            'platform_name': received_data.get('platform_name'),
+            'platform_url': received_data.get('platform_url'),
+        }
+
+        enthusiast_installation_statistics = {  # pylint: disable=invalid-name
+            'students_per_country': students_per_country_encoded
+        }
+
+        installation_statistics.update(enthusiast_installation_statistics)
+
+        if not edx_installation_object.platform_url:
+            edx_installation_object.latitude = enthusiast_edx_installation['latitude']
+            edx_installation_object.longitude = enthusiast_edx_installation['longitude']
+            edx_installation_object.platform_name = enthusiast_edx_installation['platform_name']
+            edx_installation_object.platform_url = enthusiast_edx_installation['platform_url']
+            edx_installation_object.save()
+
     def create_instance_data(self, received_data, access_token):  # pylint: disable=too-many-locals
         """
         Provides saving edX installation data in database.
@@ -125,7 +167,6 @@ class ReceiveInstallationStatistics(View):
             access_token (unicode): Secret key to allow edX instance send a data to server.
                                     If token is empty, it will be generated with uuid.UUID in string format.
         """
-
         active_students_amount_day = int(received_data.get('active_students_amount_day'))
         active_students_amount_week = int(received_data.get('active_students_amount_week'))
         active_students_amount_month = int(received_data.get('active_students_amount_month'))
@@ -143,33 +184,7 @@ class ReceiveInstallationStatistics(View):
         edx_installation_object = EdxInstallation.objects.get(access_token=access_token)
 
         if statistics_level == 'enthusiast':
-
-            # Decoded to process and encoded to save in database list of dictionaries,
-            # that contains amount of students per country
-            students_per_country_decoded = json.loads(received_data.get('students_per_country'))
-            students_per_country_encoded = json.dumps(self.update_students_without_country_value(
-                active_students_amount_day, students_per_country_decoded
-            ))
-
-            enthusiast_edx_installation = {
-                'latitude': float(received_data.get('latitude')),
-                'longitude': float(received_data.get('longitude')),
-                'platform_name': received_data.get('platform_name'),
-                'platform_url': received_data.get('platform_url'),
-            }
-
-            enthusiast_installation_statistics = {  # pylint: disable=invalid-name
-                'students_per_country': students_per_country_encoded
-            }
-
-            installation_statistics.update(enthusiast_installation_statistics)
-
-            if not edx_installation_object.platform_url:
-                edx_installation_object.latitude = enthusiast_edx_installation['latitude']
-                edx_installation_object.longitude = enthusiast_edx_installation['longitude']
-                edx_installation_object.platform_name = enthusiast_edx_installation['platform_name']
-                edx_installation_object.platform_url = enthusiast_edx_installation['platform_url']
-                edx_installation_object.save()
+            self.extend_statistics_to_enthusiast_level(received_data, installation_statistics, edx_installation_object)
 
         InstallationStatistics.objects.create(edx_installation=edx_installation_object, **installation_statistics)
 
