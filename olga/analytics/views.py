@@ -2,12 +2,13 @@
 Views for the analytics application.
 """
 
+import httplib
 import json
 import logging
 import uuid
 
-
 from django.http import HttpResponse
+from django.http import JsonResponse
 from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -21,10 +22,6 @@ logger.setLevel(logging.DEBUG)
 
 stream_handler = logging.StreamHandler()
 stream_handler.setLevel(logging.INFO)
-
-HTTP_200_OK = 200
-HTTP_201_CREATED = 201
-HTTP_401_UNAUTHORIZED = 401
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -44,12 +41,8 @@ class AccessTokenRegistration(View):
         access_token = uuid.uuid4().hex
         EdxInstallation.objects.create(access_token=access_token)
 
-        token_registration_response = json.dumps({
-            'access_token': access_token
-        })
-
-        logger.info('OLGA acceptor registered edX installation with token {0}'.format(access_token))
-        return HttpResponse(token_registration_response, status=HTTP_201_CREATED)
+        logger.info('OLGA acceptor registered edX installation with token %s', access_token)
+        return JsonResponse({'access_token': access_token}, status=httplib.CREATED)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -73,24 +66,20 @@ class AccessTokenAuthorization(View):
         try:
             EdxInstallation.objects.get(access_token=access_token)
 
-            logger.info('edX installation with token {0} was successfully authorized'.format(access_token))
-            return HttpResponse(status=HTTP_200_OK)
+            logger.info('edX installation with token %s was successfully authorized', access_token)
+            return HttpResponse(status=httplib.OK)
 
         except EdxInstallation.DoesNotExist:
             logger.info(
                 'edX installation has no corresponding data in OLGA acceptor database (no received token).'
-                'Received token is {0}.'.format(access_token)
+                'Received token is %s.', access_token
             )
 
             access_token = uuid.uuid4().hex
             EdxInstallation.objects.create(access_token=access_token)
 
-            token_authorization_response = json.dumps({
-                'refreshed_access_token': access_token
-            })
-
-            logger.info('Refreshed token for edX installation is {0}'.format(access_token))
-            return HttpResponse(token_authorization_response, status=HTTP_401_UNAUTHORIZED)
+            logger.info('Refreshed token for edX installation is %s', access_token)
+            return JsonResponse({'refreshed_access_token': access_token}, status=httplib.NOT_FOUND)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -124,7 +113,7 @@ class ReceiveInstallationStatistics(View):
 
         return students_per_country
 
-    def create_instance_data(self, received_data, access_token):  # pylint: disable=too-many-locals
+    def create_instance_data(self, received_data, access_token):
         """
         Provides saving edX installation data in database.
 
@@ -189,7 +178,7 @@ class ReceiveInstallationStatistics(View):
 
         try:
             EdxInstallation.objects.get(access_token=access_token)
-            logger.info('edX installation with token {0} was successfully authorized'.format(access_token))
+            logger.info('edX installation with token %s was successfully authorized', access_token)
             return True
         except EdxInstallation.DoesNotExist:
             return False
@@ -208,20 +197,21 @@ class ReceiveInstallationStatistics(View):
         if self.is_access_token_authorized(access_token):
 
             logger.info(
-                'edX installation called {0} from {1} sent statistics after authorization'.format(
-                    received_data.get('platform_name'), received_data.get('platform_url')
-                )
+                'edX installation called %s from %s sent statistics after authorization',
+                received_data.get('platform_name'),
+                received_data.get('platform_url')
             )
 
             logger.debug(json.dumps(received_data, sort_keys=True, indent=4))
 
             self.create_instance_data(received_data, access_token)
             logger.info('Corresponding data was created in OLGA acceptor database.')
-            return HttpResponse(status=HTTP_201_CREATED)
+            return HttpResponse(status=httplib.CREATED)
 
         logger.info(
-            'edX installation called {0} from {1} is an unauthorized member'.format(
-                received_data.get('platform_name'), received_data.get('platform_url')
-            )
+            'edX installation called %s from %s is an unauthorized member',
+            received_data.get('platform_name'),
+            received_data.get('platform_url')
         )
-        return HttpResponse(status=HTTP_401_UNAUTHORIZED)
+
+        return HttpResponse(status=httplib.NOT_FOUND)
