@@ -14,8 +14,13 @@ from django.utils.decorators import method_decorator
 
 from .models import InstallationStatistics, EdxInstallation
 
+logging.basicConfig()
+
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
+
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
 
 HTTP_200_OK = 200
 HTTP_201_CREATED = 201
@@ -208,14 +213,14 @@ class ReceiveInstallationStatistics(View):
                 )
             )
 
-            logger.info(json.dumps(received_data, sort_keys=True, indent=4))
+            logger.debug(json.dumps(received_data, sort_keys=True, indent=4))
 
             self.create_instance_data(received_data, access_token)
-            logger.info('Corresponding data was created in OLGA acceptor database.'.format(access_token))
+            logger.info('Corresponding data was created in OLGA acceptor database.')
             return HttpResponse(status=HTTP_201_CREATED)
 
         logger.info(
-            'edX installation called {0} from {1} is unauthorized member'.format(
+            'edX installation called {0} from {1} is an unauthorized member'.format(
                 received_data.get('platform_name'), received_data.get('platform_url')
             )
         )
