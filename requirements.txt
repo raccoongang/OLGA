@@ -2,7 +2,7 @@ ddt==1.1.1
 Django==1.11.3
 pep8==1.7.0
 psycopg2==2.7.1
-pycountry==17.1.8
+pycountry==17.5.14
 pylint==1.7.1
 requests==2.13.0
 uWSGI==2.0.15
