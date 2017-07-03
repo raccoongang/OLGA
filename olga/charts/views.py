@@ -2,7 +2,7 @@
 Views for the charts application.
 """
 
-import datetime
+from datetime import datetime
 import json
 
 from django.shortcuts import render
@@ -19,8 +19,8 @@ def get_first_and_last_datetime_of_update_data():  # pylint: disable=invalid-nam
         first_datetime_of_update_data = InstallationStatistics.objects.first().data_created_datetime
         last_datetime_of_update_data = InstallationStatistics.objects.last().data_created_datetime
     except AttributeError:
-        first_datetime_of_update_data = datetime.datetime.now
-        last_datetime_of_update_data = datetime.datetime.now
+        first_datetime_of_update_data = datetime.now()
+        last_datetime_of_update_data = datetime.now()
 
     return first_datetime_of_update_data, last_datetime_of_update_data
 
