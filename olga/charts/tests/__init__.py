@@ -1,1 +1,1 @@
-from test_views import *
+from olga.charts.tests.test_views import *

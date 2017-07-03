@@ -2,8 +2,8 @@
 Views for the charts application.
 """
 
-from datetime import datetime
 import json
+from datetime import datetime
 
 from django.shortcuts import render
 from django.views.generic import View
@@ -15,6 +15,7 @@ def get_first_and_last_datetime_of_update_data():  # pylint: disable=invalid-nam
     """
     Get first and last datetimes OLGA acceptor gathers statistics.
     """
+
     try:
         first_datetime_of_update_data = InstallationStatistics.objects.first().data_created_datetime
         last_datetime_of_update_data = InstallationStatistics.objects.last().data_created_datetime
@@ -37,10 +38,10 @@ class MapView(View):
         List is sorted, first country is a top active students rank country.
         """
 
-        if len(tabular_format_countries_list) == 0:
+        if not tabular_format_countries_list:
             return None
-        else:
-            return tabular_format_countries_list[0][0]
+
+        return tabular_format_countries_list[0][0]
 
     def get(self, request):
         """

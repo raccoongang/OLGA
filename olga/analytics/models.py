@@ -4,10 +4,9 @@ Models for analytics application. Models used to store and operate all data rece
 
 from __future__ import division
 
-import datetime
 import json
+from datetime import date, timedelta
 from collections import defaultdict
-
 
 import pycountry
 
@@ -26,8 +25,8 @@ def get_previous_day_start_and_end_dates():  # pylint: disable=invalid-name
                            that doesn't count in segment. Example for 2017-05-15 is 2017-05-16.
     """
 
-    end_of_day = datetime.date.today()
-    start_of_day = end_of_day - datetime.timedelta(days=1)
+    end_of_day = date.today()
+    start_of_day = end_of_day - timedelta(days=1)
 
     return start_of_day, end_of_day
 
@@ -134,7 +133,7 @@ class InstallationStatistics(models.Model):
         return instances_count, courses_count, students_count
 
     @classmethod
-    def get_worlds_students_per_country_country_count_accordance(cls):  # pylint: disable=invalid-name
+    def get_worlds_students_per_country_count_accordance(cls):  # pylint: disable=invalid-name
         """
         Total of students amount per country to display on world map from all instances per previous calendar day.
 
@@ -160,7 +159,7 @@ class InstallationStatistics(models.Model):
         return dict(world_students_per_country.items())
 
     @staticmethod
-    def get_student_amount_percentage(same_country_count_in_statistics, all_active_students_in_statistics):
+    def get_student_amount_percentage(country_count_in_statistics, all_active_students_in_statistics):
         """
         Calculates student amount percentage based on total countries amount and particular county amount comparison.
 
@@ -169,7 +168,7 @@ class InstallationStatistics(models.Model):
         """
 
         students_amount_percentage = format(
-            same_country_count_in_statistics / all_active_students_in_statistics * 100, '.2f'
+            country_count_in_statistics / all_active_students_in_statistics * 100, '.2f'
         )
 
         if students_amount_percentage == '0.00':
@@ -254,12 +253,12 @@ class InstallationStatistics(models.Model):
         Gathers convenient and necessary data formats to render it from view.
         """
         worlds_students_per_country_country_count_accordance = \
-            cls.get_worlds_students_per_country_country_count_accordance()
+            cls.get_worlds_students_per_country_count_accordance()
 
-        (datamap_format_countries_list,
-         tabular_format_countries_list) = cls.create_worlds_students_per_country_data_formatted_to_render(
-            worlds_students_per_country_country_count_accordance
-        )
+        datamap_format_countries_list, tabular_format_countries_list = \
+            cls.create_worlds_students_per_country_data_formatted_to_render(
+                worlds_students_per_country_country_count_accordance
+            )
 
         countries_amount = cls.get_countries_amount(tabular_format_countries_list)
 
