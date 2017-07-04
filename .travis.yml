@@ -6,7 +6,7 @@ python:
 cache:
   pip: true
 
-install:
+before_install:
 - pip install pep8
 - pip install pydocstyle
 - pip install pylint
