@@ -1,4 +1,4 @@
 [pydocstyle]
 # Acceptor follow style, that dictates to always use multiline docstrings.
 ignore = D200
-exclude = **/migrations/**/*
+exclude = migrations
