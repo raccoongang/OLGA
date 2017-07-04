@@ -15,3 +15,6 @@ script:
 - pep8
 - pydocstyle
 - pylint olga
+
+ignore:
+- **/migrations/**/*
