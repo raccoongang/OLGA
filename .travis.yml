@@ -7,8 +7,8 @@ cache:
   pip: true
 
 before_install:
+- pip install pep8==1.7.0
 - pip install flake8==3.3.0
-- pip install pydocstyle==2.0.0
 - pip install pylint==1.7.2
 
 script:
