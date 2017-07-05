@@ -27,26 +27,25 @@ def get_first_and_last_datetime_of_update_data():  # pylint: disable=invalid-nam
 
 class MapView(View):
     """
-    Displays information on a world map and tabular view.
+    Display information on a world map and tabular view.
     """
 
     @staticmethod
     def get_statistics_top_country(tabular_format_countries_list):
         """
-        Gets first country from tabular format country list.
+        Get first country from tabular format country list.
+
         List is sorted, first country is a top active students rank country.
         """
-
-        if len(tabular_format_countries_list) == 0:
+        if not tabular_format_countries_list:
             return None
-        else:
-            return tabular_format_countries_list[0][0]
+
+        return tabular_format_countries_list[0][0]
 
     def get(self, request):
         """
-        Passes graph data to frontend.
+        Pass graph data to frontend.
         """
-
         first_datetime_of_update_data, last_datetime_of_update_data = get_first_and_last_datetime_of_update_data()
 
         countries_amount, datamap_format_countries_list, tabular_format_countries_list = \
@@ -66,18 +65,14 @@ class MapView(View):
 
 class GraphsView(View):
     """
-    Provides data and plot 3 main graphs:
-    1. Number of students per date.
-    2. Number of courses per date.
-    3. Number of instances per date.
+    Provide data and plot 3 main graphs: number of, students, courses and instances per date.
     """
 
     @staticmethod
     def get(request):
         """
-        Passes graph data to frontend.
+        Pass graph data to frontend.
         """
-
         timeline = InstallationStatistics.timeline()
 
         students, courses, instances = InstallationStatistics.data_per_period()

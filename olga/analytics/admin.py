@@ -11,6 +11,7 @@ class EdxInstallationAdmin(admin.ModelAdmin):
     """
     Admin for edX's instances storage as EdxInstallation model with overall information.
     """
+
     fields = [
         'access_token',
         'latitude',
@@ -24,6 +25,7 @@ class InstallationStatisticsAdmin(admin.ModelAdmin):
     """
     Admin for edX's instances storage as InstallationStatistics model with overall information.
     """
+
     fields = [
         'active_students_amount_day',
         'active_students_amount_week',
@@ -38,6 +40,7 @@ class InstallationStatisticsAdmin(admin.ModelAdmin):
     readonly_fields = (
         'data_created_datetime',
     )
+
 
 admin.site.register(EdxInstallation, EdxInstallationAdmin)
 admin.site.register(InstallationStatistics, InstallationStatisticsAdmin)

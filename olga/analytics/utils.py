@@ -11,16 +11,14 @@ HTTP_401_UNAUTHORIZED = 401
 
 def installation_statistics_forms_checker(receive_installation_statistics_post_method):  # pylint: disable=invalid-name
     """
-    Checks are edX overall installation info and statistics valid with corresponding forms.
+    Checksare edX overall installation info and statistics valid with corresponding forms.
 
     Returns HTTP-response with status 401, that means at least one of two forms is not valid.
     """
-
     def receive_installation_statistics_post_method_wrapper(request, *args, **kwargs):  # pylint: disable=invalid-name
         """
         Wrapper.
         """
-
         edx_installation_form = EdxInstallationForm(request.POST)
         installation_statistics_form = InstallationStatisticsForm(request.POST)
 

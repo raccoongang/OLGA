@@ -29,7 +29,7 @@ stream_handler.setLevel(logging.INFO)
 @method_decorator(csrf_exempt, name='dispatch')
 class AccessTokenRegistration(View):
     """
-    Provides access token registration functionality.
+    Provide access token registration functionality.
     """
 
     @staticmethod
@@ -37,9 +37,8 @@ class AccessTokenRegistration(View):
         """
         Create UUID based access token ans store it in database.
 
-        Returns same access token.
+        Return same access token.
         """
-
         access_token = uuid.uuid4().hex
         EdxInstallation.objects.create(access_token=access_token)
 
@@ -47,10 +46,11 @@ class AccessTokenRegistration(View):
 
     def post(self, request):  # pylint: disable=unused-argument
         """
-        Receives primary edX installation request for getting access for dispatch statistics via token.
+        Receive primary edX installation request for getting access for dispatch statistics via token.
 
         Returns HTTP-response with status 201, that means object (installation token) was successfully created.
         """
+        access_token = self.registry_a_token_and_return_it()
 
         logger.info('OLGA acceptor registered edX installation with token %s', access_token)
         return JsonResponse({'access_token': access_token}, status=httplib.CREATED)
@@ -59,19 +59,18 @@ class AccessTokenRegistration(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class AccessTokenAuthorization(View):
     """
-    Provides access token authorization functionality.
+    Provide access token authorization functionality.
     """
 
     @staticmethod
     def post(request):
         """
-        Verifies that installation is allowed access to dispatch installation statistics.
+        Verify that installation is allowed access to dispatch installation statistics.
 
         Returns HTTP-response with status 200, that means object (installation) with received token exists.
         Returns HTTP-response with status 401 and refreshed access token, that means object (installation) with
         received token does not exist and edX installation need to get new one,
         """
-
         access_token_serializer = AccessTokenForm(request.POST)
 
         if access_token_serializer.is_valid():
@@ -93,20 +92,21 @@ class AccessTokenAuthorization(View):
 
                 logger.info('Refreshed token for edX installation is %s', access_token)
                 return JsonResponse({'refreshed_access_token': access_token}, status=httplib.UNAUTHORIZED)
-              
+
         return HttpResponse(status=httplib.UNAUTHORIZED)
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ReceiveInstallationStatistics(View):
     """
-    Provides edX installation statistics reception and processing functionality.
+    Provide edX installation statistics reception and processing functionality.
     """
 
     @staticmethod
     def update_students_without_country_value(active_students_amount, students_per_country):
         # pylint: disable=invalid-name
         """
-        Calculates amount of students, that have no country and update overall variable (example below).
+        Calculate amount of students, that have no country and update overall variable (example below).
 
         Problem is a query (sql, group by `country`) does not count students without country.
         To know how many students have no country, we need subtract summarize amount of students with country from
@@ -121,22 +121,22 @@ class ReceiveInstallationStatistics(View):
             students_per_country (dict): Country-count accordance as pair of key-value.
                                          Amount of students without country has calculated and inserted to
                                          corresponding key ('null').
-        """
 
+        """
         students_per_country['null'] = active_students_amount - sum(students_per_country.values())
 
         return students_per_country
 
     def extend_statistics_to_enthusiast_level(self, received_data, installation_statistics, edx_installation_object):
+        # pylint: disable=invalid-name
         """
-        Extends installation statistics level from `Paranoid` to `Enthusiast`.
+        Extend installation statistics level from `Paranoid` to `Enthusiast`.
 
         It contains additional information about installation:
             - latitude, longitude;
             - platform name, platform url;
             - students per country.
         """
-
         active_students_amount_day = int(received_data.get('active_students_amount_day'))
 
         # Decoded to process and encoded to save in database list of dictionaries,
@@ -168,14 +168,13 @@ class ReceiveInstallationStatistics(View):
 
     def create_instance_data(self, received_data, access_token):
         """
-        Provides saving edX installation data in database.
+        Provide saving edX installation data in database.
 
         Arguments:
             received_data (QueryDict): Request data from edX instance.
             access_token (unicode): Secret key to allow edX instance send a data to server.
                                     If token is empty, it will be generated with uuid.UUID in string format.
         """
-        
         active_students_amount_day = int(received_data.get('active_students_amount_day'))
         active_students_amount_week = int(received_data.get('active_students_amount_week'))
         active_students_amount_month = int(received_data.get('active_students_amount_month'))
@@ -202,7 +201,6 @@ class ReceiveInstallationStatistics(View):
         """
         Check if access token belongs to any EdxInstallation object.
         """
-
         try:
             EdxInstallation.objects.get(access_token=access_token)
             logger.info('edX installation with token %s was successfully authorized', access_token)
@@ -213,12 +211,11 @@ class ReceiveInstallationStatistics(View):
     @method_decorator(installation_statistics_forms_checker)
     def post(self, request):
         """
-        Receives edX installation statistics and create corresponding data in database.
+        Receive edX installation statistics and create corresponding data in database.
 
         Returns HTTP-response with status 201, that means object (installation data) was successfully created.
         Returns HTTP-response with status 401, that means edX installation is not authorized via token.
         """
-
         received_data = request.POST
         access_token = received_data.get('access_token')
 

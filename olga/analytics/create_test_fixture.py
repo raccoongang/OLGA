@@ -1,5 +1,3 @@
-# pylint: disable-all
-
 """
 Utilities, that create test data for charts and map.
 Needed to be deleted in production as well as `olga/analytics/test_fixture.json`.
@@ -14,6 +12,9 @@ import datetime
 import json
 import uuid
 from random import random
+
+# pylint: disable-all
+# flake8: noqa
 
 
 class LoadTestModel(object):

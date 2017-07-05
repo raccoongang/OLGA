@@ -24,8 +24,8 @@ def get_previous_day_start_and_end_dates():  # pylint: disable=invalid-name
         start_of_day (date): Previous day's start. Example for 2017-05-15 is 2017-05-15.
         end_of_day (date): Previous day's end, it's a next day (tomorrow) toward day's start,
                            that doesn't count in segment. Example for 2017-05-15 is 2017-05-16.
-    """
 
+    """
     end_of_day = datetime.date.today()
     start_of_day = end_of_day - datetime.timedelta(days=1)
 
@@ -70,7 +70,6 @@ class InstallationStatistics(models.Model):
         """
         Provide timeline in days for plotting on x axis.
         """
-
         timeline_datetimes = cls.objects.order_by(
             'data_created_datetime'
         ).values_list('data_created_datetime', flat=True).distinct()
@@ -83,10 +82,10 @@ class InstallationStatistics(models.Model):
     def data_per_period(cls):
         """
         Provide total students, courses and instances, from all services per period, day by default.
+
         We summarize values per day, because in same day we can receive data from multiple different instances.
         We suppose, that every instance send data only once per day.
         """
-
         subquery = cls.objects.annotate(
             date_in_days=Trunc('data_created_datetime', 'day', output_field=DateField())
         ).values('date_in_days').order_by()
@@ -114,7 +113,6 @@ class InstallationStatistics(models.Model):
 
         Returns overall counts as int-value.
         """
-
         start_of_day, end_of_day = get_previous_day_start_and_end_dates()
 
         all_unique_instances = cls.objects.filter(
@@ -140,8 +138,8 @@ class InstallationStatistics(models.Model):
 
         Returns:
             world_students_per_country (dict): Country-count accordance as pair of key-value.
-        """
 
+        """
         start_of_day, end_of_day = get_previous_day_start_and_end_dates()
 
         # Get list of instances's students per country data as unicode strings.
@@ -160,16 +158,16 @@ class InstallationStatistics(models.Model):
         return dict(world_students_per_country.items())
 
     @staticmethod
-    def get_student_amount_percentage(same_country_count_in_statistics, all_active_students_in_statistics):
+    def get_student_amount_percentage(country_count_in_statistics, all_active_students_in_statistics):
+        # pylint: disable=invalid-name
         """
-        Calculates student amount percentage based on total countries amount and particular county amount comparison.
+        Calculate student amount percentage based on total countries amount and particular county amount comparison.
 
         If percentage is too small and doesn't show real numbers
         it will be changed to '~0' (around zero value, but not totally).
         """
-
         students_amount_percentage = format(
-            same_country_count_in_statistics / all_active_students_in_statistics * 100, '.2f'
+            country_count_in_statistics / all_active_students_in_statistics * 100, '.2f'
         )
 
         if students_amount_percentage == '0.00':
@@ -180,18 +178,16 @@ class InstallationStatistics(models.Model):
     @staticmethod
     def is_country_exists(country):
         """
-        Checks if value is not a null.
+        Check if value is not a null.
         """
-
         if country != 'null':
             return True
 
     @staticmethod
     def append_country_data_to_list(country_list, country, count, student_amount_percentage=None):
         """
-        Makes data for particular visualization format. Example for `datamap` or tabular view.
+        Make data for particular visualization format. Example for `datamap` or tabular view.
         """
-
         country_data = [str(pycountry.countries.get(alpha_2=country).alpha_3), count]
 
         if student_amount_percentage is not None:
@@ -201,15 +197,17 @@ class InstallationStatistics(models.Model):
 
     @classmethod
     def create_worlds_students_per_country_data_formatted_to_render(cls, worlds_students_per_country):
+        # pylint: disable=invalid-name
         """
         Create convenient and necessary data formats to render it from view.
+
         Graphs require list-format data.
         """
-
         datamap_format_countries_list = []
         tabular_format_countries_list = []
 
         all_active_students_in_statistics = sum(worlds_students_per_country.itervalues())
+        # pylint: disable=invalid-name
 
         for country, count in worlds_students_per_country.iteritems():
             student_amount_percentage = cls.get_student_amount_percentage(count, all_active_students_in_statistics)
@@ -233,11 +231,12 @@ class InstallationStatistics(models.Model):
     @staticmethod
     def get_countries_amount(tabular_format_countries_list):
         """
-        Gets countries amount in worlds students per country statistics as table.
+        Get countries amount in worlds students per country statistics as table.
+
         If no countries append `Unset` field with zero countries, else get
         """
         if not tabular_format_countries_list:
-            # tabular_format_countries_list.append(('Unset', 0, 0))
+            tabular_format_countries_list.append(('Unset', 0, 0))
 
             # Unset is not a country
             countries_amount = 0
@@ -251,15 +250,16 @@ class InstallationStatistics(models.Model):
     @classmethod
     def get_worlds_students_per_country_data_to_render(cls):  # pylint: disable=invalid-name
         """
-        Gathers convenient and necessary data formats to render it from view.
+        Gather convenient and necessary data formats to render it from view.
         """
+        # pylint: disable=invalid-name
         worlds_students_per_country_country_count_accordance = \
             cls.get_worlds_students_per_country_country_count_accordance()
 
-        (datamap_format_countries_list,
-         tabular_format_countries_list) = cls.create_worlds_students_per_country_data_formatted_to_render(
-            worlds_students_per_country_country_count_accordance
-        )
+        datamap_format_countries_list, tabular_format_countries_list = \
+            cls.create_worlds_students_per_country_data_formatted_to_render(
+                worlds_students_per_country_country_count_accordance
+            )
 
         countries_amount = cls.get_countries_amount(tabular_format_countries_list)
 
