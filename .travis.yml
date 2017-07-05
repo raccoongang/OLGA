@@ -1,0 +1,18 @@
+language: python
+sudo: false
+python:
+- 2.7
+
+cache:
+  pip: true
+
+before_install:
+- pip install flake8_docstrings==1.1.0
+- pip install flake8==3.3.0
+- pip install pep8==1.7.0
+- pip install pylint==1.7.2
+
+script:
+- pep8
+- flake8
+- pylint olga

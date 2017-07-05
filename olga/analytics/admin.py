@@ -10,6 +10,7 @@ class EdxInstallationAdmin(admin.ModelAdmin):
     """
     Admin for edX's instances storage as EdxInstallation model with overall information.
     """
+
     fields = [
         'latitude',
         'longitude',
@@ -23,6 +24,7 @@ class InstallationStatisticsAdmin(admin.ModelAdmin):
     """
     Admin for edX's instances storage as InstallationStatistics model with overall information.
     """
+
     fields = [
         'active_students_amount_day',
         'active_students_amount_week',

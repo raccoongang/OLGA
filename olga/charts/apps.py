@@ -11,4 +11,5 @@ class ChartsConfig(AppConfig):
     """
     Django AppConfig class for the charts application.
     """
+
     name = 'olga.charts'
