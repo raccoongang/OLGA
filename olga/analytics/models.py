@@ -24,9 +24,6 @@ def get_previous_day_start_and_end_dates():  # pylint: disable=invalid-name
         start_of_day (date): Previous day's start. Example for 2017-05-15 is 2017-05-15.
         end_of_day (date): Previous day's end, it's a next day (tomorrow) toward day's start,
                            that doesn't count in segment. Example for 2017-05-15 is 2017-05-16.
-                           
-    """
-
 
     """
     end_of_day = datetime.date.today()
