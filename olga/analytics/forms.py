@@ -1,3 +1,5 @@
+# pylint: disable-all
+
 """
 Forms for received edX installation data.
 """
