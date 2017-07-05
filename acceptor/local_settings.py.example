@@ -1,9 +1,0 @@
-"""
-Django private(local) settings for acceptor project.
-This file is example of settings for local development.
-"""
-
-DEBUG = True
-
-# Local IP address of the edx-platform running within VM.
-EDX_PLATFORM_POST_URL_LOCAL = 'http://192.168.1.137:7000/acceptor_data/'

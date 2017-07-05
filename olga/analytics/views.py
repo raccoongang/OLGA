@@ -13,7 +13,9 @@ from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
+from .forms import AccessTokenForm
 from .models import InstallationStatistics, EdxInstallation
+from .utils import installation_statistics_forms_checker
 
 logging.basicConfig()
 
@@ -31,15 +33,24 @@ class AccessTokenRegistration(View):
     """
 
     @staticmethod
-    def post(request):  # pylint: disable=unused-argument
+    def registry_a_token_and_return_it():
+        """
+        Create UUID based access token ans store it in database.
+
+        Returns same access token.
+        """
+
+        access_token = uuid.uuid4().hex
+        EdxInstallation.objects.create(access_token=access_token)
+
+        return access_token
+
+    def post(self, request):  # pylint: disable=unused-argument
         """
         Receives primary edX installation request for getting access for dispatch statistics via token.
 
         Returns HTTP-response with status 201, that means object (installation token) was successfully created.
         """
-
-        access_token = uuid.uuid4().hex
-        EdxInstallation.objects.create(access_token=access_token)
 
         logger.info('OLGA acceptor registered edX installation with token %s', access_token)
         return JsonResponse({'access_token': access_token}, status=httplib.CREATED)
@@ -61,26 +72,29 @@ class AccessTokenAuthorization(View):
         received token does not exist and edX installation need to get new one,
         """
 
-        access_token = request.POST.get('access_token')
+        access_token_serializer = AccessTokenForm(request.POST)
 
-        try:
-            EdxInstallation.objects.get(access_token=access_token)
+        if access_token_serializer.is_valid():
+            access_token = request.POST.get('access_token')
 
-            logger.info('edX installation with token %s was successfully authorized', access_token)
-            return HttpResponse(status=httplib.OK)
+            try:
+                EdxInstallation.objects.get(access_token=access_token)
 
-        except EdxInstallation.DoesNotExist:
-            logger.info(
-                'edX installation has no corresponding data in OLGA acceptor database (no received token).'
-                'Received token is %s.', access_token
-            )
+                logger.info('edX installation with token %s was successfully authorized', access_token)
+                return HttpResponse(status=httplib.OK)
 
-            access_token = uuid.uuid4().hex
-            EdxInstallation.objects.create(access_token=access_token)
+            except EdxInstallation.DoesNotExist:
+                logger.info(
+                    'edX installation has no corresponding data in OLGA acceptor database (no received token).'
+                    'Received token is %s.', access_token
+                )
 
-            logger.info('Refreshed token for edX installation is %s', access_token)
-            return JsonResponse({'refreshed_access_token': access_token}, status=httplib.NOT_FOUND)
+                access_token = AccessTokenRegistration.registry_a_token_and_return_it()
 
+                logger.info('Refreshed token for edX installation is %s', access_token)
+                return JsonResponse({'refreshed_access_token': access_token}, status=httplib.UNAUTHORIZED)
+              
+        return HttpResponse(status=httplib.UNAUTHORIZED)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ReceiveInstallationStatistics(View):
@@ -113,6 +127,45 @@ class ReceiveInstallationStatistics(View):
 
         return students_per_country
 
+    def extend_statistics_to_enthusiast_level(self, received_data, installation_statistics, edx_installation_object):
+        """
+        Extends installation statistics level from `Paranoid` to `Enthusiast`.
+
+        It contains additional information about installation:
+            - latitude, longitude;
+            - platform name, platform url;
+            - students per country.
+        """
+
+        active_students_amount_day = int(received_data.get('active_students_amount_day'))
+
+        # Decoded to process and encoded to save in database list of dictionaries,
+        # that contains amount of students per country
+        students_per_country_decoded = json.loads(received_data.get('students_per_country'))
+        students_per_country_encoded = json.dumps(self.update_students_without_country_value(
+            active_students_amount_day, students_per_country_decoded
+        ))
+
+        enthusiast_edx_installation = {
+            'latitude': float(received_data.get('latitude')),
+            'longitude': float(received_data.get('longitude')),
+            'platform_name': received_data.get('platform_name'),
+            'platform_url': received_data.get('platform_url'),
+        }
+
+        enthusiast_installation_statistics = {  # pylint: disable=invalid-name
+            'students_per_country': students_per_country_encoded
+        }
+
+        installation_statistics.update(enthusiast_installation_statistics)
+
+        if not edx_installation_object.platform_url:
+            edx_installation_object.latitude = enthusiast_edx_installation['latitude']
+            edx_installation_object.longitude = enthusiast_edx_installation['longitude']
+            edx_installation_object.platform_name = enthusiast_edx_installation['platform_name']
+            edx_installation_object.platform_url = enthusiast_edx_installation['platform_url']
+            edx_installation_object.save()
+
     def create_instance_data(self, received_data, access_token):
         """
         Provides saving edX installation data in database.
@@ -122,7 +175,7 @@ class ReceiveInstallationStatistics(View):
             access_token (unicode): Secret key to allow edX instance send a data to server.
                                     If token is empty, it will be generated with uuid.UUID in string format.
         """
-
+        
         active_students_amount_day = int(received_data.get('active_students_amount_day'))
         active_students_amount_week = int(received_data.get('active_students_amount_week'))
         active_students_amount_month = int(received_data.get('active_students_amount_month'))
@@ -140,33 +193,7 @@ class ReceiveInstallationStatistics(View):
         edx_installation_object = EdxInstallation.objects.get(access_token=access_token)
 
         if statistics_level == 'enthusiast':
-
-            # Decoded to process and encoded to save in database list of dictionaries,
-            # that contains amount of students per country
-            students_per_country_decoded = json.loads(received_data.get('students_per_country'))
-            students_per_country_encoded = json.dumps(self.update_students_without_country_value(
-                active_students_amount_month, students_per_country_decoded
-            ))
-
-            enthusiast_edx_installation = {
-                'latitude': float(received_data.get('latitude')),
-                'longitude': float(received_data.get('longitude')),
-                'platform_name': received_data.get('platform_name'),
-                'platform_url': received_data.get('platform_url'),
-            }
-
-            enthusiast_installation_statistics = {  # pylint: disable=invalid-name
-                'students_per_country': students_per_country_encoded
-            }
-
-            installation_statistics.update(enthusiast_installation_statistics)
-
-            if not edx_installation_object.platform_url:
-                edx_installation_object.latitude = enthusiast_edx_installation['latitude']
-                edx_installation_object.longitude = enthusiast_edx_installation['longitude']
-                edx_installation_object.platform_name = enthusiast_edx_installation['platform_name']
-                edx_installation_object.platform_url = enthusiast_edx_installation['platform_url']
-                edx_installation_object.save()
+            self.extend_statistics_to_enthusiast_level(received_data, installation_statistics, edx_installation_object)
 
         InstallationStatistics.objects.create(edx_installation=edx_installation_object, **installation_statistics)
 
@@ -183,6 +210,7 @@ class ReceiveInstallationStatistics(View):
         except EdxInstallation.DoesNotExist:
             return False
 
+    @method_decorator(installation_statistics_forms_checker)
     def post(self, request):
         """
         Receives edX installation statistics and create corresponding data in database.
@@ -214,4 +242,4 @@ class ReceiveInstallationStatistics(View):
             received_data.get('platform_url')
         )
 
-        return HttpResponse(status=httplib.NOT_FOUND)
+        return HttpResponse(status=httplib.UNAUTHORIZED)
