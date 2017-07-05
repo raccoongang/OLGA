@@ -56,10 +56,14 @@
     appendChartData(courses_gd, courses, 'Active Courses');
     appendChartData(students_gd, students, 'Active Students');
 
-    window.onresize = function() {
-        Plotly.Plots.resize(instances_gd);
-        Plotly.Plots.resize(courses_gd);
-        Plotly.Plots.resize(students_gd);
-    };
+    var debounceWindowResizePlotly = _.debounce(function() {
+        window.onresize = function() {
+            Plotly.Plots.resize(instances_gd);
+            Plotly.Plots.resize(courses_gd);
+            Plotly.Plots.resize(students_gd);
+        }
+    }, 300);
+
+    window.addEventListener('resize', debounceWindowResizePlotly);
 
 }());

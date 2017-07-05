@@ -2,10 +2,13 @@
 Views for the analytics application.
 """
 
+import httplib
 import json
+import logging
 import uuid
 
 from django.http import HttpResponse
+from django.http import JsonResponse
 from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -14,9 +17,13 @@ from .forms import AccessTokenForm
 from .models import InstallationStatistics, EdxInstallation
 from .utils import installation_statistics_forms_checker
 
-HTTP_200_OK = 200
-HTTP_201_CREATED = 201
-HTTP_401_UNAUTHORIZED = 401
+logging.basicConfig()
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+stream_handler = logging.StreamHandler()
+stream_handler.setLevel(logging.INFO)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -45,11 +52,8 @@ class AccessTokenRegistration(View):
         Returns HTTP-response with status 201, that means object (installation token) was successfully created.
         """
 
-        token_registration_response = json.dumps({
-            'access_token': self.registry_a_token_and_return_it()
-        })
-
-        return HttpResponse(token_registration_response, status=HTTP_201_CREATED)
+        logger.info('OLGA acceptor registered edX installation with token %s', access_token)
+        return JsonResponse({'access_token': access_token}, status=httplib.CREATED)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -75,17 +79,22 @@ class AccessTokenAuthorization(View):
 
             try:
                 EdxInstallation.objects.get(access_token=access_token)
-                return HttpResponse(status=HTTP_200_OK)
+
+                logger.info('edX installation with token %s was successfully authorized', access_token)
+                return HttpResponse(status=httplib.OK)
 
             except EdxInstallation.DoesNotExist:
-                token_authorization_response = json.dumps({
-                    'refreshed_access_token': AccessTokenRegistration.registry_a_token_and_return_it()
-                })
+                logger.info(
+                    'edX installation has no corresponding data in OLGA acceptor database (no received token).'
+                    'Received token is %s.', access_token
+                )
 
-                return HttpResponse(token_authorization_response, status=HTTP_401_UNAUTHORIZED)
+                access_token = AccessTokenRegistration.registry_a_token_and_return_it()
 
-        return HttpResponse(status=HTTP_401_UNAUTHORIZED)
-
+                logger.info('Refreshed token for edX installation is %s', access_token)
+                return JsonResponse({'refreshed_access_token': access_token}, status=httplib.UNAUTHORIZED)
+              
+        return HttpResponse(status=httplib.UNAUTHORIZED)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class ReceiveInstallationStatistics(View):
@@ -117,7 +126,6 @@ class ReceiveInstallationStatistics(View):
         students_per_country['null'] = active_students_amount - sum(students_per_country.values())
 
         return students_per_country
-
 
     def extend_statistics_to_enthusiast_level(self, received_data, installation_statistics, edx_installation_object):
         """
@@ -158,7 +166,7 @@ class ReceiveInstallationStatistics(View):
             edx_installation_object.platform_url = enthusiast_edx_installation['platform_url']
             edx_installation_object.save()
 
-    def create_instance_data(self, received_data, access_token):  # pylint: disable=too-many-locals
+    def create_instance_data(self, received_data, access_token):
         """
         Provides saving edX installation data in database.
 
@@ -167,6 +175,7 @@ class ReceiveInstallationStatistics(View):
             access_token (unicode): Secret key to allow edX instance send a data to server.
                                     If token is empty, it will be generated with uuid.UUID in string format.
         """
+        
         active_students_amount_day = int(received_data.get('active_students_amount_day'))
         active_students_amount_week = int(received_data.get('active_students_amount_week'))
         active_students_amount_month = int(received_data.get('active_students_amount_month'))
@@ -196,6 +205,7 @@ class ReceiveInstallationStatistics(View):
 
         try:
             EdxInstallation.objects.get(access_token=access_token)
+            logger.info('edX installation with token %s was successfully authorized', access_token)
             return True
         except EdxInstallation.DoesNotExist:
             return False
@@ -213,7 +223,23 @@ class ReceiveInstallationStatistics(View):
         access_token = received_data.get('access_token')
 
         if self.is_access_token_authorized(access_token):
-            self.create_instance_data(received_data, access_token)
-            return HttpResponse(status=HTTP_201_CREATED)
 
-        return HttpResponse(status=HTTP_401_UNAUTHORIZED)
+            logger.info(
+                'edX installation called %s from %s sent statistics after authorization',
+                received_data.get('platform_name'),
+                received_data.get('platform_url')
+            )
+
+            logger.debug(json.dumps(received_data, sort_keys=True, indent=4))
+
+            self.create_instance_data(received_data, access_token)
+            logger.info('Corresponding data was created in OLGA acceptor database.')
+            return HttpResponse(status=httplib.CREATED)
+
+        logger.info(
+            'edX installation called %s from %s is an unauthorized member',
+            received_data.get('platform_name'),
+            received_data.get('platform_url')
+        )
+
+        return HttpResponse(status=httplib.UNAUTHORIZED)
