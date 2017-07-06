@@ -25,9 +25,6 @@ class TestGraphsMetricsWithoutStatistics(TestCase):
         instances_amount = 0
         instances_label = 'Instances'
 
-        # print('<<', HtmlTargets.activity_metric_html_target)
-        # print(dir(HtmlTargets.activity_metric_html_target))
-
         target_html_object = html_target.activity_metric.format(
             instances_amount, instances_label
         )
@@ -122,7 +119,7 @@ class TestMapMetricsWithStatistics(TestCase):
         """
         Verify that html renders students amount to students activity metric if statistics statistics.
 
-        Students amount is a total, that compiled from all objects for last calendar day/
+        Students amount is a total, that compiled from all objects for last calendar day.
         """
         response = self.client.get('/')
 
