@@ -19,3 +19,4 @@ script:
 - pylint olga
 - coverage run --source='.' manage.py test
 - coverage report -m
+- bash <(curl -s https://codecov.io/bash)

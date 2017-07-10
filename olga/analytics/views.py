@@ -118,7 +118,6 @@ class ReceiveInstallationStatistics(View):
 
         return students_per_country
 
-
     def extend_statistics_to_enthusiast_level(self, received_data, installation_statistics, edx_installation_object):
         """
         Extends installation statistics level from `Paranoid` to `Enthusiast`.

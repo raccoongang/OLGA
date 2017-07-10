@@ -17,6 +17,7 @@ from ..models import InstallationStatistics, EdxInstallation
 # flake8: noqa:D101
 # pylint: disable=missing-docstring, too-few-public-methods
 
+
 class EdxInstallationFactory(DjangoModelFactory):
     class Meta(object):
         model = EdxInstallation

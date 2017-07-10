@@ -20,7 +20,7 @@ class TestInstallationStatisticsMethods(TestCase):
     """
 
     @patch('django.utils.timezone.now')
-    def setUp(self, mock_timezone_now): # flake8: noqa:D400
+    def setUp(self, mock_timezone_now):  # flake8: noqa:D400
         """
         Create five unique edx installations and corresponding statistics, then create two statistics objects
         for acquainted edx installation (last two edx installation objects in unique list).
