@@ -15,6 +15,8 @@ from olga.charts.views import (
     get_first_and_last_datetime_of_update_data
 )
 
+# pylint: disable=invalid-name
+
 
 class TestMapView(TestCase):
     """
@@ -23,36 +25,32 @@ class TestMapView(TestCase):
 
     def test_map_url_resolves_to_map_view(self):
         """
-        Verifies that map url resolves to map view.
+        Verify that map url resolves to map view.
         """
-
         response = self.client.get('/map/')
 
         self.assertEqual(response.resolver_match.func.__name__, MapView.__name__)
 
     def test_map_view_get_method_returns_status_code_ok(self):
         """
-        Verifies that map view returns status 200 (ok) after get request to map url.
+        Verify that map view returns status 200 (ok) after get request to map url.
         """
-
         response = self.client.get('/map/')
 
         self.assertEqual(response.status_code, 200)
 
     def test_map_view_get_method_uses_correct_html(self):
         """
-        Verifies that map view uses correct html-template after get request to map url.
+        Verify that map view uses correct html-template after get request to map url.
         """
-
         response = self.client.get('/map/')
 
         self.assertTemplateUsed(response, 'charts/worldmap.html')
 
     def test_map_view_get_method_render_correct_view_context_fields(self):
         """
-        Verifies that map view render correct context fields.
+        Verify that map view render correct context fields.
         """
-
         response = self.client.get('/map/')
 
         context_fields = [
@@ -77,9 +75,8 @@ class TestMapView(TestCase):
             mock_get_statistics_top_country
     ):
         """
-        Verifies that map view render correct context fields values.
+        Verify that map view render correct context fields values.
         """
-
         mock_countries_amount, mock_datamap_format_countries_list, mock_tabular_format_countries_list = \
             10, [['US', '10'], ['CA', '20']], [['Canada', 66, '20'], ['United States', 33, '10']]
 
@@ -109,12 +106,11 @@ class TestMapView(TestCase):
 
     def test_get_statistics_top_country_method_returns_top_country_if_tabular_format_countries_list_exists(self):
         """
-        Verifies that get_statistics_top_country method returns top country if tabular format countries list exists.
+        Verify that get_statistics_top_country method returns top country if tabular format countries list exists.
 
         Actually before using get_statistics_top_country method server sorts tabular format countries list
         in descending order, that means first element is top value.
         """
-
         tabular_format_countries_list = [['Canada', 66, '20'], ['United States', 33, '10']]
 
         result = MapView.get_statistics_top_country(tabular_format_countries_list)
@@ -123,9 +119,8 @@ class TestMapView(TestCase):
 
     def test_get_statistics_top_country_method_returns_none_if_tabular_format_countries_list_is_empty(self):
         """
-        Verifies that get_statistics_top_country method returns non if tabular format countries list is empty.
+        Verify that get_statistics_top_country method returns non if tabular format countries list is empty.
         """
-
         tabular_format_countries_list = []
 
         result = MapView.get_statistics_top_country(tabular_format_countries_list)
@@ -143,10 +138,9 @@ class TestViewsUtils(TestCase):
             mock_installation_statistics_model_objects_last_method
     ):
         """
-        Verifies that get_first_and_last_datetime_of_update_data method returns first object datetime and
+        Verify that get_first_and_last_datetime_of_update_data method returns first object datetime and
         last object datetime in database.
         """
-
         mock_first_datetime_of_update_data = datetime(2017, 6, 1, 14, 56, 18)
         mock_last_datetime_of_update_data = datetime(2017, 7, 2, 23, 12, 8)
 
@@ -174,10 +168,9 @@ class TestViewsUtils(TestCase):
             self, mock_installation_statistics_model_objects_first_method, mock_datetime
     ):
         """
-        Verifies that get_first_and_last_datetime_of_update_data method returns `datetime.now` if first object datetime
+        Verify that get_first_and_last_datetime_of_update_data method returns `datetime.now` if first object datetime
         and last object datetime do not exist in database.
         """
-
         mock_installation_statistics_model_objects_first_method.side_effect = AttributeError()
 
         mock_first_datetime_of_update_data = mock_last_datetime_of_update_data = datetime(2017, 7, 2, 23, 12, 8)
@@ -198,7 +191,7 @@ class TestGraphsView(TestCase):
 
     def test_graphs_url_resolves_to_map_view(self):
         """
-        Verifies that graphs url resolves to graphs view.
+        Verify that graphs url resolves to graphs view.
         """
         response = self.client.get('/')
 
@@ -206,27 +199,24 @@ class TestGraphsView(TestCase):
 
     def test_graphs_view_get_method_returns_status_code_ok(self):
         """
-        Verifies that graphs view returns status 200 (ok) after get request to graphs url.
+        Verify that graphs view returns status 200 (ok) after get request to graphs url.
         """
-
         response = self.client.get('/')
 
         self.assertEqual(response.status_code, 200)
 
     def test_graphs_view_get_method_uses_correct_html(self):
         """
-        Verifies that graphs view uses correct html-template after get request to graphs url.
+        Verify that graphs view uses correct html-template after get request to graphs url.
         """
-
         response = self.client.get('/')
 
         self.assertTemplateUsed(response, 'charts/graphs.html')
 
     def test_graphs_view_get_method_render_correct_view_context_fields(self):
         """
-        Verifies that graphs view render correct context fields.
+        Verify that graphs view render correct context fields.
         """
-
         response = self.client.get('/')
 
         context_fields = [
@@ -256,9 +246,8 @@ class TestGraphsView(TestCase):
             mock_get_first_and_last_datetime_of_update_data
     ):
         """
-        Verifies that graphs view render correct context fields values.
+        Verify that graphs view render correct context fields values.
         """
-
         mock_timeline = ['2017-05-14', '2017-05-15', '2017-05-16']
         mock_students, mock_courses, mock_instances = [4124, 5122, 6412], [110, 211, 167], [30, 20, 25]
         mock_instances_count, mock_courses_count, mock_students_count = 6412, 167, 25

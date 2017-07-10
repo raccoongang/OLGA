@@ -14,8 +14,8 @@ from pytz import UTC
 from ..models import InstallationStatistics, EdxInstallation
 
 # Factories are self documenting
-# pylint: disable=missing-docstring
-
+# flake8: noqa:D101
+# pylint: disable=missing-docstring, too-few-public-methods
 
 class EdxInstallationFactory(DjangoModelFactory):
     class Meta(object):

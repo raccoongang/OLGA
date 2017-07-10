@@ -10,6 +10,10 @@ How to. From `olga/analytics` folder run:
 - reload page.
 """
 
+# pylint: disable-all
+# flake8: noqa
+
+
 import datetime
 import json
 import uuid

@@ -17,6 +17,5 @@ script:
 - pep8
 - flake8
 - pylint olga
-- python manage.py test
 - coverage run --source='.' manage.py test
 - coverage report -m

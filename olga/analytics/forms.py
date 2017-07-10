@@ -1,11 +1,12 @@
-# pylint: disable-all
-
 """
 Forms for received edX installation data.
 """
 
 from django import forms
 from .models import EdxInstallation, InstallationStatistics
+
+# pylint: disable-all
+# flake8: noqa
 
 
 class AccessTokenForm(forms.Form):

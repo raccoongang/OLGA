@@ -11,6 +11,8 @@ from django.test import TestCase
 from factories import InstallationStatisticsFactory
 from olga.analytics.models import InstallationStatistics, get_previous_day_start_and_end_dates
 
+# pylint: disable=invalid-name
+
 
 class TestInstallationStatisticsMethods(TestCase):
     """
@@ -18,9 +20,9 @@ class TestInstallationStatisticsMethods(TestCase):
     """
 
     @patch('django.utils.timezone.now')
-    def setUp(self, mock_timezone_now):
+    def setUp(self, mock_timezone_now): # flake8: noqa:D400
         """
-        Creates five unique edx installations and corresponding statistics, then create two statistics objects
+        Create five unique edx installations and corresponding statistics, then create two statistics objects
         for acquainted edx installation (last two edx installation objects in unique list).
 
         So we get 5 unique objects, 3 from them has only one record in installation statistics,
@@ -33,7 +35,6 @@ class TestInstallationStatisticsMethods(TestCase):
             - fourth object with 2017-06-01 15:30:30, 2017-06-04 15:30:30, 2017-06-05 15:30:30
             - fifth object with 2017-06-01 15:30:30, 2017-06-04 15:30:30, 2017-06-05 15:30:30
         """
-
         data_created_datetimes = [
             datetime(2017, 6, 1, 15, 30, 30),
             datetime(2017, 6, 1, 15, 30, 30),
@@ -66,9 +67,8 @@ class TestInstallationStatisticsMethods(TestCase):
 
     def test_timeline_method_returns_unique_existing_datetime_sorted_in_descending_order(self):
         """
-        Verifies that timeline method returns unique existing datetime sorted in descending order.
+        Verify that timeline method returns unique existing datetime sorted in descending order.
         """
-
         result = InstallationStatistics.timeline()
 
         self.assertEqual(
@@ -77,9 +77,8 @@ class TestInstallationStatisticsMethods(TestCase):
 
     def test_data_per_period_method_annotate_by_day_with_trunc_and_then_sums_statistics_amounts(self):
         """
-        Verifies that data_per_period method annotate by day with trunc and then sums statistics amounts.
+        Verify that data_per_period method annotate by day with trunc and then sums statistics amounts.
         """
-
         result = InstallationStatistics.data_per_period()
 
         self.assertEqual(
@@ -91,9 +90,8 @@ class TestInstallationStatisticsMethods(TestCase):
             self, mock_get_previous_day_start_and_end_dates
     ):
         """
-        Verifies that test_overall_counts method returns overall statistics instance counts for previous calendar day.
+        Verify that test_overall_counts method returns overall statistics instance counts for previous calendar day.
         """
-
         mock_get_previous_day_start_and_end_dates.return_value = date(2017, 6, 1), date(2017, 6, 2)
 
         result = InstallationStatistics.overall_counts()
@@ -107,9 +105,8 @@ class TestInstallationStatisticsMethods(TestCase):
             self, mock_get_previous_day_start_and_end_dates
     ):
         """
-        Verifies that test_get_worlds_students_per_country_count_accordance method returns correct accordance as dict.
+        Verify that test_get_worlds_students_per_country_count_accordance method returns correct accordance as dict.
         """
-
         mock_get_previous_day_start_and_end_dates.return_value = date(2017, 6, 1), date(2017, 6, 2)
 
         result = InstallationStatistics.get_worlds_students_per_country_count_accordance()
@@ -125,10 +122,10 @@ class TestInstallationStatisticsMethods(TestCase):
 
     def test_create_worlds_students_per_country_data_formatted_to_render_method_returns_datamap_and_tabular_lists(self):
         """
-        Verifies that test_create_worlds_students_per_country_data_formatted_to_render method
-        returns datamap and tabular lists.
-        """
+        Verify that view gets datamap and tabular lists with corresponding model method.
 
+        Model method is test_create_worlds_students_per_country_data_formatted_to_render method.
+        """
         worlds_students_per_country = {
             'RU': 5264,
             'CA': 37086,
@@ -156,9 +153,8 @@ class TestInstallationStatisticsMethods(TestCase):
             self, mock_get_previous_day_start_and_end_dates
     ):
         """
-        Verifies that test_get_worlds_students_per_country_data_to_render method returns data to render correct values.
+        Verify that test_get_worlds_students_per_country_data_to_render method returns data to render correct values.
         """
-
         mock_get_previous_day_start_and_end_dates.return_value = date(2017, 6, 1), date(2017, 6, 2)
 
         result = InstallationStatistics.get_worlds_students_per_country_data_to_render()
@@ -180,7 +176,7 @@ class TestInstallationStatisticsHelpMethods(TestCase):
 
     def test_get_student_amount_percentage_method_returns_correct_value_if_it_is_not_too_small(self):
         """
-        Verifies that test_get_student_amount_percentage method returns correct value if it is not too small.
+        Verify that test_get_student_amount_percentage method returns correct value if it is not too small.
         """
         country_count_in_statistics = 40
         all_active_students_in_statistics = 100
@@ -193,9 +189,8 @@ class TestInstallationStatisticsHelpMethods(TestCase):
 
     def test_get_student_amount_percentage_method_returns_correct_value_if_it_is_too_small(self):
         """
-        Verifies that test_get_student_amount_percentage method returns correct value if it is too small.
+        Verify that test_get_student_amount_percentage method returns correct value if it is too small.
         """
-
         country_count_in_statistics = 3
         all_active_students_in_statistics = 348214
 
@@ -207,9 +202,8 @@ class TestInstallationStatisticsHelpMethods(TestCase):
 
     def test_is_country_exists_method_returns_true_if_country_exists(self):
         """
-        Verifies that test_is_country_exists method returns true if country exists.
+        Verify that test_is_country_exists method returns true if country exists.
         """
-
         country = 'Canada'
 
         result = InstallationStatistics.is_country_exists(country)
@@ -218,9 +212,8 @@ class TestInstallationStatisticsHelpMethods(TestCase):
 
     def test_append_country_data_to_list_method_appends_data_without_student_amount_percentage(self):
         """
-        Verifies that test_append_country_data_to_list method appends data without student amount percentage.
+        Verify that test_append_country_data_to_list method appends data without student amount percentage.
         """
-
         country_list = []
         student_amount_percentage = None
 
@@ -241,9 +234,8 @@ class TestInstallationStatisticsHelpMethods(TestCase):
 
     def test_append_country_data_to_list_method_appends_data_with_student_amount_percentage(self):
         """
-        Verifies that test_append_country_data_to_list method appends data with student amount percentage.
+        Verify that test_append_country_data_to_list method appends data with student amount percentage.
         """
-
         country_list = []
 
         first_country, second_country, first_student_amount_percentage = 'CA', 'UA', 30.45
@@ -263,10 +255,8 @@ class TestInstallationStatisticsHelpMethods(TestCase):
 
     def test_get_countries_amount_method_returns_countries_amount_in_tabular_format_countries_list_if_it_exists(self):
         """
-        Verifies that test_get_countries_amount method returns
-        countries amount in tabular format countries list if it exists.
+        Verify that test_get_countries_amount method returns countries amount in tabular format list if it exists.
         """
-
         tabular_format_countries_list = [
             ['CAN', 37086, '79.97'], ['RUS', 5264, '11.35'], ['UKR', 4022, '8.67'], ('Unset', 2, '~0')
         ]
@@ -277,10 +267,8 @@ class TestInstallationStatisticsHelpMethods(TestCase):
 
     def test_get_countries_amount_method_returns_countries_amount_in_tabular_format_countries_list_if_it_is_empty(self):
         """
-        Verifies that test_get_countries_amount method returns
-        countries amount in tabular format countries list if it is empty.
+        Verify that test_get_countries_amount method returns countries amount in tabular format list if it is empty.
         """
-
         tabular_format_countries_list = []
 
         result = InstallationStatistics.get_countries_amount(tabular_format_countries_list)
@@ -296,9 +284,8 @@ class TestAnalyticsModelsHelpFunctions(TestCase):
     @patch('olga.analytics.models.date')
     def test_get_previous_day_start_and_end_dates(self, mock_date):
         """
-        Verifies that get_previous_day_start_and_end_dates returns expected previous day start and end dates.
+        Verify that get_previous_day_start_and_end_dates returns expected previous day start and end dates.
         """
-
         mock_date.today.return_value = date(2017, 6, 14)
 
         result = get_previous_day_start_and_end_dates()
