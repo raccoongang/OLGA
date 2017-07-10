@@ -11,4 +11,5 @@ class AnalyticsConfig(AppConfig):
     """
     Django AppConfig class for the analytics application.
     """
+
     name = 'olga.analytics'
