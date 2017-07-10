@@ -19,7 +19,7 @@ from olga.analytics.utils import installation_statistics_forms_checker
 @patch('olga.analytics.forms.EdxInstallationForm.is_valid')
 class TestInstallationStatisticsFormsChecker(TestCase):
     """
-    Tests for analytics utils.
+    Tests for installation statistics forms checker decorator.
     """
 
     def setUp(self):
@@ -41,7 +41,7 @@ class TestInstallationStatisticsFormsChecker(TestCase):
 
         self.decorator_wrapper = installation_statistics_forms_checker(self.mock_decorated_method)
 
-    def test_decorated_method_called_once_with_parameters_in_installation_statistics_forms_checker_if_forms_are_valid(
+    def test_decorated_method_called_once_with_parameters_if_forms_are_valid(
             self, mock_edx_installation_form, mock_installation_statistics_form
     ):
         """
@@ -52,7 +52,7 @@ class TestInstallationStatisticsFormsChecker(TestCase):
         self.decorator_wrapper(self.request, *self.request.args, **self.request.kwargs)
         self.mock_decorated_method.assert_called_once_with(self.request, *self.request.args, **self.request.kwargs)
 
-    def test_installation_statistics_forms_checker_returns_decorated_method_response_if_forms_are_valid(
+    def test_decorator_returns_decorated_method_response_if_forms_are_valid(
             self, mock_edx_installation_form, mock_installation_statistics_form
     ):
         """
@@ -66,7 +66,7 @@ class TestInstallationStatisticsFormsChecker(TestCase):
 
         self.assertEqual(self.fake_response, self.decorator_wrapper_response)
 
-    def test_installation_statistics_forms_checker_returns_decorated_method_response_if_forms_are_not_valid(
+    def test_decorator_returns_401_instead_of_decorated_method_response_if_forms_are_not_valid(
             self, mock_edx_installation_form, mock_installation_statistics_form
     ):
         """

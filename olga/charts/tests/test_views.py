@@ -104,7 +104,10 @@ class TestMapView(TestCase):
         self.assertEqual(response.context['first_datetime_of_update_data'], mock_first_datetime_of_update_data)
         self.assertEqual(response.context['last_datetime_of_update_data'], mock_last_datetime_of_update_data)
 
-    def test_get_statistics_top_country_method_returns_top_country_if_tabular_format_countries_list_exists(self):
+    # test_get_countries_amount_method_returns_countries_amount_in_existing_tabular_list
+    # test_get_countries_amount_method_returns_zero_if_tabular_list_does_not_exist
+
+    def test_existing_tabular_list_top_country_correct_result_returning(self):
         """
         Verify that get_statistics_top_country method returns top country if tabular format countries list exists.
 
@@ -117,7 +120,7 @@ class TestMapView(TestCase):
 
         self.assertEqual('Canada', result)
 
-    def test_get_statistics_top_country_method_returns_none_if_tabular_format_countries_list_is_empty(self):
+    def test_none_returning_if_tabular_list_does_not_exist(self):
         """
         Verify that get_statistics_top_country method returns non if tabular format countries list is empty.
         """
@@ -132,7 +135,7 @@ class TestViewsUtils(TestCase):
 
     @patch('olga.analytics.models.InstallationStatistics.objects.last')
     @patch('olga.analytics.models.InstallationStatistics.objects.first')
-    def test_get_first_and_last_datetime_of_update_data_method_returns_objects_datetime_if_it_exists(
+    def test_first_and_last_datetime_of_update_data_returning_if_data_exists(
             self,
             mock_installation_statistics_model_objects_first_method,
             mock_installation_statistics_model_objects_last_method
@@ -164,7 +167,7 @@ class TestViewsUtils(TestCase):
 
     @patch('olga.charts.views.datetime')
     @patch('olga.analytics.models.InstallationStatistics.objects.first')
-    def test_get_first_and_last_datetime_of_update_data_method_returns_datetime_now_if_objects_datetime_does_not_exist(
+    def test_first_and_last_datetime_of_update_data_returning_if_data_does_not_exist(
             self, mock_installation_statistics_model_objects_first_method, mock_datetime
     ):
         """

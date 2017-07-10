@@ -75,9 +75,9 @@ class TestInstallationStatisticsMethods(TestCase):
             ['2017-06-01', '2017-06-02', '2017-06-03', '2017-06-04', '2017-06-05'], result
         )
 
-    def test_data_per_period_method_annotate_by_day_with_trunc_and_then_sums_statistics_amounts(self):
+    def test_data_per_period_method_annotates_statistics_amounts(self):
         """
-        Verify that data_per_period method annotate by day with trunc and then sums statistics amounts.
+        Verify that data_per_period method annotates by day with trunc and then sums statistics amounts.
         """
         result = InstallationStatistics.data_per_period()
 
@@ -86,9 +86,7 @@ class TestInstallationStatisticsMethods(TestCase):
         )
 
     @patch('olga.analytics.models.get_previous_day_start_and_end_dates')
-    def test_overall_counts_method_returns_overall_statistics_instance_counts_for_previous_calendar_day(
-            self, mock_get_previous_day_start_and_end_dates
-    ):
+    def test_overall_counts_method_returns_correct_result(self, mock_get_previous_day_start_and_end_dates):
         """
         Verify that test_overall_counts method returns overall statistics instance counts for previous calendar day.
         """
@@ -101,7 +99,7 @@ class TestInstallationStatisticsMethods(TestCase):
         )
 
     @patch('olga.analytics.models.get_previous_day_start_and_end_dates')
-    def test_get_worlds_students_per_country_count_accordance_method_returns_correct_accordance_as_dict(
+    def test_get_worlds_students_per_country_count_accordance_method_returns_correct_result(
             self, mock_get_previous_day_start_and_end_dates
     ):
         """
@@ -120,7 +118,7 @@ class TestInstallationStatisticsMethods(TestCase):
 
         self.assertDictEqual(country_count_accordance_for_previous_calendar_day, result)
 
-    def test_create_worlds_students_per_country_data_formatted_to_render_method_returns_datamap_and_tabular_lists(self):
+    def test_datamap_and_tabular_lists_correct_result_returning(self):
         """
         Verify that view gets datamap and tabular lists with corresponding model method.
 
@@ -149,7 +147,7 @@ class TestInstallationStatisticsMethods(TestCase):
         )
 
     @patch('olga.analytics.models.get_previous_day_start_and_end_dates')
-    def test_get_worlds_students_per_country_data_to_render_method_returns_data_to_render_correct_values(
+    def test_students_per_country_correct_result_returning(
             self, mock_get_previous_day_start_and_end_dates
     ):
         """
@@ -174,7 +172,7 @@ class TestInstallationStatisticsHelpMethods(TestCase):
     Tests for InstallationStatistics model's help methods, that work with calculation.
     """
 
-    def test_get_student_amount_percentage_method_returns_correct_value_if_it_is_not_too_small(self):
+    def test_student_percentage_correct_result_returning(self):
         """
         Verify that test_get_student_amount_percentage method returns correct value if it is not too small.
         """
@@ -187,7 +185,7 @@ class TestInstallationStatisticsHelpMethods(TestCase):
 
         self.assertEqual('40.00', result)
 
-    def test_get_student_amount_percentage_method_returns_correct_value_if_it_is_too_small(self):
+    def test_student_percentage_correct_result_returning_if_percentage_is_small(self):
         """
         Verify that test_get_student_amount_percentage method returns correct value if it is too small.
         """
@@ -210,7 +208,7 @@ class TestInstallationStatisticsHelpMethods(TestCase):
 
         self.assertTrue(result)
 
-    def test_append_country_data_to_list_method_appends_data_without_student_amount_percentage(self):
+    def test_append_country_data_to_list_method_works_without_student_percentage(self):
         """
         Verify that test_append_country_data_to_list method appends data without student amount percentage.
         """
@@ -232,7 +230,7 @@ class TestInstallationStatisticsHelpMethods(TestCase):
             [['CAN', 1321], ['UKR', 3421]], country_list
         )
 
-    def test_append_country_data_to_list_method_appends_data_with_student_amount_percentage(self):
+    def test_append_country_data_to_list_method_works_with_student_percentage(self):
         """
         Verify that test_append_country_data_to_list method appends data with student amount percentage.
         """
@@ -253,7 +251,7 @@ class TestInstallationStatisticsHelpMethods(TestCase):
             [['CAN', 1321, 30.45], ['UKR', 3421, 75.01]], country_list
         )
 
-    def test_get_countries_amount_method_returns_countries_amount_in_tabular_format_countries_list_if_it_exists(self):
+    def test_get_countries_amount_method_returns_countries_amount_in_existing_tabular_list(self):
         """
         Verify that test_get_countries_amount method returns countries amount in tabular format list if it exists.
         """
@@ -265,7 +263,7 @@ class TestInstallationStatisticsHelpMethods(TestCase):
 
         self.assertEqual(3, result)
 
-    def test_get_countries_amount_method_returns_countries_amount_in_tabular_format_countries_list_if_it_is_empty(self):
+    def test_get_countries_amount_method_returns_zero_if_tabular_list_does_not_exist(self):
         """
         Verify that test_get_countries_amount method returns countries amount in tabular format list if it is empty.
         """
