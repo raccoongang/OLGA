@@ -107,7 +107,7 @@ class TestMapView(TestCase):
     # test_get_countries_amount_method_returns_countries_amount_in_existing_tabular_list
     # test_get_countries_amount_method_returns_zero_if_tabular_list_does_not_exist
 
-    def test_existing_tabular_list_top_country_correct_result_returning(self):
+    def test_correct_result_returning_existing_tabular_list_top_country(self):
         """
         Verify that get_statistics_top_country method returns top country if tabular format countries list exists.
 
@@ -120,7 +120,7 @@ class TestMapView(TestCase):
 
         self.assertEqual('Canada', result)
 
-    def test_none_returning_if_tabular_list_does_not_exist(self):
+    def test_returning_none_if_tabular_list_does_not_exist(self):
         """
         Verify that get_statistics_top_country method returns non if tabular format countries list is empty.
         """
@@ -135,7 +135,7 @@ class TestViewsUtils(TestCase):
 
     @patch('olga.analytics.models.InstallationStatistics.objects.last')
     @patch('olga.analytics.models.InstallationStatistics.objects.first')
-    def test_first_and_last_datetime_of_update_data_returning_if_data_exists(
+    def test_returning_first_and_last_datetime_of_update_data_if_data_exists(
             self,
             mock_installation_statistics_model_objects_first_method,
             mock_installation_statistics_model_objects_last_method
@@ -167,7 +167,7 @@ class TestViewsUtils(TestCase):
 
     @patch('olga.charts.views.datetime')
     @patch('olga.analytics.models.InstallationStatistics.objects.first')
-    def test_first_and_last_datetime_of_update_data_returning_if_data_does_not_exist(
+    def test_returning_first_and_last_datetime_of_update_data_if_data_does_not_exist(
             self, mock_installation_statistics_model_objects_first_method, mock_datetime
     ):
         """

@@ -118,7 +118,7 @@ class TestInstallationStatisticsMethods(TestCase):
 
         self.assertDictEqual(country_count_accordance_for_previous_calendar_day, result)
 
-    def test_datamap_and_tabular_lists_correct_result_returning(self):
+    def test_correct_result_returning_datamap_and_tabular_lists(self):
         """
         Verify that view gets datamap and tabular lists with corresponding model method.
 
@@ -147,7 +147,7 @@ class TestInstallationStatisticsMethods(TestCase):
         )
 
     @patch('olga.analytics.models.get_previous_day_start_and_end_dates')
-    def test_students_per_country_correct_result_returning(
+    def test_correct_result_returning_students_per_country(
             self, mock_get_previous_day_start_and_end_dates
     ):
         """
@@ -172,7 +172,7 @@ class TestInstallationStatisticsHelpMethods(TestCase):
     Tests for InstallationStatistics model's help methods, that work with calculation.
     """
 
-    def test_student_percentage_correct_result_returning(self):
+    def test_correct_result_returning_student_percentage(self):
         """
         Verify that test_get_student_amount_percentage method returns correct value if it is not too small.
         """
@@ -185,7 +185,7 @@ class TestInstallationStatisticsHelpMethods(TestCase):
 
         self.assertEqual('40.00', result)
 
-    def test_student_percentage_correct_result_returning_if_percentage_is_small(self):
+    def test_correct_result_returning_student_percentage_if_percentage_is_small(self):
         """
         Verify that test_get_student_amount_percentage method returns correct value if it is too small.
         """
