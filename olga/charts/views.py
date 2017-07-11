@@ -7,17 +7,23 @@ import json
 
 from django.shortcuts import render
 from django.views.generic import View
+from django.db.models import Max, Min
 
 from olga.analytics.models import InstallationStatistics
 
 
-def get_first_and_last_datetime_of_update_data():  # pylint: disable=invalid-name
+def get_data_created_datetime_scope():
     """
     Get first and last datetimes OLGA acceptor gathers statistics.
     """
     try:
-        first_datetime_of_update_data = InstallationStatistics.objects.first().data_created_datetime
-        last_datetime_of_update_data = InstallationStatistics.objects.last().data_created_datetime
+        data_created_datetime_scope = InstallationStatistics.objects.aggregate(
+            Min('data_created_datetime'), Max('data_created_datetime')
+        )
+
+        first_datetime_of_update_data = data_created_datetime_scope['data_created_datetime__min']
+        last_datetime_of_update_data = data_created_datetime_scope['data_created_datetime__max']
+
     except AttributeError:
         first_datetime_of_update_data = datetime.datetime.now
         last_datetime_of_update_data = datetime.datetime.now
@@ -36,8 +42,10 @@ class MapView(View):
         Get first country from tabular format country list.
 
         List is sorted, first country is a top active students rank country.
+        Actually `Unset` field is not a country, so it does not fill up in top country value.
+        Instead of `Unset` it returns None.
         """
-        if not tabular_format_countries_list:
+        if tabular_format_countries_list[0][0] == 'Unset':
             return None
 
         return tabular_format_countries_list[0][0]
@@ -46,10 +54,12 @@ class MapView(View):
         """
         Pass graph data to frontend.
         """
-        first_datetime_of_update_data, last_datetime_of_update_data = get_first_and_last_datetime_of_update_data()
+        first_datetime_of_update_data, last_datetime_of_update_data = get_data_created_datetime_scope()
 
-        countries_amount, datamap_format_countries_list, tabular_format_countries_list = \
-            InstallationStatistics().get_worlds_students_per_country_data_to_render()
+        datamap_format_countries_list, tabular_format_countries_list = \
+            InstallationStatistics().get_students_per_country_to_render()
+
+        countries_amount = InstallationStatistics().get_students_countries_amount()
 
         context = {
             'datamap_countries_list': json.dumps(datamap_format_countries_list),
@@ -79,7 +89,7 @@ class GraphsView(View):
 
         instances_count, courses_count, students_count = InstallationStatistics.overall_counts()
 
-        first_datetime_of_update_data, last_datetime_of_update_data = get_first_and_last_datetime_of_update_data()
+        first_datetime_of_update_data, last_datetime_of_update_data = get_data_created_datetime_scope()
 
         context = {
             'timeline': json.dumps(timeline),

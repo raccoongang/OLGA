@@ -8,7 +8,6 @@ import datetime
 import json
 from collections import defaultdict
 
-
 import pycountry
 
 from django.db import models
@@ -37,7 +36,7 @@ class EdxInstallation(models.Model):
     Model that stores overall data received from the edx-platform.
     """
 
-    access_token = models.UUIDField(max_length=255, null=True)
+    access_token = models.UUIDField(null=True)
     platform_name = models.CharField(max_length=255, null=True, blank=True)
     platform_url = models.URLField(null=True, blank=True)
     latitude = models.FloatField(null=True, blank=True)
@@ -132,7 +131,7 @@ class InstallationStatistics(models.Model):
         return instances_count, courses_count, students_count
 
     @classmethod
-    def get_worlds_students_per_country_country_count_accordance(cls):  # pylint: disable=invalid-name
+    def get_students_per_country_stats(cls):
         """
         Total of students amount per country to display on world map from all instances per previous calendar day.
 
@@ -158,8 +157,7 @@ class InstallationStatistics(models.Model):
         return dict(world_students_per_country.items())
 
     @staticmethod
-    def get_student_amount_percentage(country_count_in_statistics, all_active_students_in_statistics):
-        # pylint: disable=invalid-name
+    def get_student_amount_percentage(country_count_in_statistics, all_active_students):
         """
         Calculate student amount percentage based on total countries amount and particular county amount comparison.
 
@@ -167,7 +165,7 @@ class InstallationStatistics(models.Model):
         it will be changed to '~0' (around zero value, but not totally).
         """
         students_amount_percentage = format(
-            country_count_in_statistics / all_active_students_in_statistics * 100, '.2f'
+            country_count_in_statistics / all_active_students * 100, '.2f'
         )
 
         if students_amount_percentage == '0.00':
@@ -176,27 +174,14 @@ class InstallationStatistics(models.Model):
         return students_amount_percentage
 
     @staticmethod
-    def is_country_exists(country):
+    def does_country_exists(country):
         """
         Check if value is not a null.
         """
-        if country != 'null':
-            return True
-
-    @staticmethod
-    def append_country_data_to_list(country_list, country, count, student_amount_percentage=None):
-        """
-        Make data for particular visualization format. Example for `datamap` or tabular view.
-        """
-        country_data = [str(pycountry.countries.get(alpha_2=country).alpha_3), count]
-
-        if student_amount_percentage is not None:
-            country_data += [student_amount_percentage]
-
-        country_list.append(country_data)
+        return country != 'null'
 
     @classmethod
-    def create_worlds_students_per_country_data_formatted_to_render(cls, worlds_students_per_country):
+    def create_students_per_country_to_render(cls, worlds_students_per_country):
         # pylint: disable=invalid-name
         """
         Create convenient and necessary data formats to render it from view.
@@ -206,61 +191,62 @@ class InstallationStatistics(models.Model):
         datamap_format_countries_list = []
         tabular_format_countries_list = []
 
-        all_active_students_in_statistics = sum(worlds_students_per_country.itervalues())
-        # pylint: disable=invalid-name
+        if not worlds_students_per_country:
+            tabular_format_countries_list.append(('Unset', 0, 0))
+            return datamap_format_countries_list, tabular_format_countries_list
+
+        all_active_students = sum(worlds_students_per_country.itervalues())
 
         for country, count in worlds_students_per_country.iteritems():
-            student_amount_percentage = cls.get_student_amount_percentage(count, all_active_students_in_statistics)
+            student_amount_percentage = cls.get_student_amount_percentage(count, all_active_students)
 
-            if cls.is_country_exists(country):
-                cls.append_country_data_to_list(datamap_format_countries_list, country, count)
+            if cls.does_country_exists(country):
+                country = str(pycountry.countries.get(alpha_2=country).alpha_3)
 
-                cls.append_country_data_to_list(
-                    tabular_format_countries_list, country, count, student_amount_percentage
-                )
+                datamap_format_countries_list += [[country, count]]
+                tabular_format_countries_list += [[country, count, student_amount_percentage]]
 
             else:
                 # Create students without country amount.
-                tabular_format_countries_list.append(('Unset', count, student_amount_percentage))
+                tabular_format_countries_list += [['Unset', count, student_amount_percentage]]
 
         # Sort in descending order.
         tabular_format_countries_list.sort(key=lambda row: row[1], reverse=True)
 
         return datamap_format_countries_list, tabular_format_countries_list
 
-    @staticmethod
-    def get_countries_amount(tabular_format_countries_list):
-        """
-        Get countries amount in worlds students per country statistics as table.
-
-        If no countries append `Unset` field with zero countries, else get
-        """
-        if not tabular_format_countries_list:
-            tabular_format_countries_list.append(('Unset', 0, 0))
-
-            # Unset is not a country
-            countries_amount = 0
-
-        else:
-            # Delete unset country point from list
-            countries_amount = len(tabular_format_countries_list) - 1
-
-        return countries_amount
-
     @classmethod
-    def get_worlds_students_per_country_data_to_render(cls):  # pylint: disable=invalid-name
+    def get_students_per_country_to_render(cls):
+        # pylint: disable=invalid-name
         """
         Gather convenient and necessary data formats to render it from view.
         """
-        # pylint: disable=invalid-name
-        worlds_students_per_country_country_count_accordance = \
-            cls.get_worlds_students_per_country_country_count_accordance()
+        students_per_country = cls.get_students_per_country_stats()
 
         datamap_format_countries_list, tabular_format_countries_list = \
-            cls.create_worlds_students_per_country_data_formatted_to_render(
-                worlds_students_per_country_country_count_accordance
-            )
+            cls.create_students_per_country_to_render(students_per_country)
 
-        countries_amount = cls.get_countries_amount(tabular_format_countries_list)
+        return datamap_format_countries_list, tabular_format_countries_list
 
-        return countries_amount, datamap_format_countries_list, tabular_format_countries_list
+    @staticmethod
+    def calculate_countries_amount(tabular_format_countries_list):
+        """
+        Calculate countries amount in worlds students per country statistics as table.
+
+        If no countries - appends `Unset` field with zero countries, else get.
+        Actually `Unset` field is not a country, so it does not fill up in countries amount.
+        """
+        if not tabular_format_countries_list:
+            return 0
+
+        return len(tabular_format_countries_list) - 1
+
+    @classmethod
+    def get_students_countries_amount(cls):
+        """
+        Provide countries amount from students per country statistics as table.
+        """
+        _, tabular_format_countries_list = cls.get_students_per_country_to_render()
+        countries_amount = cls.calculate_countries_amount(tabular_format_countries_list)
+
+        return countries_amount
