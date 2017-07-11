@@ -6,8 +6,10 @@ from django import forms
 
 from .models import EdxInstallation, InstallationStatistics
 
-# pylint: disable-all
-# flake8: noqa
+# Pylint does not has opportunity to disable duplicate code (forms and admin has the same peaces).
+# So apart from duplicate-code with `disable=all` it disables missing-docstring, too-few-public-methods and no-init.
+# pylint: disable=all
+# flake8: noqa=D101
 
 
 class AccessTokenForm(forms.Form):
@@ -15,7 +17,7 @@ class AccessTokenForm(forms.Form):
 
 
 class EdxInstallationForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = EdxInstallation
         fields = [
             'access_token',
@@ -27,7 +29,7 @@ class EdxInstallationForm(forms.ModelForm):
 
 
 class InstallationStatisticsForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = InstallationStatistics
         fields = [
             'active_students_amount_day',
