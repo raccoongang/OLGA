@@ -42,6 +42,32 @@ class EdxInstallation(models.Model):
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
 
+    @staticmethod
+    def does_edx_installation_extend_level_first_time(edx_installation_object):  # pylint: disable=invalid-name
+        """
+        Check if edx installation extends statistics level first time.
+
+        If platform url exists It means edx installation already has overall information about itself.
+        Returns False and do nothing.
+
+        If platform url does not exist It means edx installation extended statistics level first time.
+        Returns True and go to update edx installation's overall information.
+        """
+        return not edx_installation_object.platform_url
+
+    @staticmethod
+    def update_edx_instance_info(edx_installation_object, enthusiast_edx_installation):
+        """
+        Besides existing edx installation access token - extended statistics level requires a bit more information.
+
+        Update blank object fields: latitude, longitude, platform_name and platform_url content.
+        """
+        edx_installation_object.latitude = enthusiast_edx_installation['latitude']
+        edx_installation_object.longitude = enthusiast_edx_installation['longitude']
+        edx_installation_object.platform_name = enthusiast_edx_installation['platform_name']
+        edx_installation_object.platform_url = enthusiast_edx_installation['platform_url']
+        edx_installation_object.save()
+
 
 class InstallationStatistics(models.Model):
     """
@@ -233,7 +259,10 @@ class InstallationStatistics(models.Model):
         """
         Calculate countries amount in worlds students per country statistics as table.
 
-        If no countries - appends `Unset` field with zero countries, else get.
+        Tabular format countries list can be empty - countries amount is zero.
+        Tabular format countries list can be not empty - it contains particular country-count accordance
+        and `Unset` field, that has students without country amount.
+
         Actually `Unset` field is not a country, so it does not fill up in countries amount.
         """
         if not tabular_format_countries_list:

@@ -6,7 +6,7 @@ from django import forms
 
 from .models import EdxInstallation, InstallationStatistics
 
-# Pylint does not has opportunity to disable duplicate code (forms and admin has the same peaces).
+# Pylint does not has opportunity to disable duplicate code (forms and admin has the same pieces).
 # So apart from duplicate-code with `disable=all` it disables missing-docstring, too-few-public-methods and no-init.
 # pylint: disable=all
 # flake8: noqa=D101

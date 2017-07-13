@@ -2,6 +2,7 @@
 Views for the analytics application.
 """
 
+import copy
 import httplib
 import json
 import logging
@@ -14,7 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
 from .forms import AccessTokenForm
-from .models import InstallationStatistics, EdxInstallation
+from .models import EdxInstallation, InstallationStatistics
 from .utils import validate_instance_stats_forms
 
 logging.basicConfig()
@@ -99,7 +100,8 @@ class ReceiveInstallationStatistics(View):
     """
 
     @staticmethod
-    def update_students_with_no_country(active_students_amount, students_per_country):
+    def update_students_with_no_country(active_students_amount, students_per_country_before_update):
+        # pylint: disable=invalid-name
         """
         Calculate amount of students, that have no country and update overall variable (example below).
 
@@ -108,26 +110,33 @@ class ReceiveInstallationStatistics(View):
         all active students we got with edX's received data (post-request).
 
         Arguments:
-            active_students_amount (int): Count of active students.
-            students_per_country (dict): Country-count accordance as pair of key-value.
-                                         Amount of students without country is empty (key 'null' with value 0)
+            active_students_amount (int): Active students amount.
+            students_per_country_before_update (dict): Country-count accordance as pair of key-value.
+                                                       Amount of students without country may be particular value or
+                                                       may be empty (key 'null' with value 0).
 
         Returns:
-            students_per_country (dict): Country-count accordance as pair of key-value.
-                                         Amount of students without country has calculated and inserted to
-                                         corresponding key ('null').
+            students_per_country_after_update (dict): Country-count accordance as pair of key-value.
+                                                      Amount of students without country has calculated
+                                                      and inserted to corresponding key ('null').
 
         """
-        students_per_country['null'] = active_students_amount - sum(students_per_country.values())
+        students_per_country_after_update = copy.deepcopy(students_per_country_before_update)
+        # pylint: disable=invalid-name
 
-        return students_per_country
+        students_per_country_after_update['null'] = \
+            active_students_amount - sum(students_per_country_after_update.values())
+
+        return students_per_country_after_update
 
     def get_students_per_country(self, students_per_country, active_students_amount_day):
         """
         Get students per country in json-based encoded string for saving to database.
 
-        First, it load json-based students per country string and go to calculate students without country value.
-        Second, it dumps it again to storing in convenient type, easy json loads string.
+        Method's flow:
+        1. Load json-based students per country string and save to `students_per_country_decoded` variable.
+        2. Calculate students without country value via `update_students_with_no_country` method.
+        3. Dumps students per country dictionary to json-based string for storing in database.
         """
         students_per_country_decoded = json.loads(students_per_country)
 
@@ -138,32 +147,6 @@ class ReceiveInstallationStatistics(View):
         students_per_country_encoded = json.dumps(students_per_country_updated)
 
         return students_per_country_encoded
-
-    @staticmethod
-    def does_edx_installation_extend_level_first_time(edx_installation_object):  # pylint: disable=invalid-name
-        """
-        Check does edx installation extend statistics level first time.
-
-        If platform url exists It means edx installation already has overall information about itself.
-        Returns False and do nothing.
-
-        If platform url does not exist It means edx installation extended statistics level first time.
-        Returns True and go to update edx installation`s overall information.
-        """
-        return not edx_installation_object.platform_url
-
-    @staticmethod
-    def update_edx_instance_info(edx_installation_object, enthusiast_edx_installation):
-        """
-        Besides existing edx installation access token - extended statistics level requires a bit more information.
-
-        Update blank object fields: latitude, longitude, platform_name and platform_url content.
-        """
-        edx_installation_object.latitude = enthusiast_edx_installation['latitude']
-        edx_installation_object.longitude = enthusiast_edx_installation['longitude']
-        edx_installation_object.platform_name = enthusiast_edx_installation['platform_name']
-        edx_installation_object.platform_url = enthusiast_edx_installation['platform_url']
-        edx_installation_object.save()
 
     def extend_stats_to_enthusiast(self, received_data, installation_statistics, edx_installation_object):
         """
@@ -191,8 +174,8 @@ class ReceiveInstallationStatistics(View):
 
         installation_statistics.update(enthusiast_statistics)
 
-        if self.does_edx_installation_extend_level_first_time(edx_installation_object):
-            self.update_edx_instance_info(edx_installation_object, enthusiast_edx_installation)
+        if EdxInstallation().does_edx_installation_extend_level_first_time(edx_installation_object):
+            EdxInstallation().update_edx_instance_info(edx_installation_object, enthusiast_edx_installation)
 
     def create_instance_data(self, received_data, access_token):
         """
