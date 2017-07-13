@@ -4,9 +4,9 @@
 [coverage]
 [release]
 
-Acceptor arose out of [Open edX ](https://open.edx.org) requirement to collect statistics data from edx platform
-installations all over the world. Acceptor is  required to be able to collect, visualize and process this data
-according to legal rules. In general it provides possibilities for analysing trends of platform usage and users
+Acceptor has arisen out of [Open edX ](https://open.edx.org) requirement to collect edx platform installations
+statistics data from all over the world. Acceptor is  required to be able to collect, visualize and process this data
+according to legal rules. In general, it provides possibilities for analysing trends of platform usage and users
 engagement in e-learning process per country and globally around the world.
 
 ## Installation
@@ -23,7 +23,7 @@ Install all dependencies with:
 pip install -r requirements.txt
 ```
 
-Do migrate command and you are able to run server and start develop:
+Type migrate command, so that you are able to run server:
 
 ```
 ./manage.py migrate
@@ -49,15 +49,15 @@ flake8 && pep8 && pylint olga
 
 ## Statistics visualization details
 
-Acceptor provides three graphs for instances, courses and activity students, that it gathered from the start of collecting to now.
+Acceptor provides three graphs for instances, courses and active students, which have been gathered from the start of collecting till now.
 
 ![olga_students_graph](https://user-images.githubusercontent.com/22666467/27955348-17c4d3dc-631d-11e7-812a-43a5bdffbf90.png)
 
-Addition, Acceptor has `Global Activity Metrics`, that show instances, courses and active students amounts for last calendar day.
+In addition, Acceptor comprises `Global Activity Metrics` which show instances, courses and active students amounts for the last calendar day.
 
 ![olga_activity_metrics_graphs](https://user-images.githubusercontent.com/22666467/27955707-b20a647e-631e-11e7-86ef-77a1da22f71c.png)
 
-Besides that, also for last calendar day, you are able to interact with world map, that contains darker marker for students amount.
+Besides that you are able to interact with world map, that contains darker marker for students amount, also for last calendar day.
 
 ![olga_world_map](https://user-images.githubusercontent.com/22666467/27955282-c92b20aa-631c-11e7-96da-0fec7b25a12a.png)
 
@@ -71,6 +71,6 @@ Full report based on world map's `Global Activity Metrics` located within `Geogr
 
 ## License
 
-The code in this repository is licensed under the AGPL v3 licence unless otherwise noted.
+The code in this repository is licensed under the AGPL v3 licence unless another noted.
 
 Please see [LICENSE](https://github.com/raccoongang/acceptor/blob/master/LICENSE) file for details.
