@@ -42,8 +42,7 @@ class EdxInstallation(models.Model):
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
 
-    @staticmethod
-    def does_edx_installation_extend_level_first_time(edx_installation_object):  # pylint: disable=invalid-name
+    def does_edx_installation_extend_level_first_time(self):  # pylint: disable=invalid-name
         """
         Check if edx installation extends statistics level first time.
 
@@ -53,20 +52,19 @@ class EdxInstallation(models.Model):
         If platform url does not exist It means edx installation extended statistics level first time.
         Returns True and go to update edx installation's overall information.
         """
-        return not edx_installation_object.platform_url
+        return not self.platform_url
 
-    @staticmethod
-    def update_edx_instance_info(edx_installation_object, enthusiast_edx_installation):
+    def update_edx_instance_info(self, enthusiast_edx_installation):
         """
         Besides existing edx installation access token - extended statistics level requires a bit more information.
 
         Update blank object fields: latitude, longitude, platform_name and platform_url content.
         """
-        edx_installation_object.latitude = enthusiast_edx_installation['latitude']
-        edx_installation_object.longitude = enthusiast_edx_installation['longitude']
-        edx_installation_object.platform_name = enthusiast_edx_installation['platform_name']
-        edx_installation_object.platform_url = enthusiast_edx_installation['platform_url']
-        edx_installation_object.save()
+        self.latitude = enthusiast_edx_installation['latitude']
+        self.longitude = enthusiast_edx_installation['longitude']
+        self.platform_name = enthusiast_edx_installation['platform_name']
+        self.platform_url = enthusiast_edx_installation['platform_url']
+        self.save()
 
 
 class InstallationStatistics(models.Model):
@@ -268,6 +266,7 @@ class InstallationStatistics(models.Model):
         if not tabular_format_countries_list:
             return 0
 
+        # Exclude `Unset` country from countries amount.
         return len(tabular_format_countries_list) - 1
 
     @classmethod

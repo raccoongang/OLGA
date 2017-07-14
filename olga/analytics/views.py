@@ -174,8 +174,8 @@ class ReceiveInstallationStatistics(View):
 
         installation_statistics.update(enthusiast_statistics)
 
-        if EdxInstallation().does_edx_installation_extend_level_first_time(edx_installation_object):
-            EdxInstallation().update_edx_instance_info(edx_installation_object, enthusiast_edx_installation)
+        if edx_installation_object.does_edx_installation_extend_level_first_time():
+            edx_installation_object.update_edx_instance_info(enthusiast_edx_installation)
 
     def create_instance_data(self, received_data, access_token):
         """
