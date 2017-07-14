@@ -2,56 +2,64 @@
 Views for the charts application.
 """
 
+import datetime
 import json
-from datetime import datetime
 
 from django.shortcuts import render
 from django.views.generic import View
+from django.db.models import Max, Min
 
 from olga.analytics.models import InstallationStatistics
 
 
-def get_first_and_last_datetime_of_update_data():  # pylint: disable=invalid-name
+def get_data_created_datetime_scope():
     """
     Get first and last datetimes OLGA acceptor gathers statistics.
     """
-
     try:
-        first_datetime_of_update_data = InstallationStatistics.objects.first().data_created_datetime
-        last_datetime_of_update_data = InstallationStatistics.objects.last().data_created_datetime
+        data_created_datetime_scope = InstallationStatistics.objects.aggregate(
+            Min('data_created_datetime'), Max('data_created_datetime')
+        )
+
+        first_datetime_of_update_data = data_created_datetime_scope['data_created_datetime__min']
+        last_datetime_of_update_data = data_created_datetime_scope['data_created_datetime__max']
+
     except AttributeError:
-        first_datetime_of_update_data = datetime.now()
-        last_datetime_of_update_data = datetime.now()
+        first_datetime_of_update_data = datetime.datetime.now
+        last_datetime_of_update_data = datetime.datetime.now
 
     return first_datetime_of_update_data, last_datetime_of_update_data
 
 
 class MapView(View):
     """
-    Displays information on a world map and tabular view.
+    Display information on a world map and tabular view.
     """
 
     @staticmethod
     def get_statistics_top_country(tabular_format_countries_list):
         """
-        Gets first country from tabular format country list.
-        List is sorted, first country is a top active students rank country.
-        """
+        Get first country from tabular format country list.
 
-        if not tabular_format_countries_list:
+        List is sorted, first country is a top active students rank country.
+        Actually `Unset` field is not a country, so it does not fill up in top country value.
+        Instead of `Unset` it returns None.
+        """
+        if tabular_format_countries_list[0][0] == 'Unset':
             return None
 
         return tabular_format_countries_list[0][0]
 
     def get(self, request):
         """
-        Passes graph data to frontend.
+        Pass graph data to frontend.
         """
+        first_datetime_of_update_data, last_datetime_of_update_data = get_data_created_datetime_scope()
 
-        first_datetime_of_update_data, last_datetime_of_update_data = get_first_and_last_datetime_of_update_data()
+        datamap_format_countries_list, tabular_format_countries_list = \
+            InstallationStatistics().get_students_per_country_to_render()
 
-        countries_amount, datamap_format_countries_list, tabular_format_countries_list = \
-            InstallationStatistics().get_worlds_students_per_country_data_to_render()
+        countries_amount = InstallationStatistics().get_students_countries_amount()
 
         context = {
             'datamap_countries_list': json.dumps(datamap_format_countries_list),
@@ -67,25 +75,21 @@ class MapView(View):
 
 class GraphsView(View):
     """
-    Provides data and plot 3 main graphs:
-    1. Number of students per date.
-    2. Number of courses per date.
-    3. Number of instances per date.
+    Provide data and plot 3 main graphs: number of, students, courses and instances per date.
     """
 
     @staticmethod
     def get(request):
         """
-        Passes graph data to frontend.
+        Pass graph data to frontend.
         """
-
         timeline = InstallationStatistics.timeline()
 
         students, courses, instances = InstallationStatistics.data_per_period()
 
         instances_count, courses_count, students_count = InstallationStatistics.overall_counts()
 
-        first_datetime_of_update_data, last_datetime_of_update_data = get_first_and_last_datetime_of_update_data()
+        first_datetime_of_update_data, last_datetime_of_update_data = get_data_created_datetime_scope()
 
         context = {
             'timeline': json.dumps(timeline),

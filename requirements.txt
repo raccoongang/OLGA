@@ -1,8 +1,5 @@
 Django==1.11
 factory-boy==2.8.1
 mock==2.0.0
-pep8==1.7.0
-psycopg2==2.7.1
 pycountry==17.1.8
 requests==2.13.0
-uWSGI==2.0.15

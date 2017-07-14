@@ -6,9 +6,9 @@ from django.conf.urls import url
 
 from . import views
 
-app_name = 'analytics'  # pylint: disable=invalid-name
+app_name = 'analytics'
 
-urlpatterns = [  # pylint: disable=invalid-name
+urlpatterns = [
     url(
         r'^api/token/registration/$',
         views.AccessTokenRegistration.as_view(),

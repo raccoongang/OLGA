@@ -41,5 +41,6 @@ class InstallationStatisticsAdmin(admin.ModelAdmin):
         'data_created_datetime',
     )
 
+
 admin.site.register(EdxInstallation, EdxInstallationAdmin)
 admin.site.register(InstallationStatistics, InstallationStatisticsAdmin)
