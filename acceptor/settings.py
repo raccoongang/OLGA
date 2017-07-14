@@ -123,9 +123,3 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATIC_ROOT = 'static'
-
-# Lastly, see if the developer has any local overrides.
-try:
-    from .private import *
-except ImportError:
-    pass

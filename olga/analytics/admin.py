@@ -3,6 +3,7 @@ Django admin page for analytics application.
 """
 
 from django.contrib import admin
+
 from .models import EdxInstallation, InstallationStatistics
 
 
@@ -12,11 +13,11 @@ class EdxInstallationAdmin(admin.ModelAdmin):
     """
 
     fields = [
+        'access_token',
         'latitude',
         'longitude',
         'platform_url',
         'platform_name',
-        'secret_token'
     ]
 
 
@@ -39,6 +40,7 @@ class InstallationStatisticsAdmin(admin.ModelAdmin):
     readonly_fields = (
         'data_created_datetime',
     )
+
 
 admin.site.register(EdxInstallation, EdxInstallationAdmin)
 admin.site.register(InstallationStatistics, InstallationStatisticsAdmin)
