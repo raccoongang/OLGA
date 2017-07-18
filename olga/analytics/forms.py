@@ -3,6 +3,7 @@ Forms for received edX installation data.
 """
 
 from django import forms
+
 from .models import EdxInstallation, InstallationStatistics
 
 # Pylint does not has opportunity to disable duplicate code (forms and admin has the same pieces).
