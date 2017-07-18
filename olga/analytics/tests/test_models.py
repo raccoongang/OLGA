@@ -4,6 +4,7 @@ Tests for analytics models.
 
 from datetime import date, datetime
 
+from ddt import ddt, data, unpack
 from mock import patch
 
 from django.test import TestCase
@@ -13,7 +14,7 @@ from olga.analytics.models import (
     EdxInstallation, InstallationStatistics, get_previous_day_start_and_end_dates
 )
 
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name, attribute-defined-outside-init
 
 
 class TestEdxInstallationMethods(TestCase):
@@ -131,6 +132,21 @@ class TestInstallationStatisticsMethods(TestCase):
                 edx_installation=InstallationStatistics.objects.all()[5].edx_installation
             )
 
+    @staticmethod
+    def create_expected_default_data():
+        """
+        Create datamap and tabular format lists for testing.
+        """
+        datamap_format_countries_list = [
+            ['RUS', 5264], ['CAN', 37086], ['UKR', 4022]
+        ]
+
+        tabular_format_countries_list = [
+            ['CAN', 37086, '79.97'], ['RUS', 5264, '11.35'], ['UKR', 4022, '8.67'], ['Unset', 2, '~0']
+        ]
+
+        return datamap_format_countries_list, tabular_format_countries_list
+
     def test_timeline(self):
         """
         Verify that timeline method returns unique existing datetime sorted in descending order.
@@ -197,19 +213,12 @@ class TestInstallationStatisticsMethods(TestCase):
             'null': 2
         }
 
-        datamap_format_countries_list, tabular_format_countries_list = \
-            InstallationStatistics.create_students_per_country_to_render(
-                worlds_students_per_country
-            )
+        datamap_format_countries_list, tabular_format_countries_list = self.create_expected_default_data()
+
+        result = InstallationStatistics.create_students_per_country_to_render(worlds_students_per_country)
 
         self.assertEqual(
-            (
-                [['RUS', 5264], ['CAN', 37086], ['UKR', 4022]],
-                [['CAN', 37086, '79.97'], ['RUS', 5264, '11.35'], ['UKR', 4022, '8.67'], ['Unset', 2, '~0']]
-            ),
-            (
-                datamap_format_countries_list, tabular_format_countries_list
-            )
+            (datamap_format_countries_list, tabular_format_countries_list), result
         )
 
     @patch('olga.analytics.models.get_previous_day_start_and_end_dates')
@@ -221,47 +230,33 @@ class TestInstallationStatisticsMethods(TestCase):
         """
         mock_get_previous_day_start_and_end_dates.return_value = date(2017, 6, 1), date(2017, 6, 2)
 
+        datamap_format_countries_list, tabular_format_countries_list = self.create_expected_default_data()
+
         result = InstallationStatistics.get_students_per_country_to_render()
 
         self.assertEqual(
-            (
-                [['RUS', 5264], ['CAN', 37086], ['UKR', 4022]],
-                [['CAN', 37086, '79.97'], ['RUS', 5264, '11.35'], ['UKR', 4022, '8.67'], ['Unset', 2, '~0']]
-            ),
-            result
+            (datamap_format_countries_list, tabular_format_countries_list), result
         )
 
 
+@ddt
 class TestInstallationStatisticsHelpMethods(TestCase):
     """
     Tests for InstallationStatistics model's help methods, that work with calculation.
     """
 
-    def test_student_percentage(self):
+    @data([40, 100, '40.00'], [3, 348214, '~0'])
+    @unpack
+    def test_student_percentage(self, country_count_in_statistics, all_active_students_in_statistics, expected_result):
         """
-        Verify that get_student_amount_percentage method returns correct value if it is not too small.
+        Verify that get_student_amount_percentage method returns correct value.
         """
-        country_count_in_statistics = 40
-        all_active_students_in_statistics = 100
 
         result = InstallationStatistics.get_student_amount_percentage(
             country_count_in_statistics, all_active_students_in_statistics
         )
 
-        self.assertEqual('40.00', result)
-
-    def test_cstudent_percentage_if_percentage_is_small(self):
-        """
-        Verify that get_student_amount_percentage method returns correct value if it is too small.
-        """
-        country_count_in_statistics = 3
-        all_active_students_in_statistics = 348214
-
-        result = InstallationStatistics.get_student_amount_percentage(
-            country_count_in_statistics, all_active_students_in_statistics
-        )
-
-        self.assertEqual('~0', result)
+        self.assertEqual(expected_result, result)
 
     def test_does_country_exists_if_country_exists(self):
         """
@@ -278,7 +273,7 @@ class TestInstallationStatisticsHelpMethods(TestCase):
         Verify that calculate_countries_amount method returns countries amount in tabular format list if it exists.
         """
         tabular_format_countries_list = [
-            ['CAN', 37086, '79.97'], ['RUS', 5264, '11.35'], ['UKR', 4022, '8.67'], ('Unset', 2, '~0')
+            ['CAN', 37086, '79.97'], ['RUS', 5264, '11.35'], ['UKR', 4022, '8.67'], ['Unset', 2, '~0']
         ]
 
         result = InstallationStatistics.calculate_countries_amount(tabular_format_countries_list)

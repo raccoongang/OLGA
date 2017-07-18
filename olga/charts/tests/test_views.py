@@ -23,36 +23,34 @@ class TestMapView(TestCase):
     Tests for map view, that contains world map statistics functionality.
     """
 
-    def test_map_url_resolves_to_map_view(self):
+    def setUp(self):
+        """
+        Setup common response.
+        """
+        self.response = self.client.get('/map/')
+
+    def test_map_url(self):
         """
         Verify that map url resolves to map view.
         """
-        response = self.client.get('/map/')
+        self.assertEqual(self.response.resolver_match.func.__name__, MapView.__name__)
 
-        self.assertEqual(response.resolver_match.func.__name__, MapView.__name__)
-
-    def test_map_view_get_method_returns_status_code_ok(self):
+    def test_map_view_status_code(self):
         """
         Verify that map view returns status 200 (ok) after get request to map url.
         """
-        response = self.client.get('/map/')
+        self.assertEqual(self.response .status_code, 200)
 
-        self.assertEqual(response.status_code, 200)
-
-    def test_map_view_get_method_uses_correct_html(self):
+    def test_map_view_html(self):
         """
         Verify that map view uses correct html-template after get request to map url.
         """
-        response = self.client.get('/map/')
+        self.assertTemplateUsed(self.response , 'charts/worldmap.html')
 
-        self.assertTemplateUsed(response, 'charts/worldmap.html')
-
-    def test_map_view_get_method_render_correct_view_context_fields(self):
+    def test_map_view_context_fields(self):
         """
         Verify that map view render correct context fields.
         """
-        response = self.client.get('/map/')
-
         context_fields = [
             'datamap_countries_list',
             'tabular_countries_list',
@@ -63,13 +61,13 @@ class TestMapView(TestCase):
         ]
 
         for field in context_fields:
-            self.assertIn(field, response.context)
+            self.assertIn(field, self.response .context)
 
     @patch('olga.charts.views.MapView.get_statistics_top_country')
     @patch('olga.analytics.models.InstallationStatistics.get_students_per_country_to_render')
     @patch('olga.analytics.models.InstallationStatistics.get_students_countries_amount')
     @patch('olga.charts.views.get_data_created_datetime_scope')
-    def test_map_view_get_method_returns_correct_view_context_fields_values(
+    def test_map_view_context_fields_values(
             self,
             mock_get_data_created_datetime_scope,
             mock_get_students_countries_amount,
@@ -109,7 +107,7 @@ class TestMapView(TestCase):
         self.assertEqual(response.context['first_datetime_of_update_data'], mock_first_datetime_of_update_data)
         self.assertEqual(response.context['last_datetime_of_update_data'], mock_last_datetime_of_update_data)
 
-    def test_correct_result_returning_existing_tabular_list_top_country(self):
+    def test_top_country(self):
         """
         Verify that get_statistics_top_country method returns top country if tabular format countries list exists.
 
@@ -122,7 +120,7 @@ class TestMapView(TestCase):
 
         self.assertEqual('Canada', result)
 
-    def test_returning_none_if_tabular_list_does_not_exist(self):
+    def test_top_country_if_no_tabular_list(self):
         """
         Verify that get_statistics_top_country method returns non if tabular format countries list is empty.
         """
@@ -139,10 +137,7 @@ class TestViewsHelpFunctions(TestCase):
     Tests for charts help functions.
     """
 
-    def test_returning_first_and_last_datetime_of_update_data_if_data_exists(
-            self,
-            mock_installation_statistics_model_objects_aggregate
-    ):
+    def test_update_datetime_if_data_exists(self, mock_installation_statistics_model_objects_aggregate):
         """
         Verify that get_first_and_last_datetime_of_update_data method returns first and last objects datetime.
         """
@@ -161,7 +156,7 @@ class TestViewsHelpFunctions(TestCase):
         )
 
     @patch('olga.charts.views.datetime')
-    def test_returning_first_and_last_datetime_of_update_data_if_data_does_not_exist(
+    def test_update_datetime_if_no_data(
             self, mock_datetime, mock_installation_statistics_model_objects_aggregate
     ):
         """
@@ -188,36 +183,34 @@ class TestGraphsView(TestCase):
     Tests for map view, that contains graphs statistics functionality.
     """
 
-    def test_graphs_url_resolves_to_map_view(self):
+    def setUp(self):
+        """
+        Setup common response.
+        """
+        self.response = self.client.get('/')
+
+    def test_graphs_url(self):
         """
         Verify that graphs url resolves to graphs view.
         """
-        response = self.client.get('/')
+        self.assertEqual(self.response.resolver_match.func.__name__, GraphsView.__name__)
 
-        self.assertEqual(response.resolver_match.func.__name__, GraphsView.__name__)
-
-    def test_graphs_view_get_method_returns_status_code_ok(self):
+    def test_graphs_view_status_code(self):
         """
         Verify that graphs view returns status 200 (ok) after get request to graphs url.
         """
-        response = self.client.get('/')
+        self.assertEqual(self.response.status_code, 200)
 
-        self.assertEqual(response.status_code, 200)
-
-    def test_graphs_view_get_method_uses_correct_html(self):
+    def test_graphs_view_html(self):
         """
         Verify that graphs view uses correct html-template after get request to graphs url.
         """
-        response = self.client.get('/')
+        self.assertTemplateUsed(self.response, 'charts/graphs.html')
 
-        self.assertTemplateUsed(response, 'charts/graphs.html')
-
-    def test_graphs_view_get_method_render_correct_view_context_fields(self):
+    def test_graphs_view_context_fields(self):
         """
         Verify that graphs view render correct context fields.
         """
-        response = self.client.get('/')
-
         context_fields = [
             'timeline',
             'students',
@@ -231,13 +224,13 @@ class TestGraphsView(TestCase):
         ]
 
         for field in context_fields:
-            self.assertIn(field, response.context)
+            self.assertIn(field, self.response.context)
 
     @patch('olga.charts.views.get_data_created_datetime_scope')
     @patch('olga.analytics.models.InstallationStatistics.timeline')
     @patch('olga.analytics.models.InstallationStatistics.data_per_period')
     @patch('olga.analytics.models.InstallationStatistics.overall_counts')
-    def test_map_view_get_method_returns_correct_view_context_fields_values(
+    def test_map_view_context_fields_values(
             self,
             mock_installation_statistics_model_overall_counts,
             mock_installation_statistics_model_data_per_period,
