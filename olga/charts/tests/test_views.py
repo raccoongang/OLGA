@@ -25,7 +25,7 @@ class TestMapView(TestCase):
 
     def setUp(self):
         """
-        Setup common response.
+        Set up common response.
         """
         self.response = self.client.get('/map/')
 
@@ -45,7 +45,7 @@ class TestMapView(TestCase):
         """
         Verify that map view uses correct html-template after get request to map url.
         """
-        self.assertTemplateUsed(self.response , 'charts/worldmap.html')
+        self.assertTemplateUsed(self.response, 'charts/worldmap.html')
 
     def test_map_view_context_fields(self):
         """
@@ -185,7 +185,7 @@ class TestGraphsView(TestCase):
 
     def setUp(self):
         """
-        Setup common response.
+        Set up common response.
         """
         self.response = self.client.get('/')
 

@@ -544,7 +544,7 @@ class TestReceiveInstallationStatistics(TestCase):
     @patch('olga.analytics.views.ReceiveInstallationStatistics.is_access_token_authorized')
     def test_is_access_token_authorized_occurs(self, mock_is_access_token_authorized):
         """
-        Verify that is_access_token_authorized method occurs during post method`s process.
+        Verify occurring is_access_token_authorized method.
         """
         self.client.post('/api/installation/statistics/', self.received_data)
 
@@ -553,7 +553,7 @@ class TestReceiveInstallationStatistics(TestCase):
     @patch('olga.analytics.views.ReceiveInstallationStatistics.logger_debug_instance_details')
     def test_logger_debug_instance_details(self, mock_logger_debug_instance_details):
         """
-        Verify that logger`s debug output occurs during post method`s process.
+        Verify that logger`s debug output occurs.
         """
         self.client.post('/api/installation/statistics/', self.received_data)
         mock_logger_debug_instance_details.assert_called_once_with(self.received_data_as_query_dict)

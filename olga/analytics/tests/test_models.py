@@ -251,7 +251,6 @@ class TestInstallationStatisticsHelpMethods(TestCase):
         """
         Verify that get_student_amount_percentage method returns correct value.
         """
-
         result = InstallationStatistics.get_student_amount_percentage(
             country_count_in_statistics, all_active_students_in_statistics
         )
