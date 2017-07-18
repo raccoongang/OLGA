@@ -60,18 +60,21 @@ class TestHtmlRenderDatesWithData(TestCase):
         SetUp.setUp()
         self.response = self.client.get('/map/')
 
+        first_datetime_of_update_data, last_datetime_of_update_data = get_first_and_last_datetime_of_update_data()
+
+        self.first_update_date_y_m = first_datetime_of_update_data.strftime('%Y-%m')
+        self.last_update_date_y_m = last_datetime_of_update_data.strftime('%Y-%m')
+
+        self.first_update_date_y_m_d = last_datetime_of_update_data.strftime('%Y-%m-%d')
+        self.last_update_time_h_m = last_datetime_of_update_data.strftime('%H:%M')
+
     def test_existing_datetime(self):
         """
         Verify that statistics extraction duration uses first and last data update datetime if statistics exists.
         """
-        first_datetime_of_update_data, last_datetime_of_update_data = get_first_and_last_datetime_of_update_data()
-
-        first_update_strftime_date = first_datetime_of_update_data.strftime('%Y-%m')
-        last_update_strftime_date = last_datetime_of_update_data.strftime('%Y-%m')
-
         self.assertContains(
             self.response,
-            html_target.extraction_duration.format(first_update_strftime_date, last_update_strftime_date),
+            html_target.extraction_duration.format(self.first_update_date_y_m, self.last_update_date_y_m),
             1
         )
 
@@ -79,13 +82,8 @@ class TestHtmlRenderDatesWithData(TestCase):
         """
         Verify that html renders first and last data update datetime for course engagement dates if statistics exists.
         """
-        _, last_datetime_of_update_data = get_first_and_last_datetime_of_update_data()
-
-        last_update_strftime_date = last_datetime_of_update_data.strftime('%Y-%m-%d')
-        last_update_strftime_time = last_datetime_of_update_data.strftime('%H:%M')
-
         self.assertContains(
             self.response,
-            html_target.course_engagement_last_update.format(last_update_strftime_date, last_update_strftime_time),
+            html_target.course_engagement_last_update.format(self.first_update_date_y_m_d, self.last_update_time_h_m),
             1
         )

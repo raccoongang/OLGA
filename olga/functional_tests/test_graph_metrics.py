@@ -8,9 +8,12 @@ from ddt import ddt, data, unpack
 
 from olga.functional_tests.utils import SetUp, html_target
 
-from olga.analytics.models import InstallationStatistics
+from olga.analytics.tests.factories import InstallationStatisticsFactory
 
 # pylint: disable=invalid-name, attribute-defined-outside-init
+
+
+factory_stats = InstallationStatisticsFactory()
 
 
 @ddt
@@ -45,54 +48,22 @@ class TestMapMetricsWithStatistics(TestCase):
         SetUp.setUp()
         self.response = self.client.get('/')
 
-    @staticmethod
-    def get_overall_counts():
+    @data(
+        [1, 'Instances'],
+        [factory_stats.courses_amount, 'Courses'],
+        [factory_stats.active_students_amount_day, 'Active Students']
+    )
+    @unpack
+    def test_metrics(self, amount, label):
         """
-        Return instances, courses and students amounts as tuple.
+        Verify that html renders instances, courses and students amount to corresponding activity metrics.
+
+        About ddt`s data: without using unpack values code generates duplicate issues.
+        Here is no way to set that data automatically:
+            - result of outside functions (i.e. `overall_counts` method) can't be passed to `data`;
+            - self can't be passed to `data`.
+
+        Resolved problem with manually setting values, that factory provides.
         """
-        return InstallationStatistics.overall_counts()
-
-    def test_instance_metric(self):
-        """
-        Verify that html renders instances amount to instances activity metric if statistics statistics.
-
-        Instances amount is a total, that compiled from all objects for last calendar day.
-        """
-        instances_amount, _, __ = self.get_overall_counts()
-        instances_label = 'Instances'
-
-        target_html_object = html_target.activity_metric.format(
-            instances_amount, instances_label
-        )
-
-        self.assertContains(self.response, target_html_object, 1)
-
-    def test_courses_metric(self):
-        """
-        Verify that html renders courses amount to courses activity metric if statistics statistics.
-
-        Courses amount is a total, that compiled from all objects for last calendar day.
-        """
-        _, courses_amount, __ = self.get_overall_counts()
-        courses_label = 'Courses'
-
-        target_html_object = html_target.activity_metric.format(
-            courses_amount, courses_label
-        )
-
-        self.assertContains(self.response, target_html_object, 1)
-
-    def test_students_metric(self):
-        """
-        Verify that html renders students amount to students activity metric if statistics statistics.
-
-        Students amount is a total, that compiled from all objects for last calendar day.
-        """
-        _, __, active_students_amount = self.get_overall_counts()
-        active_students_label = 'Active Students'
-
-        target_html_object = html_target.activity_metric.format(
-            active_students_amount, active_students_label
-        )
-
+        target_html_object = html_target.activity_metric.format(amount, label)
         self.assertContains(self.response, target_html_object, 1)
