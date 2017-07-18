@@ -546,7 +546,7 @@ class TestReceiveInstallationStatistics(TestCase):
         """
         Verify occurring is_access_token_authorized method.
         """
-
+        self.client.post('/api/installation/statistics/', self.received_data)
         mock_is_access_token_authorized.assert_called_once_with(self.access_token)
 
     @patch('olga.analytics.views.ReceiveInstallationStatistics.logger_debug_instance_details')
