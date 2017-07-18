@@ -8,10 +8,76 @@ from mock import patch
 
 from django.test import TestCase
 
-from factories import InstallationStatisticsFactory
-from olga.analytics.models import InstallationStatistics, get_previous_day_start_and_end_dates
+from olga.analytics.tests.factories import EdxInstallationFactory, InstallationStatisticsFactory
+from olga.analytics.models import (
+    EdxInstallation, InstallationStatistics, get_previous_day_start_and_end_dates
+)
 
 # pylint: disable=invalid-name
+
+
+class TestEdxInstallationMethods(TestCase):
+    """
+    Tests for EdxInstallation model's core methods, that work with database.
+    """
+
+    @staticmethod
+    def setUp():
+        """
+        Create one EdxInstallation object.
+        """
+        EdxInstallationFactory(platform_url=None)
+
+    @staticmethod
+    def fake_installation_enthusiast_level():
+        """
+        Create fake edx installation sends statistics with enthusiast level.
+
+        Actually it sends a lot of data, but we need to mock only `platform_url`.
+        """
+        edx_installation_object = EdxInstallation.objects.first()
+        edx_installation_object.platform_url = 'https://url.exists'
+        edx_installation_object.save()
+
+    def test_extending_level_first_time(self):
+        """
+        Verify that does_edx_installation_extend_level_first_time method return True, if not platform name.
+
+        If edx installation has not platform name It means installation sends statistics with `paranoid` level.
+        """
+        edx_installation_object = EdxInstallation.objects.first()
+        result = edx_installation_object.does_edx_installation_extend_level_first_time()
+        self.assertEqual(True, result)
+
+    def test_extending_level_not_first_time(self):
+        """
+        Verify that does_edx_installation_extend_level_first_time method return False, if platform url exists.
+
+        If edx installation has platform name It means installation sends statistics with `enthusiast` level.
+        """
+        self.fake_installation_enthusiast_level()
+
+        edx_installation_object = EdxInstallation.objects.first()
+        result = edx_installation_object.does_edx_installation_extend_level_first_time()
+        self.assertEqual(False, result)
+
+    def test_update_edx_instance_info(self):
+        """
+        Verify that update_edx_instance_info method save edx installation enthusiast data.
+        """
+        enthusiast_edx_installation = {
+            'latitude': 50.32,
+            'longitude': 45.11,
+            'platform_name': 'platform_name',
+            'platform_url': 'https://platform.url'
+        }
+
+        edx_installation_object = EdxInstallation.objects.first()
+        edx_installation_object.update_edx_instance_info(enthusiast_edx_installation)
+
+        extended_edx_installation_object_attributes = edx_installation_object.__dict__
+
+        self.assertDictContainsSubset(enthusiast_edx_installation, extended_edx_installation_object_attributes)
 
 
 class TestInstallationStatisticsMethods(TestCase):
@@ -20,10 +86,10 @@ class TestInstallationStatisticsMethods(TestCase):
     """
 
     @patch('django.utils.timezone.now')
-    def setUp(self, mock_timezone_now):  # flake8: noqa:D400
+    def setUp(self, mock_timezone_now):  # pylint: disable=arguments-differ
         """
-        Create five unique edx installations and corresponding statistics, then create two statistics objects
-        for acquainted edx installation (last two edx installation objects in unique list).
+        Create five unique edx installations and corresponding statistics.
+        Create two statistics objects for acquainted edx installation (last two edx installation objects in unique list)
 
         So we get 5 unique objects, 3 from them has only one record in installation statistics,
         2 of them has 2 records by one for last two unique objects.
@@ -65,7 +131,7 @@ class TestInstallationStatisticsMethods(TestCase):
                 edx_installation=InstallationStatistics.objects.all()[5].edx_installation
             )
 
-    def test_timeline_method_returns_unique_existing_datetime_sorted_in_descending_order(self):
+    def test_timeline(self):
         """
         Verify that timeline method returns unique existing datetime sorted in descending order.
         """
@@ -75,7 +141,7 @@ class TestInstallationStatisticsMethods(TestCase):
             ['2017-06-01', '2017-06-02', '2017-06-03', '2017-06-04', '2017-06-05'], result
         )
 
-    def test_data_per_period_method_annotates_statistics_amounts(self):
+    def test_data_per_period(self):
         """
         Verify that data_per_period method annotates by day with trunc and then sums statistics amounts.
         """
@@ -86,9 +152,9 @@ class TestInstallationStatisticsMethods(TestCase):
         )
 
     @patch('olga.analytics.models.get_previous_day_start_and_end_dates')
-    def test_overall_counts_method_returns_correct_result(self, mock_get_previous_day_start_and_end_dates):
+    def test_overall_counts(self, mock_get_previous_day_start_and_end_dates):
         """
-        Verify that test_overall_counts method returns overall statistics instance counts for previous calendar day.
+        Verify that overall_counts method returns overall statistics instance counts for previous calendar day.
         """
         mock_get_previous_day_start_and_end_dates.return_value = date(2017, 6, 1), date(2017, 6, 2)
 
@@ -99,15 +165,15 @@ class TestInstallationStatisticsMethods(TestCase):
         )
 
     @patch('olga.analytics.models.get_previous_day_start_and_end_dates')
-    def test_get_worlds_students_per_country_count_accordance_method_returns_correct_result(
+    def test_students_per_country_as_dict(
             self, mock_get_previous_day_start_and_end_dates
     ):
         """
-        Verify that test_get_worlds_students_per_country_count_accordance method returns correct accordance as dict.
+        Verify that get_students_per_country_stats method returns correct accordance as dict.
         """
         mock_get_previous_day_start_and_end_dates.return_value = date(2017, 6, 1), date(2017, 6, 2)
 
-        result = InstallationStatistics.get_worlds_students_per_country_count_accordance()
+        result = InstallationStatistics.get_students_per_country_stats()
 
         country_count_accordance_for_previous_calendar_day = {
             'RU': 5264,
@@ -118,11 +184,11 @@ class TestInstallationStatisticsMethods(TestCase):
 
         self.assertDictEqual(country_count_accordance_for_previous_calendar_day, result)
 
-    def test_correct_result_returning_datamap_and_tabular_lists(self):
+    def test_datamap_and_tabular_lists(self):
         """
         Verify that view gets datamap and tabular lists with corresponding model method.
 
-        Model method is test_create_worlds_students_per_country_data_formatted_to_render method.
+        Model method is create_students_per_country_to_render.
         """
         worlds_students_per_country = {
             'RU': 5264,
@@ -132,14 +198,14 @@ class TestInstallationStatisticsMethods(TestCase):
         }
 
         datamap_format_countries_list, tabular_format_countries_list = \
-            InstallationStatistics.create_worlds_students_per_country_data_formatted_to_render(
+            InstallationStatistics.create_students_per_country_to_render(
                 worlds_students_per_country
             )
 
         self.assertEqual(
             (
                 [['RUS', 5264], ['CAN', 37086], ['UKR', 4022]],
-                [['CAN', 37086, '79.97'], ['RUS', 5264, '11.35'], ['UKR', 4022, '8.67'], ('Unset', 2, '~0')]
+                [['CAN', 37086, '79.97'], ['RUS', 5264, '11.35'], ['UKR', 4022, '8.67'], ['Unset', 2, '~0']]
             ),
             (
                 datamap_format_countries_list, tabular_format_countries_list
@@ -147,21 +213,20 @@ class TestInstallationStatisticsMethods(TestCase):
         )
 
     @patch('olga.analytics.models.get_previous_day_start_and_end_dates')
-    def test_correct_result_returning_students_per_country(
+    def test_students_per_country_render(
             self, mock_get_previous_day_start_and_end_dates
     ):
         """
-        Verify that test_get_worlds_students_per_country_data_to_render method returns data to render correct values.
+        Verify that get_students_per_country_to_render method returns data to render correct values.
         """
         mock_get_previous_day_start_and_end_dates.return_value = date(2017, 6, 1), date(2017, 6, 2)
 
-        result = InstallationStatistics.get_worlds_students_per_country_data_to_render()
+        result = InstallationStatistics.get_students_per_country_to_render()
 
         self.assertEqual(
             (
-                3,
                 [['RUS', 5264], ['CAN', 37086], ['UKR', 4022]],
-                [['CAN', 37086, '79.97'], ['RUS', 5264, '11.35'], ['UKR', 4022, '8.67'], ('Unset', 2, '~0')]
+                [['CAN', 37086, '79.97'], ['RUS', 5264, '11.35'], ['UKR', 4022, '8.67'], ['Unset', 2, '~0']]
             ),
             result
         )
@@ -172,9 +237,9 @@ class TestInstallationStatisticsHelpMethods(TestCase):
     Tests for InstallationStatistics model's help methods, that work with calculation.
     """
 
-    def test_correct_result_returning_student_percentage(self):
+    def test_student_percentage(self):
         """
-        Verify that test_get_student_amount_percentage method returns correct value if it is not too small.
+        Verify that get_student_amount_percentage method returns correct value if it is not too small.
         """
         country_count_in_statistics = 40
         all_active_students_in_statistics = 100
@@ -185,9 +250,9 @@ class TestInstallationStatisticsHelpMethods(TestCase):
 
         self.assertEqual('40.00', result)
 
-    def test_correct_result_returning_student_percentage_if_percentage_is_small(self):
+    def test_cstudent_percentage_if_percentage_is_small(self):
         """
-        Verify that test_get_student_amount_percentage method returns correct value if it is too small.
+        Verify that get_student_amount_percentage method returns correct value if it is too small.
         """
         country_count_in_statistics = 3
         all_active_students_in_statistics = 348214
@@ -198,78 +263,35 @@ class TestInstallationStatisticsHelpMethods(TestCase):
 
         self.assertEqual('~0', result)
 
-    def test_is_country_exists_method_returns_true_if_country_exists(self):
+    def test_does_country_exists_if_country_exists(self):
         """
-        Verify that test_is_country_exists method returns true if country exists.
+        Verify that test does_country_exists method returns true if country exists.
         """
         country = 'Canada'
 
-        result = InstallationStatistics.is_country_exists(country)
+        result = InstallationStatistics.does_country_exists(country)
 
         self.assertTrue(result)
 
-    def test_append_country_data_to_list_method_works_without_student_percentage(self):
+    def test_calculate_countries_amount_if_tabular_list_exists(self):
         """
-        Verify that test_append_country_data_to_list method appends data without student amount percentage.
-        """
-        country_list = []
-        student_amount_percentage = None
-
-        first_country, second_country = 'CA', 'UA'
-        first_country_count, second_second_country = 1321, 3421
-
-        InstallationStatistics.append_country_data_to_list(
-            country_list, first_country, first_country_count, student_amount_percentage
-        )
-
-        InstallationStatistics.append_country_data_to_list(
-            country_list, second_country, second_second_country, student_amount_percentage
-        )
-
-        self.assertEqual(
-            [['CAN', 1321], ['UKR', 3421]], country_list
-        )
-
-    def test_append_country_data_to_list_method_works_with_student_percentage(self):
-        """
-        Verify that test_append_country_data_to_list method appends data with student amount percentage.
-        """
-        country_list = []
-
-        first_country, second_country, first_student_amount_percentage = 'CA', 'UA', 30.45
-        first_country_count, second_second_country, second_student_amount_percentage = 1321, 3421, 75.01
-
-        InstallationStatistics.append_country_data_to_list(
-            country_list, first_country, first_country_count, first_student_amount_percentage
-        )
-
-        InstallationStatistics.append_country_data_to_list(
-            country_list, second_country, second_second_country, second_student_amount_percentage
-        )
-
-        self.assertEqual(
-            [['CAN', 1321, 30.45], ['UKR', 3421, 75.01]], country_list
-        )
-
-    def test_get_countries_amount_method_returns_countries_amount_in_existing_tabular_list(self):
-        """
-        Verify that test_get_countries_amount method returns countries amount in tabular format list if it exists.
+        Verify that calculate_countries_amount method returns countries amount in tabular format list if it exists.
         """
         tabular_format_countries_list = [
             ['CAN', 37086, '79.97'], ['RUS', 5264, '11.35'], ['UKR', 4022, '8.67'], ('Unset', 2, '~0')
         ]
 
-        result = InstallationStatistics.get_countries_amount(tabular_format_countries_list)
+        result = InstallationStatistics.calculate_countries_amount(tabular_format_countries_list)
 
         self.assertEqual(3, result)
 
-    def test_get_countries_amount_method_returns_zero_if_tabular_list_does_not_exist(self):
+    def test_calculate_countries_amount_if_no_tabular_list(self):
         """
-        Verify that test_get_countries_amount method returns countries amount in tabular format list if it is empty.
+        Verify that calculate_countries_amount method returns countries amount in tabular format list if it is empty.
         """
         tabular_format_countries_list = []
 
-        result = InstallationStatistics.get_countries_amount(tabular_format_countries_list)
+        result = InstallationStatistics.calculate_countries_amount(tabular_format_countries_list)
 
         self.assertEqual(0, result)
 
@@ -280,7 +302,7 @@ class TestAnalyticsModelsHelpFunctions(TestCase):
     """
 
     @patch('olga.analytics.models.date')
-    def test_get_previous_day_start_and_end_dates(self, mock_date):
+    def test_calendar_day(self, mock_date):
         """
         Verify that get_previous_day_start_and_end_dates returns expected previous day start and end dates.
         """

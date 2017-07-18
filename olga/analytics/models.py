@@ -4,7 +4,7 @@ Models for analytics application. Models used to store and operate all data rece
 
 from __future__ import division
 
-import datetime
+from datetime import date, timedelta
 import json
 from collections import defaultdict
 
@@ -22,9 +22,10 @@ def get_previous_day_start_and_end_dates():  # pylint: disable=invalid-name
         start_of_day (date): Previous day's start. Example for 2017-05-15 is 2017-05-15.
         end_of_day (date): Previous day's end, it's a next day (tomorrow) toward day's start,
                            that doesn't count in segment. Example for 2017-05-15 is 2017-05-16.
+
     """
-    end_of_day = datetime.date.today()
-    start_of_day = end_of_day - datetime.timedelta(days=1)
+    end_of_day = date.today()
+    start_of_day = end_of_day - timedelta(days=1)
 
     return start_of_day, end_of_day
 
@@ -153,6 +154,7 @@ class InstallationStatistics(models.Model):
         Total of students amount per country to display on world map from all instances per previous calendar day.
         Returns:
             world_students_per_country (dict): Country-count accordance as pair of key-value.
+
         """
         start_of_day, end_of_day = get_previous_day_start_and_end_dates()
 
@@ -245,9 +247,11 @@ class InstallationStatistics(models.Model):
     def calculate_countries_amount(tabular_format_countries_list):
         """
         Calculate countries amount in worlds students per country statistics as table.
+
         Tabular format countries list can be empty - countries amount is zero.
         Tabular format countries list can be not empty - it contains particular country-count accordance
         and `Unset` field, that has students without country amount.
+
         Actually `Unset` field is not a country, so it does not fill up in countries amount.
         """
         if not tabular_format_countries_list:

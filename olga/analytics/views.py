@@ -6,7 +6,7 @@ import copy
 import httplib
 import json
 import logging
-import uuid
+from uuid import uuid4
 
 from django.http import HttpResponse
 from django.http import JsonResponse
@@ -45,7 +45,7 @@ class AccessTokenRegistration(View):
 
         Returns HTTP-response with status 201, that means object (installation token) was successfully created.
         """
-        access_token = uuid.uuid4().hex
+        access_token = uuid4().hex
         self.create_edx_installation(access_token)
 
         logger.debug('OLGA acceptor registered edX installation with token %s', access_token)
@@ -70,7 +70,7 @@ class AccessTokenAuthorization(View):
         access_token_serializer = AccessTokenForm(request.POST)
 
         if access_token_serializer.is_valid():
-            access_token = request.POST.get('access_token')
+            access_token = str(request.POST.get('access_token'))
 
             try:
                 EdxInstallation.objects.get(access_token=access_token)
@@ -80,11 +80,11 @@ class AccessTokenAuthorization(View):
 
             except EdxInstallation.DoesNotExist:
                 logger.debug(
-                    'edX installation has no corresponding data in OLGA acceptor database (no received token).'
+                    'edX installation has no corresponding data in OLGA acceptor database (no received token). '
                     'Received token is %s.', access_token
                 )
 
-                refreshed_access_token = uuid.uuid4().hex
+                refreshed_access_token = uuid4().hex
                 AccessTokenRegistration().create_edx_installation(refreshed_access_token)
 
                 logger.debug('Refreshed token for edX installation is %s', refreshed_access_token)
@@ -206,6 +206,7 @@ class ReceiveInstallationStatistics(View):
             self.extend_stats_to_enthusiast(received_data, installation_statistics, edx_installation_object)
 
         InstallationStatistics.objects.create(edx_installation=edx_installation_object, **installation_statistics)
+        logger.debug('Corresponding data was created in OLGA acceptor database.')
 
     @staticmethod
     def is_access_token_authorized(access_token):
@@ -217,7 +218,21 @@ class ReceiveInstallationStatistics(View):
             logger.debug('edX installation with token %s was successfully authorized', access_token)
             return True
         except EdxInstallation.DoesNotExist:
+            logger.debug('edX installation with token %s was not authorized', access_token)
             return False
+
+    @staticmethod
+    def logger_debug_instance_details(received_data):
+        """
+        Log edx installation information and statistics.
+        """
+        logger.debug(
+            'edX installation called %s from %s sent statistics after authorization',
+            received_data.get('platform_name'),
+            received_data.get('platform_url')
+        )
+
+        logger.debug(json.dumps(received_data, sort_keys=True, indent=4))
 
     @method_decorator(validate_instance_stats_forms)
     def post(self, request):
@@ -231,23 +246,9 @@ class ReceiveInstallationStatistics(View):
         access_token = received_data.get('access_token')
 
         if self.is_access_token_authorized(access_token):
-
-            logger.debug(
-                'edX installation called %s from %s sent statistics after authorization',
-                received_data.get('platform_name'),
-                received_data.get('platform_url')
-            )
-
-            logger.debug(json.dumps(received_data, sort_keys=True, indent=4))
+            self.logger_debug_instance_details(received_data)
 
             self.create_instance_data(received_data, access_token)
-            logger.debug('Corresponding data was created in OLGA acceptor database.')
             return HttpResponse(status=httplib.CREATED)
-
-        logger.debug(
-            'edX installation called %s from %s is an unauthorized member',
-            received_data.get('platform_name'),
-            received_data.get('platform_url')
-        )
 
         return HttpResponse(status=httplib.UNAUTHORIZED)

@@ -2,7 +2,7 @@
 Views for the charts application.
 """
 
-import datetime
+from datetime import datetime
 import json
 
 from django.shortcuts import render
@@ -16,17 +16,16 @@ def get_data_created_datetime_scope():
     """
     Get first and last datetimes OLGA acceptor gathers statistics.
     """
-    try:
-        data_created_datetime_scope = InstallationStatistics.objects.aggregate(
-            Min('data_created_datetime'), Max('data_created_datetime')
-        )
+    data_created_datetime_scope = InstallationStatistics.objects.aggregate(
+        Min('data_created_datetime'), Max('data_created_datetime')
+    )
 
-        first_datetime_of_update_data = data_created_datetime_scope['data_created_datetime__min']
-        last_datetime_of_update_data = data_created_datetime_scope['data_created_datetime__max']
+    first_datetime_of_update_data = data_created_datetime_scope['data_created_datetime__min']
+    last_datetime_of_update_data = data_created_datetime_scope['data_created_datetime__max']
 
-    except AttributeError:
-        first_datetime_of_update_data = datetime.datetime.now
-        last_datetime_of_update_data = datetime.datetime.now
+    if not first_datetime_of_update_data or not last_datetime_of_update_data:
+        first_datetime_of_update_data = datetime.now()
+        last_datetime_of_update_data = datetime.now()
 
     return first_datetime_of_update_data, last_datetime_of_update_data
 

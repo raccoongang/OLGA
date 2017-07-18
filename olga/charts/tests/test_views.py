@@ -12,7 +12,7 @@ from django.test import TestCase
 from olga.charts.views import (
     MapView,
     GraphsView,
-    get_first_and_last_datetime_of_update_data
+    get_data_created_datetime_scope
 )
 
 # pylint: disable=invalid-name
@@ -66,31 +66,36 @@ class TestMapView(TestCase):
             self.assertIn(field, response.context)
 
     @patch('olga.charts.views.MapView.get_statistics_top_country')
-    @patch('olga.analytics.models.InstallationStatistics.get_worlds_students_per_country_data_to_render')
-    @patch('olga.charts.views.get_first_and_last_datetime_of_update_data')
+    @patch('olga.analytics.models.InstallationStatistics.get_students_per_country_to_render')
+    @patch('olga.analytics.models.InstallationStatistics.get_students_countries_amount')
+    @patch('olga.charts.views.get_data_created_datetime_scope')
     def test_map_view_get_method_returns_correct_view_context_fields_values(
             self,
-            mock_get_first_and_last_datetime_of_update_data,
-            mock_get_worlds_students_per_country_data_to_render,
+            mock_get_data_created_datetime_scope,
+            mock_get_students_countries_amount,
+            mock_get_students_per_country_to_render,
             mock_get_statistics_top_country
     ):
         """
         Verify that map view render correct context fields values.
         """
-        mock_countries_amount, mock_datamap_format_countries_list, mock_tabular_format_countries_list = \
-            10, [['US', '10'], ['CA', '20']], [['Canada', 66, '20'], ['United States', 33, '10']]
+        mock_countries_amount = 10
+        mock_datamap_format_countries_list = [['US', '10'], ['CA', '20']]
+        mock_tabular_format_countries_list = [['Canada', 66, '20'], ['United States', 33, '10']]
 
         mock_first_datetime_of_update_data, mock_last_datetime_of_update_data = \
             datetime(2017, 6, 1, 14, 56, 18), datetime(2017, 7, 2, 23, 12, 8)
 
         top_country = 'Canada'
 
-        mock_get_first_and_last_datetime_of_update_data.return_value = (
+        mock_get_students_countries_amount.return_value = mock_countries_amount
+
+        mock_get_data_created_datetime_scope.return_value = (
             mock_first_datetime_of_update_data, mock_last_datetime_of_update_data
         )
 
-        mock_get_worlds_students_per_country_data_to_render.return_value = (
-            mock_countries_amount, mock_datamap_format_countries_list, mock_tabular_format_countries_list
+        mock_get_students_per_country_to_render.return_value = (
+            mock_datamap_format_countries_list, mock_tabular_format_countries_list
         )
 
         mock_get_statistics_top_country.return_value = top_country
@@ -121,63 +126,57 @@ class TestMapView(TestCase):
         """
         Verify that get_statistics_top_country method returns non if tabular format countries list is empty.
         """
-        tabular_format_countries_list = []
+        tabular_format_countries_list = [['Unset', 0, 0]]
 
         result = MapView.get_statistics_top_country(tabular_format_countries_list)
 
         self.assertEqual(None, result)
 
 
-class TestViewsUtils(TestCase):
+@patch('olga.analytics.models.InstallationStatistics.objects.aggregate')
+class TestViewsHelpFunctions(TestCase):
+    """
+    Tests for charts help functions.
+    """
 
-    @patch('olga.analytics.models.InstallationStatistics.objects.last')
-    @patch('olga.analytics.models.InstallationStatistics.objects.first')
     def test_returning_first_and_last_datetime_of_update_data_if_data_exists(
             self,
-            mock_installation_statistics_model_objects_first_method,
-            mock_installation_statistics_model_objects_last_method
+            mock_installation_statistics_model_objects_aggregate
     ):
         """
-        Verify that get_first_and_last_datetime_of_update_data method returns first object datetime and
-        last object datetime in database.
+        Verify that get_first_and_last_datetime_of_update_data method returns first and last objects datetime.
         """
-        mock_first_datetime_of_update_data = datetime(2017, 6, 1, 14, 56, 18)
-        mock_last_datetime_of_update_data = datetime(2017, 7, 2, 23, 12, 8)
+        mock_min_datetime_of_update_data = datetime(2017, 6, 1, 14, 56, 18)
+        mock_max_datetime_of_update_data = datetime(2017, 7, 2, 23, 12, 8)
 
-        class MockInstallationStatisticsModelFirstObject(object):
-            data_created_datetime = mock_first_datetime_of_update_data
+        mock_installation_statistics_model_objects_aggregate.return_value = {
+            'data_created_datetime__min': mock_min_datetime_of_update_data,
+            'data_created_datetime__max': mock_max_datetime_of_update_data
+        }
 
-        class MockInstallationStatisticsModelLastObject(object):
-            data_created_datetime = mock_last_datetime_of_update_data
-
-        mock_installation_statistics_model_objects_first_method.return_value = \
-            MockInstallationStatisticsModelFirstObject()
-
-        mock_installation_statistics_model_objects_last_method.return_value = \
-            MockInstallationStatisticsModelLastObject()
-
-        result = get_first_and_last_datetime_of_update_data()
+        result = get_data_created_datetime_scope()
 
         self.assertEqual(
-            (mock_first_datetime_of_update_data, mock_last_datetime_of_update_data), result
+            (mock_min_datetime_of_update_data, mock_max_datetime_of_update_data), result
         )
 
     @patch('olga.charts.views.datetime')
-    @patch('olga.analytics.models.InstallationStatistics.objects.first')
     def test_returning_first_and_last_datetime_of_update_data_if_data_does_not_exist(
-            self, mock_installation_statistics_model_objects_first_method, mock_datetime
+            self, mock_datetime, mock_installation_statistics_model_objects_aggregate
     ):
         """
-        Verify that get_first_and_last_datetime_of_update_data method returns `datetime.now` if first object datetime
-        and last object datetime do not exist in database.
+        Verify that get_first_and_last_datetime_of_update_data method returns `datetime.now` if no objects.
         """
-        mock_installation_statistics_model_objects_first_method.side_effect = AttributeError()
-
         mock_first_datetime_of_update_data = mock_last_datetime_of_update_data = datetime(2017, 7, 2, 23, 12, 8)
 
         mock_datetime.now.return_value = mock_first_datetime_of_update_data
 
-        result = get_first_and_last_datetime_of_update_data()
+        mock_installation_statistics_model_objects_aggregate.return_value = {
+            'data_created_datetime__min': None,
+            'data_created_datetime__max': None
+        }
+
+        result = get_data_created_datetime_scope()
 
         self.assertEqual(
             (mock_first_datetime_of_update_data, mock_last_datetime_of_update_data), result
@@ -234,7 +233,7 @@ class TestGraphsView(TestCase):
         for field in context_fields:
             self.assertIn(field, response.context)
 
-    @patch('olga.charts.views.get_first_and_last_datetime_of_update_data')
+    @patch('olga.charts.views.get_data_created_datetime_scope')
     @patch('olga.analytics.models.InstallationStatistics.timeline')
     @patch('olga.analytics.models.InstallationStatistics.data_per_period')
     @patch('olga.analytics.models.InstallationStatistics.overall_counts')
@@ -243,7 +242,7 @@ class TestGraphsView(TestCase):
             mock_installation_statistics_model_overall_counts,
             mock_installation_statistics_model_data_per_period,
             mock_installation_statistics_model_timeline,
-            mock_get_first_and_last_datetime_of_update_data
+            mock_get_data_created_datetime_scope
     ):
         """
         Verify that graphs view render correct context fields values.
@@ -261,7 +260,7 @@ class TestGraphsView(TestCase):
         mock_installation_statistics_model_overall_counts.return_value = \
             mock_instances_count, mock_courses_count, mock_students_count
 
-        mock_get_first_and_last_datetime_of_update_data.return_value = \
+        mock_get_data_created_datetime_scope.return_value = \
             mock_first_datetime_of_update_data, mock_last_datetime_of_update_data
 
         response = self.client.get('/')
