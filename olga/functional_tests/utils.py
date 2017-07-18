@@ -5,7 +5,7 @@
 Utils for functional tests.
 """
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 
 from mock import patch
@@ -14,6 +14,8 @@ from django.test import TestCase
 
 from olga.analytics.tests.factories import InstallationStatisticsFactory
 
+# pylint: disable=invalid-name
+
 
 class SetUp(TestCase):
     """
@@ -21,11 +23,12 @@ class SetUp(TestCase):
     """
 
     @staticmethod
-    def setUp():  # pylint: disable=invalid-name
+    def setUp():
         """
         Create one installation statistics object with factory data.
         """
-        mock_data_created_datetime = datetime(2017, 7, 5, 20, 25, 23, 259923, pytz.UTC)
+        last_calendar_day = datetime.now() - timedelta(days=1)
+        mock_data_created_datetime = pytz.utc.localize(last_calendar_day)
 
         with patch('django.utils.timezone.now') as mock_timezone_now:
 
@@ -102,4 +105,4 @@ class _HtmlTargets(object):
         return self._course_engagement_last_update
 
 
-html_target = _HtmlTargets()  # pylint: disable=invalid-name
+html_target = _HtmlTargets()

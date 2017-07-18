@@ -5,6 +5,7 @@ Test for map metrics.
 import json
 
 import pycountry
+from ddt import ddt, data, unpack
 
 from django.test import TestCase
 
@@ -13,46 +14,35 @@ from olga.functional_tests.utils import SetUp, html_target
 from olga.analytics.tests.factories import InstallationStatisticsFactory
 from olga.analytics.models import InstallationStatistics
 
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name, attribute-defined-outside-init
 
 
+@ddt
 class TestMapMetricsWithoutStatistics(TestCase):
     """
     Test html render map metrics if statistics does not exist.
     """
 
-    def test_html_renders_unset_to_top_country_activity_metrics_if_no_students_country(self):
+    def setUp(self):
+        """
+        Provide common response.
+        """
+        self.response = self.client.get('/map/')
+
+    @data(['Unset', 'Top Country by Enrollment'], [0, 'Countries in Statistics'])
+    @unpack
+    def test_unset_country(self, value, label):
         """
         Verify that html renders unset to country activity metric if no students country.
         """
-        response = self.client.get('/map/')
+        target_html_object = html_target.activity_metric.format(value, label)
 
-        top_country = 'Unset'
-        top_country_label = 'Top Country by Enrollment'
+        self.assertContains(self.response, target_html_object, 1)
 
-        target_html_object = html_target.activity_metric.format(top_country, top_country_label)
-
-        self.assertContains(response, target_html_object, 1)
-
-    def test_html_renders_zero_to_countries_in_statistics_activity_metrics_if_no_students_country(self):
-        """
-        Verify that html renders zero (0) to countries in statistics activity metric if no students country.
-        """
-        response = self.client.get('/map/')
-
-        countries_in_statistics = 0
-        countries_in_statistics_label = 'Countries in Statistics'
-
-        target_html_object = html_target.activity_metric.format(countries_in_statistics, countries_in_statistics_label)
-
-        self.assertContains(response, target_html_object, 1)
-
-    def test_html_renders_table_with_only_unset_values_to_geographic_breakdown_if_no_students_country(self):
+    def test_unset_value(self):
         """
         Verify that html renders table only with unset values to geographic breakdown if no students country.
         """
-        response = self.client.get('/map/')
-
         unset_country = 'Unset'
         unset_count, unset_percentage = 0, 0
 
@@ -60,9 +50,9 @@ class TestMapMetricsWithoutStatistics(TestCase):
         target_html_object_count = html_target.country_count_grid_cell.format(unset_count)
         target_html_object_percentage = html_target.percentage_grid_cell.format(unset_percentage)
 
-        self.assertContains(response, target_html_object_country, 1)
-        self.assertContains(response, target_html_object_count, 1)
-        self.assertContains(response, target_html_object_percentage, 1)
+        self.assertContains(self.response, target_html_object_country, 1)
+        self.assertContains(self.response, target_html_object_count, 1)
+        self.assertContains(self.response, target_html_object_percentage, 1)
 
 
 class TestMapMetricsWithStatistics(TestCase):
@@ -70,14 +60,14 @@ class TestMapMetricsWithStatistics(TestCase):
     Test html render map metrics if statistics exists.
     """
 
-    @staticmethod
-    def setUp():
+    def setUp(self):
         """
-        Run setup.
+        Run setup. Provide common response.
         """
         SetUp.setUp()
+        self.response = self.client.get('/map/')
 
-    def test_html_renders_top_country_to_activity_metrics_if_statistics_exists(self):
+    def test_top_country(self):
         """
         Verify that html renders country alpha 3 name to country activity metric if students country statistics exists.
         """
@@ -97,11 +87,9 @@ class TestMapMetricsWithStatistics(TestCase):
             max_students_country_alpha_3, max_students_country_alpha_3_label
         )
 
-        response = self.client.get('/map/')
+        self.assertContains(self.response, target_html_object, 1)
 
-        self.assertContains(response, target_html_object, 1)
-
-    def test_html_renders_countries_amount_to_countries_in_statistics_activity_metrics_if_statistics_exists(self):
+    def test_countries_amount(self):
         """
         Verify that html renders countries amount to activity metric if students country statistics exists.
         """
@@ -115,11 +103,9 @@ class TestMapMetricsWithStatistics(TestCase):
             countries_in_statistics, countries_in_statistics_label
         )
 
-        response = self.client.get('/map/')
+        self.assertContains(self.response, target_html_object, 1)
 
-        self.assertContains(response, target_html_object, 1)
-
-    def test_html_renders_table_with_all_country_count_percentage_accordance_to_geographic_breakdown(self):
+    def test_counties_accordance(self):
         """
         Verify that html renders table with all accordance to geographic table if students country statistics exists.
         """
@@ -128,8 +114,6 @@ class TestMapMetricsWithStatistics(TestCase):
         factory_students_per_country_accordance = json.loads(InstallationStatisticsFactory.students_per_country)
 
         all_active_students = sum(factory_students_per_country_accordance.values())
-
-        response = self.client.get('/map/')
 
         for country, count in factory_students_per_country_accordance.items():
             if installation_statistics.is_country_exists(country):
@@ -146,6 +130,6 @@ class TestMapMetricsWithStatistics(TestCase):
                 target_html_object_count = html_target.country_count_grid_cell.format(count)
                 target_html_object_percentage = html_target.percentage_grid_cell.format(student_amount_percentage)
 
-                self.assertContains(response, target_html_object_country, 1)
-                self.assertContains(response, target_html_object_count, 1)
-                self.assertContains(response, target_html_object_percentage, 1)
+                self.assertContains(self.response, target_html_object_country, 1)
+                self.assertContains(self.response, target_html_object_count, 1)
+                self.assertContains(self.response, target_html_object_percentage, 1)

@@ -1,5 +1,3 @@
-
-
 """
 Test for output dates.
 """
@@ -12,7 +10,7 @@ from olga.functional_tests.utils import SetUp, html_target
 
 from olga.charts.views import get_first_and_last_datetime_of_update_data
 
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name, attribute-defined-outside-init
 
 
 class TestHtmlRenderDatesWithoutData(TestCase):
@@ -20,7 +18,7 @@ class TestHtmlRenderDatesWithoutData(TestCase):
     Test html render dates if statistics does not exist.
     """
 
-    def test_statistics_extraction_duration_uses_datetime_now_duration_if_no_statistics(self):
+    def test_datetime_now_if_no_statistics(self):
         """
         Verify that statistics extraction duration uses datetime now if no statistics.
         """
@@ -34,7 +32,7 @@ class TestHtmlRenderDatesWithoutData(TestCase):
             1
         )
 
-    def test_course_engagement_data_was_last_updated_if_no_students_country(self):
+    def test_last_update_if_no_students_country(self):
         """
         Verify that html renders datetime now for course engagement data was last updated if no statistics.
         """
@@ -55,14 +53,14 @@ class TestHtmlRenderDatesWithData(TestCase):
     Test html render dates if statistics exists.
     """
 
-    @staticmethod
-    def setUp():
+    def setUp(self):
         """
-        Run setup.
+        Run setup. Provide common response.
         """
         SetUp.setUp()
+        self.response = self.client.get('/map/')
 
-    def test_statistics_extraction_duration_uses_existing_datetime_if_statistics_exists(self):
+    def test_existing_datetime(self):
         """
         Verify that statistics extraction duration uses first and last data update datetime if statistics exists.
         """
@@ -71,15 +69,13 @@ class TestHtmlRenderDatesWithData(TestCase):
         first_update_strftime_date = first_datetime_of_update_data.strftime('%Y-%m')
         last_update_strftime_date = last_datetime_of_update_data.strftime('%Y-%m')
 
-        response = self.client.get('/map/')
-
         self.assertContains(
-            response,
+            self.response,
             html_target.extraction_duration.format(first_update_strftime_date, last_update_strftime_date),
             1
         )
 
-    def test_course_engagement_data_was_last_updated_uses_existing_datetime_if_statistics_exists(self):
+    def test_last_update(self):
         """
         Verify that html renders first and last data update datetime for course engagement dates if statistics exists.
         """
@@ -88,10 +84,8 @@ class TestHtmlRenderDatesWithData(TestCase):
         last_update_strftime_date = last_datetime_of_update_data.strftime('%Y-%m-%d')
         last_update_strftime_time = last_datetime_of_update_data.strftime('%H:%M')
 
-        response = self.client.get('/map/')
-
         self.assertContains(
-            response,
+            self.response,
             html_target.course_engagement_last_update.format(last_update_strftime_date, last_update_strftime_time),
             1
         )
