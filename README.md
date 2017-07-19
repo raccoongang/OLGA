@@ -1,8 +1,9 @@
 # acceptor
 
-[![Build Status](https://travis-ci.org/raccoongang/acceptor.svg?branch=master)](https://travis-ci.org/raccoongang/acceptor)
-[coverage]
-[release]
+[![Travis](https://travis-ci.org/raccoongang/acceptor.svg?branch=master)](https://travis-ci.org/raccoongang/acceptor)
+[![Codecov](https://codecov.io/gh/raccoongang/acceptor/branch/tests%2Funit/graph/badge.svg)](https://codecov.io/gh/raccoongang/acceptor/branch/tests%2Funit)
+[![Release](https://img.shields.io/github/release/raccoongang/acceptor.svg)](https://github.com/raccoongang/acceptor/releases)
+[![Code Climate](https://img.shields.io/codeclimate/github/raccoongang/acceptor.svg)](https://codeclimate.com/github/raccoongang/acceptor)
 
 Acceptor has arisen out of [Open edX ](https://open.edx.org) requirement to collect edx platform installations
 statistics data from all over the world. Acceptor is  required to be able to collect, visualize and process this data
