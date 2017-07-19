@@ -65,7 +65,7 @@ class TestHtmlRenderDatesWithData(TestCase):
         self.first_update_date_y_m = first_datetime_of_update_data.strftime('%Y-%m')
         self.last_update_date_y_m = last_datetime_of_update_data.strftime('%Y-%m')
 
-        self.first_update_date_y_m_d = last_datetime_of_update_data.strftime('%Y-%m-%d')
+        self.last_update_date_y_m_d = last_datetime_of_update_data.strftime('%Y-%m-%d')
         self.last_update_time_h_m = last_datetime_of_update_data.strftime('%H:%M')
 
     def test_existing_datetime(self):
@@ -84,6 +84,6 @@ class TestHtmlRenderDatesWithData(TestCase):
         """
         self.assertContains(
             self.response,
-            html_target.course_engagement_last_update.format(self.first_update_date_y_m_d, self.last_update_time_h_m),
+            html_target.course_engagement_last_update.format(self.last_update_date_y_m_d, self.last_update_time_h_m),
             1
         )
