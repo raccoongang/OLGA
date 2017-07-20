@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
+import os
+import sys
+
 # pylint: disable-all
 # flake8: noqa
 
-import os
-import sys
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "acceptor.settings")

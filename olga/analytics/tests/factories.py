@@ -2,9 +2,8 @@
 Provides factories for analytics models.
 """
 
-import uuid
-
 from datetime import datetime
+import uuid
 
 import factory
 from factory.django import DjangoModelFactory
@@ -25,8 +24,8 @@ class EdxInstallationFactory(DjangoModelFactory):
     access_token = uuid.uuid4().hex
     platform_name = 'platform_name'
     platform_url = 'https://platform-url.com'
-    latitude = None
-    longitude = None
+    latitude = 50.10
+    longitude = 40.05
 
 
 class InstallationStatisticsFactory(DjangoModelFactory):
