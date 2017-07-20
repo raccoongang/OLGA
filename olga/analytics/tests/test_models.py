@@ -181,9 +181,7 @@ class TestInstallationStatisticsMethods(TestCase):
         )
 
     @patch('olga.analytics.models.get_previous_day_start_and_end_dates')
-    def test_students_per_country_as_dict(
-            self, mock_get_previous_day_start_and_end_dates
-    ):
+    def test_students_per_country_as_dict(self, mock_get_previous_day_start_and_end_dates):
         """
         Verify that get_students_per_country_stats method returns correct accordance as dict.
         """
@@ -222,9 +220,7 @@ class TestInstallationStatisticsMethods(TestCase):
         )
 
     @patch('olga.analytics.models.get_previous_day_start_and_end_dates')
-    def test_students_per_country_render(
-            self, mock_get_previous_day_start_and_end_dates
-    ):
+    def test_students_per_country_render(self, mock_get_previous_day_start_and_end_dates):
         """
         Verify that get_students_per_country_to_render method returns data to render correct values.
         """

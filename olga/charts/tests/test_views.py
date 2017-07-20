@@ -47,22 +47,6 @@ class TestMapView(TestCase):
         """
         self.assertTemplateUsed(self.response, 'charts/worldmap.html')
 
-    def test_map_view_context_fields(self):
-        """
-        Verify that map view render correct context fields.
-        """
-        context_fields = [
-            'datamap_countries_list',
-            'tabular_countries_list',
-            'top_country',
-            'countries_amount',
-            'first_datetime_of_update_data',
-            'last_datetime_of_update_data',
-        ]
-
-        for field in context_fields:
-            self.assertIn(field, self.response .context)
-
     @patch('olga.charts.views.MapView.get_statistics_top_country')
     @patch('olga.analytics.models.InstallationStatistics.get_students_per_country_to_render')
     @patch('olga.analytics.models.InstallationStatistics.get_students_countries_amount')
@@ -206,25 +190,6 @@ class TestGraphsView(TestCase):
         Verify that graphs view uses correct html-template after get request to graphs url.
         """
         self.assertTemplateUsed(self.response, 'charts/graphs.html')
-
-    def test_graphs_view_context_fields(self):
-        """
-        Verify that graphs view render correct context fields.
-        """
-        context_fields = [
-            'timeline',
-            'students',
-            'courses',
-            'instances',
-            'instances_count',
-            'courses_count',
-            'students_count',
-            'first_datetime_of_update_data',
-            'last_datetime_of_update_data'
-        ]
-
-        for field in context_fields:
-            self.assertIn(field, self.response.context)
 
     @patch('olga.charts.views.get_data_created_datetime_scope')
     @patch('olga.analytics.models.InstallationStatistics.timeline')
