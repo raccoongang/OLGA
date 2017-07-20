@@ -4,7 +4,7 @@ Models for analytics application. Models used to store and operate all data rece
 
 from __future__ import division
 
-import datetime
+from datetime import date, timedelta
 import json
 from collections import defaultdict
 
@@ -18,15 +18,14 @@ from django.db.models.functions import Trunc
 def get_previous_day_start_and_end_dates():  # pylint: disable=invalid-name
     """
     Get accurate start and end dates, that create segment between them equal to a full last calendar day.
-
     Returns:
         start_of_day (date): Previous day's start. Example for 2017-05-15 is 2017-05-15.
         end_of_day (date): Previous day's end, it's a next day (tomorrow) toward day's start,
                            that doesn't count in segment. Example for 2017-05-15 is 2017-05-16.
 
     """
-    end_of_day = datetime.date.today()
-    start_of_day = end_of_day - datetime.timedelta(days=1)
+    end_of_day = date.today()
+    start_of_day = end_of_day - timedelta(days=1)
 
     return start_of_day, end_of_day
 
@@ -45,10 +44,8 @@ class EdxInstallation(models.Model):
     def does_edx_installation_extend_level_first_time(self):  # pylint: disable=invalid-name
         """
         Check if edx installation extends statistics level first time.
-
         If platform url exists It means edx installation already has overall information about itself.
         Returns False and do nothing.
-
         If platform url does not exist It means edx installation extended statistics level first time.
         Returns True and go to update edx installation's overall information.
         """
@@ -57,7 +54,6 @@ class EdxInstallation(models.Model):
     def update_edx_instance_info(self, enthusiast_edx_installation):
         """
         Besides existing edx installation access token - extended statistics level requires a bit more information.
-
         Update blank object fields: latitude, longitude, platform_name and platform_url content.
         """
         self.latitude = enthusiast_edx_installation['latitude']
@@ -105,7 +101,6 @@ class InstallationStatistics(models.Model):
     def data_per_period(cls):
         """
         Provide total students, courses and instances, from all services per period, day by default.
-
         We summarize values per day, because in same day we can receive data from multiple different instances.
         We suppose, that every instance send data only once per day.
         """
@@ -133,7 +128,6 @@ class InstallationStatistics(models.Model):
     def overall_counts(cls):
         """
         Provide total count of all instances, courses and students from all instances per previous calendar day.
-
         Returns overall counts as int-value.
         """
         start_of_day, end_of_day = get_previous_day_start_and_end_dates()
@@ -158,7 +152,6 @@ class InstallationStatistics(models.Model):
     def get_students_per_country_stats(cls):
         """
         Total of students amount per country to display on world map from all instances per previous calendar day.
-
         Returns:
             world_students_per_country (dict): Country-count accordance as pair of key-value.
 
@@ -184,7 +177,6 @@ class InstallationStatistics(models.Model):
     def get_student_amount_percentage(country_count_in_statistics, all_active_students):
         """
         Calculate student amount percentage based on total countries amount and particular county amount comparison.
-
         If percentage is too small and doesn't show real numbers
         it will be changed to '~0' (around zero value, but not totally).
         """
@@ -209,7 +201,6 @@ class InstallationStatistics(models.Model):
         # pylint: disable=invalid-name
         """
         Create convenient and necessary data formats to render it from view.
-
         Graphs require list-format data.
         """
         datamap_format_countries_list = []

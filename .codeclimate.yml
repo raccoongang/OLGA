@@ -3,7 +3,7 @@ engines:
   csslint:
     enabled: true
   duplication:
-    enabled: true
+    enabled: false
     config:
       languages:
       - javascript
@@ -31,4 +31,3 @@ ratings:
 exclude_paths:
 - "**/vendor/**/*"
 - "**/vendored/**/*"
-

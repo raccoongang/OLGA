@@ -7,6 +7,7 @@ cache:
   pip: true
 
 before_install:
+- pip install coverage==4.4.1
 - pip install flake8_docstrings==1.1.0
 - pip install flake8==3.3.0
 - pip install pep8==1.7.0
@@ -16,3 +17,6 @@ script:
 - pep8
 - flake8
 - pylint olga
+- coverage run --source='.' manage.py test
+- coverage report -m
+- bash <(curl -s https://codecov.io/bash)
