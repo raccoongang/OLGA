@@ -8,12 +8,7 @@ from ddt import ddt, data, unpack
 
 from olga.functional_tests.utils import SetUp, html_target
 
-from olga.analytics.tests.factories import InstallationStatisticsFactory
-
 # pylint: disable=invalid-name, attribute-defined-outside-init
-
-
-factory_stats = InstallationStatisticsFactory()
 
 
 @ddt
@@ -48,11 +43,7 @@ class TestMapMetricsWithStatistics(TestCase):
         SetUp.setUp()
         self.response = self.client.get('/')
 
-    @data(
-        [1, 'Instances'],
-        [factory_stats.courses_amount, 'Courses'],
-        [factory_stats.active_students_amount_day, 'Active Students']
-    )
+    @data([1, 'Instances'], [1, 'Courses'], [5, 'Active Students'])
     @unpack
     def test_metrics(self, amount, label):
         """
@@ -63,7 +54,7 @@ class TestMapMetricsWithStatistics(TestCase):
             - result of outside functions (i.e. `overall_counts` method) can't be passed to `data`;
             - self can't be passed to `data`.
 
-        Resolved problem with manually setting values, that factory provides.
+        Resolved problem with manually setting default values, that factory provides.
         """
         target_html_object = html_target.activity_metric.format(amount, label)
         self.assertContains(self.response, target_html_object, 1)
