@@ -2,44 +2,53 @@
 Acceptor server which takes specific data from edx-platform and visualizes the data on the world map.
 
 # installations
-Install requirements:
-```
-   $ pip install -r requirements.txt
-```
-Make migrations:
-```
-   $ python manage.py migrate
-```
-Run the server:
-```
-   $ python manage.py runserver
-```
+Install Docker CE: https://www.docker.com/community-edition
+Most of installation packages include docker-compose, but if it was not installed on your system, do it: https://docs.docker.com/compose/install/
 
 # local development
-Install requirements:
+Build containers:
 ``` 
-   $ pip install -r requirements.txt
-```
-Rename:
-```
-   local_settings.py.example to private.py
+   $ docker-compose -f local-compose.yml build
 ```
 
 Make migrations:
 ```
-   $ python manage.py migrate
+   $ docker-compose -f local-compose.yml run acceptor python manage.py migrate
 ```
+
 Create superuser:
 ```
-   $ python manage.py createsuperuser
+   $ docker-compose -f local-compose.yml run acceptor python manage.py createsuperuser
 ```
-Load fixtures:
+
+Run Django (runserver) and PostgreSQL containers. Django will be available on http://localhost:8000/
 ```
-   $ cd graph_creator
-   $ python utils.py
-   $ python ../manage.py loaddata test_fixture.json
+   $ docker-compose -f local-compose.yml up
 ```
-Run the server:
+
+# Run on server
+Install Docker CE: https://www.docker.com/community-edition
+Most of installation packages include docker-compose, but if it was not installed on your system, do it: https://docs.docker.com/compose/install/
+
+Build containers:
+``` 
+   $ docker-compose -f docker-compose.yml build
 ```
-   $ python manage.py runserver
+
+Make migrations:
+```
+   $ docker-compose -f docker-compose.yml run acceptor python manage.py migrate
+```
+
+Create superuser:
+```
+   $ docker-compose -f docker-compose.yml run acceptor python manage.py createsuperuser
+```
+
+
+Run Django and PostgreSQL containers. Django will be available on http://server-ip-or-domain/
+```
+   #### TODO: Rewtire PostgreSQL configuration and mount to host folder.
+   $ docker-compose -f docker-compose.yml up -d
+
 ```
