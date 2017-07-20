@@ -8,7 +8,7 @@ from django.test import TestCase
 
 from olga.functional_tests.utils import SetUp, html_target
 
-from olga.charts.views import get_first_and_last_datetime_of_update_data
+from olga.charts.views import get_data_created_datetime_scope
 
 # pylint: disable=invalid-name, attribute-defined-outside-init
 
@@ -60,7 +60,7 @@ class TestHtmlRenderDatesWithData(TestCase):
         SetUp.setUp()
         self.response = self.client.get('/map/')
 
-        first_datetime_of_update_data, last_datetime_of_update_data = get_first_and_last_datetime_of_update_data()
+        first_datetime_of_update_data, last_datetime_of_update_data = get_data_created_datetime_scope()
 
         self.first_update_date_y_m = first_datetime_of_update_data.strftime('%Y-%m')
         self.last_update_date_y_m = last_datetime_of_update_data.strftime('%Y-%m')

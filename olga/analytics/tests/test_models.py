@@ -10,9 +10,7 @@ from mock import patch
 from django.test import TestCase
 
 from olga.analytics.tests.factories import EdxInstallationFactory, InstallationStatisticsFactory
-from olga.analytics.models import (
-    EdxInstallation, InstallationStatistics, get_previous_day_start_and_end_dates
-)
+from olga.analytics.models import EdxInstallation, InstallationStatistics, get_last_calendar_day
 
 # pylint: disable=invalid-name, attribute-defined-outside-init
 
@@ -42,24 +40,24 @@ class TestEdxInstallationMethods(TestCase):
 
     def test_extending_level_first_time(self):
         """
-        Verify that does_edx_installation_extend_level_first_time method return True, if not platform name.
+        Verify that is_stats_extended_first_time method return True, if not platform name.
 
         If edx installation has not platform name It means installation sends statistics with `paranoid` level.
         """
         edx_installation_object = EdxInstallation.objects.first()
-        result = edx_installation_object.does_edx_installation_extend_level_first_time()
+        result = edx_installation_object.is_stats_extended_first_time()
         self.assertEqual(True, result)
 
     def test_extending_level_not_first_time(self):
         """
-        Verify that does_edx_installation_extend_level_first_time method return False, if platform url exists.
+        Verify that is_stats_extended_first_time method return False, if platform url exists.
 
         If edx installation has platform name It means installation sends statistics with `enthusiast` level.
         """
         self.fake_installation_enthusiast_level()
 
         edx_installation_object = EdxInstallation.objects.first()
-        result = edx_installation_object.does_edx_installation_extend_level_first_time()
+        result = edx_installation_object.is_stats_extended_first_time()
         self.assertEqual(False, result)
 
     def test_update_edx_instance_info(self):
@@ -167,12 +165,12 @@ class TestInstallationStatisticsMethods(TestCase):
             ([10, 5, 10, 10, 10], [2, 1, 2, 2, 2], [2, 1, 2, 2, 2]), result
         )
 
-    @patch('olga.analytics.models.get_previous_day_start_and_end_dates')
-    def test_overall_counts(self, mock_get_previous_day_start_and_end_dates):
+    @patch('olga.analytics.models.get_last_calendar_day')
+    def test_overall_counts(self, mock_get_last_calendar_day):
         """
         Verify that overall_counts method returns overall statistics instance counts for previous calendar day.
         """
-        mock_get_previous_day_start_and_end_dates.return_value = date(2017, 6, 1), date(2017, 6, 2)
+        mock_get_last_calendar_day.return_value = date(2017, 6, 1), date(2017, 6, 2)
 
         result = InstallationStatistics.overall_counts()
 
@@ -180,12 +178,12 @@ class TestInstallationStatisticsMethods(TestCase):
             (2, 2, 10), result
         )
 
-    @patch('olga.analytics.models.get_previous_day_start_and_end_dates')
-    def test_students_per_country_as_dict(self, mock_get_previous_day_start_and_end_dates):
+    @patch('olga.analytics.models.get_last_calendar_day')
+    def test_students_per_country_as_dict(self, mock_get_last_calendar_day):
         """
         Verify that get_students_per_country_stats method returns correct accordance as dict.
         """
-        mock_get_previous_day_start_and_end_dates.return_value = date(2017, 6, 1), date(2017, 6, 2)
+        mock_get_last_calendar_day.return_value = date(2017, 6, 1), date(2017, 6, 2)
 
         result = InstallationStatistics.get_students_per_country_stats()
 
@@ -202,7 +200,7 @@ class TestInstallationStatisticsMethods(TestCase):
         """
         Verify that view gets datamap and tabular lists with corresponding model method.
 
-        Model method is create_students_per_country_to_render.
+        Model method is create_students_per_country.
         """
         worlds_students_per_country = {
             'RU': 5264,
@@ -213,22 +211,22 @@ class TestInstallationStatisticsMethods(TestCase):
 
         datamap_format_countries_list, tabular_format_countries_list = self.create_expected_default_data()
 
-        result = InstallationStatistics.create_students_per_country_to_render(worlds_students_per_country)
+        result = InstallationStatistics.create_students_per_country(worlds_students_per_country)
 
         self.assertEqual(
             (datamap_format_countries_list, tabular_format_countries_list), result
         )
 
-    @patch('olga.analytics.models.get_previous_day_start_and_end_dates')
-    def test_students_per_country_render(self, mock_get_previous_day_start_and_end_dates):
+    @patch('olga.analytics.models.get_last_calendar_day')
+    def test_students_per_country_render(self, mock_get_last_calendar_day):
         """
-        Verify that get_students_per_country_to_render method returns data to render correct values.
+        Verify that get_students_per_country method returns data to render correct values.
         """
-        mock_get_previous_day_start_and_end_dates.return_value = date(2017, 6, 1), date(2017, 6, 2)
+        mock_get_last_calendar_day.return_value = date(2017, 6, 1), date(2017, 6, 2)
 
         datamap_format_countries_list, tabular_format_countries_list = self.create_expected_default_data()
 
-        result = InstallationStatistics.get_students_per_country_to_render()
+        result = InstallationStatistics.get_students_per_country()
 
         self.assertEqual(
             (datamap_format_countries_list, tabular_format_countries_list), result
@@ -294,11 +292,11 @@ class TestAnalyticsModelsHelpFunctions(TestCase):
     @patch('olga.analytics.models.date')
     def test_calendar_day(self, mock_date):
         """
-        Verify that get_previous_day_start_and_end_dates returns expected previous day start and end dates.
+        Verify that get_last_calendar_day returns expected previous day start and end dates.
         """
         mock_date.today.return_value = date(2017, 6, 14)
 
-        result = get_previous_day_start_and_end_dates()
+        result = get_last_calendar_day()
 
         self.assertEqual(
             (date(2017, 6, 13), date(2017, 6, 14)), result

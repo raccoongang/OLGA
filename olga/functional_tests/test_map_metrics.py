@@ -29,7 +29,7 @@ class TestMapMetricsWithoutStatistics(TestCase):
         """
         self.response = self.client.get('/map/')
 
-    @data(['Unset', 'Top Country by Enrollment'], [0, 'Countries in Statistics'])
+    @data([None, 'Top Country by Enrollment'], [0, 'Countries in Statistics'])
     @unpack
     def test_unset_country(self, value, label):
         """
@@ -116,7 +116,7 @@ class TestMapMetricsWithStatistics(TestCase):
         all_active_students = sum(factory_students_per_country_accordance.values())
 
         for country, count in factory_students_per_country_accordance.items():
-            if installation_statistics.is_country_exists(country):
+            if installation_statistics.does_country_exists(country):
 
                 student_amount_percentage = installation_statistics.get_student_amount_percentage(
                     count, all_active_students

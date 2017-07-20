@@ -56,7 +56,7 @@ class MapView(View):
         first_datetime_of_update_data, last_datetime_of_update_data = get_data_created_datetime_scope()
 
         datamap_format_countries_list, tabular_format_countries_list = \
-            InstallationStatistics().get_students_per_country_to_render()
+            InstallationStatistics().get_students_per_country()
 
         countries_amount = InstallationStatistics().get_students_countries_amount()
 

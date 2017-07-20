@@ -15,7 +15,7 @@ from django.db.models import Sum, Count, DateField
 from django.db.models.functions import Trunc
 
 
-def get_previous_day_start_and_end_dates():  # pylint: disable=invalid-name
+def get_last_calendar_day():
     """
     Get accurate start and end dates, that create segment between them equal to a full last calendar day.
     Returns:
@@ -41,7 +41,7 @@ class EdxInstallation(models.Model):
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
 
-    def does_edx_installation_extend_level_first_time(self):  # pylint: disable=invalid-name
+    def is_stats_extended_first_time(self):
         """
         Check if edx installation extends statistics level first time.
         If platform url exists It means edx installation already has overall information about itself.
@@ -130,7 +130,7 @@ class InstallationStatistics(models.Model):
         Provide total count of all instances, courses and students from all instances per previous calendar day.
         Returns overall counts as int-value.
         """
-        start_of_day, end_of_day = get_previous_day_start_and_end_dates()
+        start_of_day, end_of_day = get_last_calendar_day()
 
         all_unique_instances = cls.objects.filter(
             data_created_datetime__gte=start_of_day, data_created_datetime__lt=end_of_day
@@ -156,7 +156,7 @@ class InstallationStatistics(models.Model):
             world_students_per_country (dict): Country-count accordance as pair of key-value.
 
         """
-        start_of_day, end_of_day = get_previous_day_start_and_end_dates()
+        start_of_day, end_of_day = get_last_calendar_day()
 
         # Get list of instances's students per country data as unicode strings.
         students_per_country = cls.objects.filter(
@@ -197,8 +197,7 @@ class InstallationStatistics(models.Model):
         return country != 'null'
 
     @classmethod
-    def create_students_per_country_to_render(cls, worlds_students_per_country):
-        # pylint: disable=invalid-name
+    def create_students_per_country(cls, worlds_students_per_country):
         """
         Create convenient and necessary data formats to render it from view.
         Graphs require list-format data.
@@ -231,22 +230,21 @@ class InstallationStatistics(models.Model):
         return datamap_format_countries_list, tabular_format_countries_list
 
     @classmethod
-    def get_students_per_country_to_render(cls):
-        # pylint: disable=invalid-name
+    def get_students_per_country(cls):
         """
         Gather convenient and necessary data formats to render it from view.
         """
         students_per_country = cls.get_students_per_country_stats()
 
         datamap_format_countries_list, tabular_format_countries_list = \
-            cls.create_students_per_country_to_render(students_per_country)
+            cls.create_students_per_country(students_per_country)
 
         return datamap_format_countries_list, tabular_format_countries_list
 
     @staticmethod
     def calculate_countries_amount(tabular_format_countries_list):
         """
-        Calculate countries amount in worlds students per country statistics as table.
+        Calculate countries amount in world students per country statistics (from tabular countries list).
 
         Tabular format countries list can be empty - countries amount is zero.
         Tabular format countries list can be not empty - it contains particular country-count accordance
@@ -265,7 +263,7 @@ class InstallationStatistics(models.Model):
         """
         Provide countries amount from students per country statistics as table.
         """
-        _, tabular_format_countries_list = cls.get_students_per_country_to_render()
+        _, tabular_format_countries_list = cls.get_students_per_country()
         countries_amount = cls.calculate_countries_amount(tabular_format_countries_list)
 
         return countries_amount

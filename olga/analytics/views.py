@@ -48,7 +48,7 @@ class AccessTokenRegistration(View):
         access_token = uuid4().hex
         self.create_edx_installation(access_token)
 
-        logger.debug('OLGA acceptor registered edX installation with token %s', access_token)
+        logger.debug('OLGA registered edX installation with token %s', access_token)
         return JsonResponse({'access_token': access_token}, status=httplib.CREATED)
 
 
@@ -59,7 +59,29 @@ class AccessTokenAuthorization(View):
     """
 
     @staticmethod
-    def post(request):
+    def is_token_authorized(access_token):
+        """
+        Check if access token belongs to any EdxInstallation object.
+        """
+        if EdxInstallation.objects.filter(access_token=access_token):
+            logger.debug('edX installation with token %s was successfully authorized', access_token)
+            return True
+
+        logger.debug('edX installation with token %s was not authorized', access_token)
+        return False
+
+    @staticmethod
+    def get_refreshed_token():
+        """
+        Create new access token for edx installation if current doe not exists in OLGA storage.
+        """
+        refreshed_access_token = uuid4().hex
+        AccessTokenRegistration().create_edx_installation(refreshed_access_token)
+
+        logger.debug('Refreshed token for edX installation is %s', refreshed_access_token)
+        return refreshed_access_token
+
+    def post(self, request):
         """
         Verify that installation is allowed access to dispatch installation statistics.
 
@@ -72,23 +94,11 @@ class AccessTokenAuthorization(View):
         if access_token_serializer.is_valid():
             access_token = str(request.POST.get('access_token'))
 
-            try:
-                EdxInstallation.objects.get(access_token=access_token)
-
-                logger.debug('edX installation with token %s was successfully authorized', access_token)
+            if self.is_token_authorized(access_token):
                 return HttpResponse(status=httplib.OK)
 
-            except EdxInstallation.DoesNotExist:
-                logger.debug(
-                    'edX installation has no corresponding data in OLGA acceptor database (no received token). '
-                    'Received token is %s.', access_token
-                )
-
-                refreshed_access_token = uuid4().hex
-                AccessTokenRegistration().create_edx_installation(refreshed_access_token)
-
-                logger.debug('Refreshed token for edX installation is %s', refreshed_access_token)
-                return JsonResponse({'refreshed_access_token': refreshed_access_token}, status=httplib.UNAUTHORIZED)
+            refreshed_access_token = self.get_refreshed_token()
+            return JsonResponse({'refreshed_access_token': refreshed_access_token}, status=httplib.UNAUTHORIZED)
 
         return HttpResponse(status=httplib.UNAUTHORIZED)
 
@@ -100,8 +110,7 @@ class ReceiveInstallationStatistics(View):
     """
 
     @staticmethod
-    def update_students_with_no_country(active_students_amount, students_per_country_before_update):
-        # pylint: disable=invalid-name
+    def update_students_with_no_country(active_students_amount, students_before_update):
         """
         Calculate amount of students, that have no country and update overall variable (example below).
 
@@ -111,23 +120,22 @@ class ReceiveInstallationStatistics(View):
 
         Arguments:
             active_students_amount (int): Active students amount.
-            students_per_country_before_update (dict): Country-count accordance as pair of key-value.
-                                                       Amount of students without country may be particular value or
-                                                       may be empty (key 'null' with value 0).
+            students_before_update (dict): Country-count accordance as pair of key-value.
+                                           Amount of students without country may be particular value or
+                                           may be empty (key 'null' with value 0).
 
         Returns:
-            students_per_country_after_update (dict): Country-count accordance as pair of key-value.
-                                                      Amount of students without country has calculated
-                                                      and inserted to corresponding key ('null').
+            students_after_update (dict): Country-count accordance as pair of key-value.
+                                          Amount of students without country has calculated
+                                          and inserted to corresponding key ('null').
 
         """
-        students_per_country_after_update = copy.deepcopy(students_per_country_before_update)
-        # pylint: disable=invalid-name
+        students_after_update = copy.deepcopy(students_before_update)
 
-        students_per_country_after_update['null'] = \
-            active_students_amount - sum(students_per_country_after_update.values())
+        students_after_update['null'] = \
+            active_students_amount - sum(students_after_update.values())
 
-        return students_per_country_after_update
+        return students_after_update
 
     def get_students_per_country(self, students_per_country, active_students_amount_day):
         """
@@ -174,7 +182,7 @@ class ReceiveInstallationStatistics(View):
 
         installation_statistics.update(enthusiast_statistics)
 
-        if edx_installation_object.does_edx_installation_extend_level_first_time():
+        if edx_installation_object.is_stats_extended_first_time():
             edx_installation_object.update_edx_instance_info(enthusiast_edx_installation)
 
     def create_instance_data(self, received_data, access_token):
@@ -206,20 +214,7 @@ class ReceiveInstallationStatistics(View):
             self.extend_stats_to_enthusiast(received_data, installation_statistics, edx_installation_object)
 
         InstallationStatistics.objects.create(edx_installation=edx_installation_object, **installation_statistics)
-        logger.debug('Corresponding data was created in OLGA acceptor database.')
-
-    @staticmethod
-    def is_access_token_authorized(access_token):
-        """
-        Check if access token belongs to any EdxInstallation object.
-        """
-        try:
-            EdxInstallation.objects.get(access_token=access_token)
-            logger.debug('edX installation with token %s was successfully authorized', access_token)
-            return True
-        except EdxInstallation.DoesNotExist:
-            logger.debug('edX installation with token %s was not authorized', access_token)
-            return False
+        logger.debug('Corresponding data was created in OLGA database.')
 
     @staticmethod
     def logger_debug_instance_details(received_data):
@@ -245,7 +240,7 @@ class ReceiveInstallationStatistics(View):
         received_data = request.POST
         access_token = received_data.get('access_token')
 
-        if self.is_access_token_authorized(access_token):
+        if AccessTokenAuthorization().is_token_authorized(access_token):
             self.logger_debug_instance_details(received_data)
 
             self.create_instance_data(received_data, access_token)
