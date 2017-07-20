@@ -8,7 +8,12 @@ from ddt import ddt, data, unpack
 
 from olga.functional_tests.utils import SetUp, html_target
 
+from olga.analytics.tests.factories import InstallationStatisticsFactory
+
 # pylint: disable=invalid-name, attribute-defined-outside-init
+
+
+factory_stats = InstallationStatisticsFactory()
 
 
 @ddt
