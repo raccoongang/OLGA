@@ -14,6 +14,7 @@ before_install:
 - pip install pylint==1.7.2
 
 script:
+- python manage.py migrate
 - pep8
 - flake8
 - pylint olga
