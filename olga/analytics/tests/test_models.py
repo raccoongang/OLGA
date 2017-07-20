@@ -12,6 +12,7 @@ from django.test import TestCase
 from olga.analytics.tests.factories import EdxInstallationFactory, InstallationStatisticsFactory
 from olga.analytics.models import EdxInstallation, InstallationStatistics, get_last_calendar_day
 
+
 # pylint: disable=invalid-name, attribute-defined-outside-init
 
 
@@ -46,6 +47,7 @@ class TestEdxInstallationMethods(TestCase):
         """
         edx_installation_object = EdxInstallation.objects.first()
         result = edx_installation_object.is_stats_extended_first_time()
+
         self.assertEqual(True, result)
 
     def test_extending_level_not_first_time(self):
@@ -199,8 +201,8 @@ class TestInstallationStatisticsMethods(TestCase):
     def test_datamap_and_tabular_lists(self):
         """
         Verify that view gets datamap and tabular lists with corresponding model method.
-
         Model method is create_students_per_country.
+
         """
         worlds_students_per_country = {
             'RU': 5264,
