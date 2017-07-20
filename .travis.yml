@@ -7,13 +7,11 @@ cache:
   pip: true
 
 before_install:
-- pip install coverage==4.4.1
-- pip install flake8_docstrings==1.1.0
-- pip install flake8==3.3.0
-- pip install pep8==1.7.0
-- pip install pylint==1.7.2
+- pip install -r web/requirements.txt
+- pip install -r web/requirements_dev.txt
 
 script:
+- cd web
 - pep8
 - flake8
 - pylint olga

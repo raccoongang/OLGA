@@ -1,0 +1,27 @@
+version: '2'
+services:
+  acceptor:
+    container_name: acceptor
+    env_file: ./envs/pg_local.env
+    build:
+      context: ./web/
+      dockerfile: Dockerfile-tests
+    command: "python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./web:/acceptor
+    ports:
+      - "8000:8000"
+    links:
+      - postgres
+
+  postgres:
+    container_name: postgres
+    image: postgres:9.6
+    env_file: ./envs/pg_local.env
+    volumes:
+      - postgres:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres:

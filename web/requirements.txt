@@ -4,3 +4,5 @@ factory-boy==2.8.1
 mock==2.0.0
 pycountry==17.1.8
 requests==2.13.0
+psycopg2==2.7.1
+gunicorn==19.7.1
