@@ -16,7 +16,15 @@ class AccessTokenForm(forms.Form):
     access_token = forms.UUIDField()
 
 
-class EdxInstallationForm(forms.ModelForm):
+class EdxInstallationParanoidLevelForm(forms.ModelForm):
+    class Meta(object):
+        model = EdxInstallation
+        fields = [
+            'access_token'
+        ]
+
+
+class EdxInstallationEnthusiastLevelForm(forms.ModelForm):
     class Meta(object):
         model = EdxInstallation
         fields = [
@@ -28,7 +36,7 @@ class EdxInstallationForm(forms.ModelForm):
         ]
 
 
-class InstallationStatisticsForm(forms.ModelForm):
+class InstallationStatisticsParanoidLevelForm(forms.ModelForm):
     class Meta(object):
         model = InstallationStatistics
         fields = [
@@ -37,5 +45,10 @@ class InstallationStatisticsForm(forms.ModelForm):
             'active_students_amount_month',
             'courses_amount',
             'statistics_level',
-            'students_per_country'
         ]
+
+
+class InstallationStatisticsEnthusiastLevelForm(forms.ModelForm):
+    class Meta(InstallationStatisticsParanoidLevelForm.Meta):
+        model = InstallationStatistics
+        fields = InstallationStatisticsParanoidLevelForm.Meta.fields + ['students_per_country']
