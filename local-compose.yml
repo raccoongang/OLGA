@@ -6,11 +6,11 @@ services:
     build:
       context: ./web/
       dockerfile: Dockerfile-tests
-    command: "python manage.py runserver 0.0.0.0:8000"
+    command: "python manage.py runserver 0.0.0.0:7000"
     volumes:
       - ./web:/acceptor
     ports:
-      - "8000:8000"
+      - "7000:7000"
     links:
       - postgres
 
