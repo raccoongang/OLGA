@@ -3,4 +3,4 @@ Django==1.11
 factory-boy==2.8.1
 mock==2.0.0
 pycountry==17.1.8
-requests==2.13.0
+requests==2.18.2
