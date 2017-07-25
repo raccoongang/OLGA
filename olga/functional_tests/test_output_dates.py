@@ -6,9 +6,8 @@ from datetime import datetime
 
 from django.test import TestCase
 
-from olga.functional_tests.utils import SetUp, html_target
-
 from olga.charts.views import get_data_created_datetime_scope
+from olga.functional_tests.utils import SetUp, html_target
 
 # pylint: disable=invalid-name, attribute-defined-outside-init
 

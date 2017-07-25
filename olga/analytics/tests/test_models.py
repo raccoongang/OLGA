@@ -9,76 +9,11 @@ from mock import patch
 
 from django.test import TestCase
 
-from olga.analytics.tests.factories import EdxInstallationFactory, InstallationStatisticsFactory
-from olga.analytics.models import EdxInstallation, InstallationStatistics, get_last_calendar_day
+from olga.analytics.tests.factories import InstallationStatisticsFactory
+from olga.analytics.models import InstallationStatistics, get_last_calendar_day
 
 
 # pylint: disable=invalid-name, attribute-defined-outside-init
-
-
-class TestEdxInstallationMethods(TestCase):
-    """
-    Tests for EdxInstallation model's core methods, that work with database.
-    """
-
-    @staticmethod
-    def setUp():
-        """
-        Create one EdxInstallation object.
-        """
-        EdxInstallationFactory(platform_url=None)
-
-    @staticmethod
-    def fake_installation_enthusiast_level():
-        """
-        Create fake edx installation sends statistics with enthusiast level.
-
-        Actually it sends a lot of data, but we need to mock only `platform_url`.
-        """
-        edx_installation_object = EdxInstallation.objects.first()
-        edx_installation_object.platform_url = 'https://url.exists'
-        edx_installation_object.save()
-
-    def test_extending_level_first_time(self):
-        """
-        Verify that is_stats_extended_first_time method return True, if not platform name.
-
-        If edx installation has not platform name It means installation sends statistics with `paranoid` level.
-        """
-        edx_installation_object = EdxInstallation.objects.first()
-        result = edx_installation_object.is_stats_extended_first_time()
-
-        self.assertEqual(True, result)
-
-    def test_extending_level_not_first_time(self):
-        """
-        Verify that is_stats_extended_first_time method return False, if platform url exists.
-
-        If edx installation has platform name It means installation sends statistics with `enthusiast` level.
-        """
-        self.fake_installation_enthusiast_level()
-
-        edx_installation_object = EdxInstallation.objects.first()
-        result = edx_installation_object.is_stats_extended_first_time()
-        self.assertEqual(False, result)
-
-    def test_update_edx_instance_info(self):
-        """
-        Verify that update_edx_instance_info method save edx installation enthusiast data.
-        """
-        enthusiast_edx_installation = {
-            'latitude': 50.32,
-            'longitude': 45.11,
-            'platform_name': 'platform_name',
-            'platform_url': 'https://platform.url'
-        }
-
-        edx_installation_object = EdxInstallation.objects.first()
-        edx_installation_object.update_edx_instance_info(enthusiast_edx_installation)
-
-        extended_edx_installation_object_attributes = edx_installation_object.__dict__
-
-        self.assertDictContainsSubset(enthusiast_edx_installation, extended_edx_installation_object_attributes)
 
 
 class TestInstallationStatisticsMethods(TestCase):
@@ -142,7 +77,10 @@ class TestInstallationStatisticsMethods(TestCase):
         ]
 
         tabular_format_countries_list = [
-            ['CAN', 37086, '79.97'], ['RUS', 5264, '11.35'], ['UKR', 4022, '8.67'], ['Unset', 2, '~0']
+            ['Canada', 37086, 79],
+            ['Russian Federation', 5264, 11],
+            ['Ukraine', 4022, 8],
+            ['Unset', 2, 0]
         ]
 
         return datamap_format_countries_list, tabular_format_countries_list
@@ -241,7 +179,7 @@ class TestInstallationStatisticsHelpMethods(TestCase):
     Tests for InstallationStatistics model's help methods, that work with calculation.
     """
 
-    @data([40, 100, '40.00'], [3, 348214, '~0'])
+    @data([40, 100, 40], [3, 348214, 0])
     @unpack
     def test_student_percentage(self, country_count_in_statistics, all_active_students_in_statistics, expected_result):
         """
@@ -252,38 +190,6 @@ class TestInstallationStatisticsHelpMethods(TestCase):
         )
 
         self.assertEqual(expected_result, result)
-
-    def test_does_country_exists_if_country_exists(self):
-        """
-        Verify that test does_country_exists method returns true if country exists.
-        """
-        country = 'Canada'
-
-        result = InstallationStatistics.does_country_exists(country)
-
-        self.assertTrue(result)
-
-    def test_calculate_countries_amount_if_tabular_list_exists(self):
-        """
-        Verify that calculate_countries_amount method returns countries amount in tabular format list if it exists.
-        """
-        tabular_format_countries_list = [
-            ['CAN', 37086, '79.97'], ['RUS', 5264, '11.35'], ['UKR', 4022, '8.67'], ['Unset', 2, '~0']
-        ]
-
-        result = InstallationStatistics.calculate_countries_amount(tabular_format_countries_list)
-
-        self.assertEqual(3, result)
-
-    def test_calculate_countries_amount_if_no_tabular_list(self):
-        """
-        Verify that calculate_countries_amount method returns countries amount in tabular format list if it is empty.
-        """
-        tabular_format_countries_list = []
-
-        result = InstallationStatistics.calculate_countries_amount(tabular_format_countries_list)
-
-        self.assertEqual(0, result)
 
 
 class TestAnalyticsModelsHelpFunctions(TestCase):

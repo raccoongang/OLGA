@@ -1,6 +1,14 @@
 """
 Utilities, that create test data for charts and map.
-Needed to be deleted in production as well as `olga/analytics/test_fixture.json`.
+They create fixtures in `olga/analytics/test_fixture.json` file.
+
+Fixtures has few problems:
+    - have same data for courses and students.
+      If we go ahead and bound all the charts in one, Developer will no see courses or students chart's line.
+      First overlaps second.
+    - many pylint and flake8 issues.
+
+So it needs to be rewritten.
 
 How to. From `olga/analytics` folder run:
 - python create_test_fixture.py

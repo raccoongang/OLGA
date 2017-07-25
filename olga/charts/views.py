@@ -2,8 +2,8 @@
 Views for the charts application.
 """
 
-from datetime import datetime
 import json
+from datetime import datetime
 
 from django.shortcuts import render
 from django.views.generic import View
@@ -14,20 +14,16 @@ from olga.analytics.models import InstallationStatistics
 
 def get_data_created_datetime_scope():
     """
-    Get first and last datetimes OLGA acceptor gathers statistics.
+    Get the first and last datetimes for the entire time of gathering statistics.
     """
     data_created_datetime_scope = InstallationStatistics.objects.aggregate(
         Min('data_created_datetime'), Max('data_created_datetime')
     )
 
-    first_datetime_of_update_data = data_created_datetime_scope['data_created_datetime__min']
-    last_datetime_of_update_data = data_created_datetime_scope['data_created_datetime__max']
+    first_dt = data_created_datetime_scope['data_created_datetime__min'] or datetime.now()
+    last_dt = data_created_datetime_scope['data_created_datetime__max'] or datetime.now()
 
-    if not first_datetime_of_update_data or not last_datetime_of_update_data:
-        first_datetime_of_update_data = datetime.now()
-        last_datetime_of_update_data = datetime.now()
-
-    return first_datetime_of_update_data, last_datetime_of_update_data
+    return first_dt, last_dt
 
 
 class MapView(View):

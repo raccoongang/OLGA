@@ -2,13 +2,12 @@
 Test for graphs metrics.
 """
 
-from django.test import TestCase
-
 from ddt import ddt, data, unpack
 
-from olga.functional_tests.utils import SetUp, html_target
+from django.test import TestCase
 
 from olga.analytics.tests.factories import InstallationStatisticsFactory
+from olga.functional_tests.utils import SetUp, html_target
 
 # pylint: disable=invalid-name, attribute-defined-outside-init
 

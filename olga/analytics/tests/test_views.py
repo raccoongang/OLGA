@@ -18,8 +18,8 @@ from olga.analytics.models import EdxInstallation
 from olga.analytics.tests.factories import EdxInstallationFactory
 
 from olga.analytics.views import (
-    AccessTokenRegistration,
     AccessTokenAuthorization,
+    AccessTokenRegistration,
     ReceiveInstallationStatistics
 )
 
@@ -177,34 +177,8 @@ class TestAccessTokenAuthorization(TestCase):
 
         response = self.client.post('/api/token/authorization/', {'access_token': access_token})
 
-        self.assertEqual(response.status_code, httplib.UNAUTHORIZED)
-        self.assertJSONEqual(
-            force_text(response.content),
-            {'refreshed_access_token': mock_uuid4.return_value.access_token}
-        )
-
-    @patch('olga.analytics.views.AccessTokenRegistration.create_edx_installation')
-    @patch('olga.analytics.views.uuid4')
-    @patch('olga.analytics.views.EdxInstallation.objects.get')
-    def test_create_edx_installation_occurs(
-            self,
-            mock_edx_installation_objects_get,
-            mock_uuid4,
-            mock_create_edx_installation,
-            mock_access_token_form_is_valid
-    ):
-        """
-        Verify that create_edx_installation method occurs during post method`s process.
-        """
-        mock_access_token_form_is_valid.return_value = True
-        mock_edx_installation_objects_get.side_effect = EdxInstallation.DoesNotExist()
-        mock_uuid4.return_value = MockUUID4()
-
-        access_token = uuid.uuid4().hex
-
-        self.client.post('/api/token/authorization/', {'access_token': access_token})
-
-        mock_create_edx_installation.assert_called_once_with(mock_uuid4.return_value.access_token)
+        self.assertEqual(httplib.UNAUTHORIZED, response.status_code)
+        self.assertEqual(HttpResponse, response.__class__)
 
     def test_post_method_if_request_data_is_not_valid(self, mock_access_token_form_is_valid):
         """
@@ -286,23 +260,6 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
         extended_edx_installation_object_attributes = EdxInstallation.objects.first().__dict__
 
         self.assertDictContainsSubset(self.enthusiast_edx_installation, extended_edx_installation_object_attributes)
-
-    @patch('olga.analytics.models.EdxInstallation.update_edx_instance_info')
-    def test_extend_stats_if_not_needed(self, mock_update_edx_instance_info):
-        """
-        Verify that extend_stats_to_enthusiast method does not extend edx installation fields.
-
-        It means update_edx_instance_info method does not occur during extend_stats_to_enthusiast`s process.
-        """
-        edx_installation_object = EdxInstallationFactory(**self.enthusiast_edx_installation)
-
-        ReceiveInstallationStatistics().extend_stats_to_enthusiast(
-            self.received_data, self.installation_statistics, edx_installation_object
-        )
-
-        update_method_call_count = mock_update_edx_instance_info.call_count
-
-        self.assertEqual(0, update_method_call_count)
 
     @patch('olga.analytics.views.ReceiveInstallationStatistics.extend_stats_to_enthusiast')
     @patch('olga.analytics.models.EdxInstallation.objects.get')
@@ -443,18 +400,13 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
         )
 
     @patch('olga.analytics.views.logging.Logger.debug')
-    def test_logger_debug_instance_details(self, mock_logger_debug):
+    def test_log_debug_instance_details(self, mock_logger_debug):
         """
         Test logger`s debug output occurs installation details.
         """
-        ReceiveInstallationStatistics().logger_debug_instance_details(self.received_data)
+        ReceiveInstallationStatistics().log_debug_instance_details(self.received_data)
 
         expected_logger_debugs = [
-            ((
-                'edX installation called %s from %s sent statistics after authorization',
-                self.received_data.get('platform_name'),
-                self.received_data.get('platform_url')
-            ),),
             call((
                 json.dumps(self.received_data, sort_keys=True, indent=4)
             ),),
@@ -519,8 +471,8 @@ class TestReceiveInstallationStatistics(TestCase):
         self.client.post('/api/installation/statistics/', self.received_data)
         mock_is_token_authorized.assert_called_once_with(self.access_token)
 
-    @patch('olga.analytics.views.ReceiveInstallationStatistics.logger_debug_instance_details')
-    def test_logger_debug_instance_details(self, mock_logger_debug_instance_details):
+    @patch('olga.analytics.views.ReceiveInstallationStatistics.log_debug_instance_details')
+    def test_log_debug_instance_details(self, mock_logger_debug_instance_details):
         """
         Verify that logger`s debug output occurs.
         """

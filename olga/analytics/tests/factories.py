@@ -2,15 +2,15 @@
 Provides factories for analytics models.
 """
 
-from datetime import datetime
 import uuid
-
-import factory
-from factory.django import DjangoModelFactory
-
+from datetime import datetime
 from pytz import UTC
 
-from ..models import InstallationStatistics, EdxInstallation
+from factory import SubFactory
+from factory.django import DjangoModelFactory
+
+
+from olga.analytics.models import InstallationStatistics, EdxInstallation
 
 # Factories are self documenting
 # flake8: noqa:D101
@@ -37,6 +37,6 @@ class InstallationStatisticsFactory(DjangoModelFactory):
     active_students_amount_month = 15
     courses_amount = 1
     data_created_datetime = datetime(2012, 1, 1, tzinfo=UTC)
-    edx_installation = factory.SubFactory(EdxInstallationFactory)
+    edx_installation = SubFactory(EdxInstallationFactory)
     statistics_level = 'enthusiast'
     students_per_country = "{\"RU\": 2632, \"CA\": 18543, \"UA\": 2011, \"null\": 1}"

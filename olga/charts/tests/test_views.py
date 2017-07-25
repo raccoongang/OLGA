@@ -10,9 +10,9 @@ from mock import patch
 from django.test import TestCase
 
 from olga.charts.views import (
-    MapView,
+    get_data_created_datetime_scope,
     GraphsView,
-    get_data_created_datetime_scope
+    MapView
 )
 
 # pylint: disable=invalid-name

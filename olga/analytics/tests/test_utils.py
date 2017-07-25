@@ -6,9 +6,9 @@ import httplib
 
 from mock import patch
 
+from django.http import HttpResponse
 from django.test import TestCase
 from django.test.client import RequestFactory
-from django.http import HttpResponse
 
 from olga.analytics.utils import validate_instance_stats_forms
 

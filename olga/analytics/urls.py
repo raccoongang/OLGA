@@ -4,7 +4,7 @@ URLs for the analytics application.
 
 from django.conf.urls import url
 
-from . import views
+from olga.analytics import views
 
 app_name = 'analytics'
 

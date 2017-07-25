@@ -4,9 +4,9 @@ Models for analytics application. Models used to store and operate all data rece
 
 from __future__ import division
 
-from datetime import date, timedelta
 import json
 from collections import defaultdict
+from datetime import date, timedelta
 
 import pycountry
 
@@ -18,11 +18,11 @@ from django.db.models.functions import Trunc
 def get_last_calendar_day():
     """
     Get accurate start and end dates, that create segment between them equal to a full last calendar day.
+
     Returns:
         start_of_day (date): Previous day's start. Example for 2017-05-15 is 2017-05-15.
         end_of_day (date): Previous day's end, it's a next day (tomorrow) toward day's start,
                            that doesn't count in segment. Example for 2017-05-15 is 2017-05-16.
-
     """
     end_of_day = date.today()
     start_of_day = end_of_day - timedelta(days=1)
@@ -40,27 +40,6 @@ class EdxInstallation(models.Model):
     platform_url = models.URLField(null=True, blank=True)
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
-
-    def is_stats_extended_first_time(self):
-        """
-        Check if edx installation extends statistics level first time.
-        If platform url exists It means edx installation already has overall information about itself.
-        Returns False and do nothing.
-        If platform url does not exist It means edx installation extended statistics level first time.
-        Returns True and go to update edx installation's overall information.
-        """
-        return not self.platform_url
-
-    def update_edx_instance_info(self, enthusiast_edx_installation):
-        """
-        Besides existing edx installation access token - extended statistics level requires a bit more information.
-        Update blank object fields: latitude, longitude, platform_name and platform_url content.
-        """
-        self.latitude = enthusiast_edx_installation['latitude']
-        self.longitude = enthusiast_edx_installation['longitude']
-        self.platform_name = enthusiast_edx_installation['platform_name']
-        self.platform_url = enthusiast_edx_installation['platform_url']
-        self.save()
 
 
 class InstallationStatistics(models.Model):
@@ -101,6 +80,7 @@ class InstallationStatistics(models.Model):
     def data_per_period(cls):
         """
         Provide total students, courses and instances, from all services per period, day by default.
+
         We summarize values per day, because in same day we can receive data from multiple different instances.
         We suppose, that every instance send data only once per day.
         """
@@ -128,6 +108,7 @@ class InstallationStatistics(models.Model):
     def overall_counts(cls):
         """
         Provide total count of all instances, courses and students from all instances per previous calendar day.
+
         Returns overall counts as int-value.
         """
         start_of_day, end_of_day = get_last_calendar_day()
@@ -152,9 +133,9 @@ class InstallationStatistics(models.Model):
     def get_students_per_country_stats(cls):
         """
         Total of students amount per country to display on world map from all instances per previous calendar day.
+
         Returns:
             world_students_per_country (dict): Country-count accordance as pair of key-value.
-
         """
         start_of_day, end_of_day = get_last_calendar_day()
 
@@ -171,42 +152,20 @@ class InstallationStatistics(models.Model):
             for country, count in instance_students.iteritems():
                 world_students_per_country[country] += count
 
-        return dict(world_students_per_country.items())
-
-    @staticmethod
-    def get_student_amount_percentage(country_count_in_statistics, all_active_students):
-        """
-        Calculate student amount percentage based on total countries amount and particular county amount comparison.
-        If percentage is too small and doesn't show real numbers
-        it will be changed to '~0' (around zero value, but not totally).
-        """
-        students_amount_percentage = format(
-            country_count_in_statistics / all_active_students * 100, '.2f'
-        )
-
-        if students_amount_percentage == '0.00':
-            students_amount_percentage = '~0'
-
-        return students_amount_percentage
-
-    @staticmethod
-    def does_country_exists(country):
-        """
-        Check if value is not a null.
-        """
-        return country != 'null'
+        return world_students_per_country
 
     @classmethod
     def create_students_per_country(cls, worlds_students_per_country):
         """
         Create convenient and necessary data formats to render it from view.
+
         Graphs require list-format data.
         """
         datamap_format_countries_list = []
         tabular_format_countries_list = []
 
         if not worlds_students_per_country:
-            tabular_format_countries_list.append(('Unset', 0, 0))
+            tabular_format_countries_list.append(['Unset', 0, 0])
             return datamap_format_countries_list, tabular_format_countries_list
 
         all_active_students = sum(worlds_students_per_country.itervalues())
@@ -214,11 +173,12 @@ class InstallationStatistics(models.Model):
         for country, count in worlds_students_per_country.iteritems():
             student_amount_percentage = cls.get_student_amount_percentage(count, all_active_students)
 
-            if cls.does_country_exists(country):
-                country = str(pycountry.countries.get(alpha_2=country).alpha_3)
+            if country != 'null':
+                country_alpha_3 = str(pycountry.countries.get(alpha_2=country).alpha_3)
+                datamap_format_countries_list += [[country_alpha_3, count]]
 
-                datamap_format_countries_list += [[country, count]]
-                tabular_format_countries_list += [[country, count, student_amount_percentage]]
+                country_name = str(pycountry.countries.get(alpha_2=country).name)
+                tabular_format_countries_list += [[country_name, count, student_amount_percentage]]
 
             else:
                 # Create students without country amount.
@@ -242,28 +202,26 @@ class InstallationStatistics(models.Model):
         return datamap_format_countries_list, tabular_format_countries_list
 
     @staticmethod
-    def calculate_countries_amount(tabular_format_countries_list):
+    def get_student_amount_percentage(country_count_in_statistics, all_active_students):
         """
-        Calculate countries amount in world students per country statistics (from tabular countries list).
+        Calculate student amount percentage based on total countries amount and particular county amount comparison.
+        """
+        students_amount_percentage = int(country_count_in_statistics / all_active_students * 100)
+        return students_amount_percentage
 
+    @classmethod
+    def get_students_countries_amount(cls):
+        """
+        Provide countries amount from students per country statistics as table.
+
+        Calculate countries amount in world students per country statistics (from tabular countries list).
         Tabular format countries list can be empty - countries amount is zero.
         Tabular format countries list can be not empty - it contains particular country-count accordance
         and `Unset` field, that has students without country amount.
 
         Actually `Unset` field is not a country, so it does not fill up in countries amount.
         """
-        if not tabular_format_countries_list:
-            return 0
-
-        # Exclude `Unset` country from countries amount.
-        return len(tabular_format_countries_list) - 1
-
-    @classmethod
-    def get_students_countries_amount(cls):
-        """
-        Provide countries amount from students per country statistics as table.
-        """
         _, tabular_format_countries_list = cls.get_students_per_country()
-        countries_amount = cls.calculate_countries_amount(tabular_format_countries_list)
+        countries_amount = len(tabular_format_countries_list) - 1
 
         return countries_amount

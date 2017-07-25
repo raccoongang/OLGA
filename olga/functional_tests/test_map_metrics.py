@@ -9,10 +9,9 @@ from ddt import ddt, data, unpack
 
 from django.test import TestCase
 
-from olga.functional_tests.utils import SetUp, html_target
-
 from olga.analytics.tests.factories import InstallationStatisticsFactory
 from olga.analytics.models import InstallationStatistics
+from olga.functional_tests.utils import SetUp, html_target
 
 # pylint: disable=invalid-name, attribute-defined-outside-init
 
@@ -77,14 +76,12 @@ class TestMapMetricsWithStatistics(TestCase):
             factory_students_per_country_accordance, key=factory_students_per_country_accordance.get
         )
 
-        max_students_country_alpha_3 = str(
-            pycountry.countries.get(alpha_2=max_students_country_alpha_2).alpha_3
-        )
+        max_students_country_name = str(pycountry.countries.get(alpha_2=max_students_country_alpha_2).name)
 
         max_students_country_alpha_3_label = 'Top Country by Enrollment'
 
         target_html_object = html_target.activity_metric.format(
-            max_students_country_alpha_3, max_students_country_alpha_3_label
+            max_students_country_name, max_students_country_alpha_3_label
         )
 
         self.assertContains(self.response, target_html_object, 1)
@@ -116,17 +113,15 @@ class TestMapMetricsWithStatistics(TestCase):
         all_active_students = sum(factory_students_per_country_accordance.values())
 
         for country, count in factory_students_per_country_accordance.items():
-            if installation_statistics.does_country_exists(country):
+            if country != 'null':
 
                 student_amount_percentage = installation_statistics.get_student_amount_percentage(
                     count, all_active_students
                 )
 
-                country_alpha_3 = str(
-                    pycountry.countries.get(alpha_2=country).alpha_3
-                )
+                max_students_country_name = str(pycountry.countries.get(alpha_2=country).name)
 
-                target_html_object_country = html_target.country_grid_cell.format(country_alpha_3)
+                target_html_object_country = html_target.country_grid_cell.format(max_students_country_name)
                 target_html_object_count = html_target.country_count_grid_cell.format(count)
                 target_html_object_percentage = html_target.percentage_grid_cell.format(student_amount_percentage)
 

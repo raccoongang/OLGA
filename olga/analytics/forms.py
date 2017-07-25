@@ -4,7 +4,7 @@ Forms for received edX installation data.
 
 from django import forms
 
-from .models import EdxInstallation, InstallationStatistics
+from olga.analytics.models import EdxInstallation, InstallationStatistics
 
 # Pylint does not has opportunity to disable duplicate code (forms and admin has the same pieces).
 # So apart from duplicate-code with `disable=all` it disables missing-docstring, too-few-public-methods and no-init.

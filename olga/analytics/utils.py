@@ -6,7 +6,7 @@ import httplib
 
 from django.http import HttpResponse
 
-from .forms import (
+from olga.analytics.forms import (
     EdxInstallationParanoidLevelForm,
     EdxInstallationEnthusiastLevelForm,
     InstallationStatisticsParanoidLevelForm,
