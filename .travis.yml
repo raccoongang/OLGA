@@ -1,17 +1,25 @@
 language: python
-sudo: false
 python:
 - 2.7
 
 cache:
   pip: true
 
+services:
+  - docker
+
 before_install:
+- sudo apt-get update
+- sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-engine
+- sudo rm /usr/local/bin/docker-compose
+- curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+- chmod +x docker-compose
+- sudo mv docker-compose /usr/local/bin
+- docker-compose -f docker-compose.yml build
 - pip install -r web/requirements.txt
 - pip install -r web/requirements_dev.txt
 
 script:
-- docker-compose -f docker-compose.yml build
 - docker-compose -f local-compose.yml run acceptor python manage.py migrate
 - pep8 web
 - flake8 web
