@@ -6,7 +6,12 @@ import httplib
 
 from django.http import HttpResponse
 
-from .forms import EdxInstallationForm, InstallationStatisticsForm
+from olga.analytics.forms import (
+    EdxInstallationParanoidLevelForm,
+    EdxInstallationEnthusiastLevelForm,
+    InstallationStatisticsParanoidLevelForm,
+    InstallationStatisticsEnthusiastLevelForm
+)
 
 
 def validate_instance_stats_forms(receive_instance_stats_method):
@@ -19,10 +24,19 @@ def validate_instance_stats_forms(receive_instance_stats_method):
         """
         Wrapper.
         """
-        edx_installation_form = EdxInstallationForm(request.POST)
-        installation_statistics_form = InstallationStatisticsForm(request.POST)
+        paranoid_installation_form = EdxInstallationParanoidLevelForm(request.POST)
+        enthusiast_installation_form = EdxInstallationEnthusiastLevelForm(request.POST)
+        paranoid_statistics_form = InstallationStatisticsParanoidLevelForm(request.POST)
+        enthusiast_statistics_form = InstallationStatisticsEnthusiastLevelForm(request.POST)
 
-        if edx_installation_form.is_valid() and installation_statistics_form.is_valid():
+        statistics_level = request.POST.get('statistics_level')
+
+        level_valid_forms = {
+            'paranoid': paranoid_installation_form.is_valid() and paranoid_statistics_form.is_valid(),
+            'enthusiast': enthusiast_installation_form.is_valid() and enthusiast_statistics_form.is_valid()
+        }
+
+        if level_valid_forms[statistics_level]:
             return receive_instance_stats_method(request, *args, **kwargs)
 
         return HttpResponse(status=httplib.UNAUTHORIZED)
