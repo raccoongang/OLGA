@@ -31,3 +31,4 @@ ratings:
 exclude_paths:
 - "**/vendor/**/*"
 - "**/vendored/**/*"
+s

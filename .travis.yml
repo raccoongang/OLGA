@@ -11,6 +11,7 @@ before_install:
 - pip install -r web/requirements_dev.txt
 
 script:
+- docker-compose -f docker-compose.yml build
 - docker-compose -f local-compose.yml run acceptor python manage.py migrate
 - pep8 web
 - flake8 web
