@@ -102,7 +102,7 @@ class TestInstallationStatisticsMethods(TestCase):
         result = InstallationStatistics.data_per_period()
 
         self.assertEqual(
-            ([10, 5, 10, 10, 10], [2, 1, 2, 2, 2], [2, 1, 2, 2, 2]), result
+            ([10, 10, 10, 5, 10], [2, 2, 2, 1, 2], [2, 2, 2, 1, 2]), result
         )
 
     @patch('olga.analytics.models.get_last_calendar_day')
