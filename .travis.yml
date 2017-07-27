@@ -1,13 +1,14 @@
 language: python
 sudo: false
+
 python:
 - 2.7
 
-env:
-- DB=postgresql
-
 services:
   - postgresql
+
+env:
+- DB=postgresql
 
 cache:
   pip: true
@@ -17,19 +18,7 @@ before_install:
 - pip install -r web/requirements_dev.txt
 
 before_script:
-- cp config/database.travis.yml config/database.yml
-- mysql -e 'create database acceptor'
 - psql -c 'create database acceptor' -U postgres
-
-postgresql: &postgresql
-  adapter: postgresql
-  username: postgres
-  password: password
-  database: acceptor
-  min_messages: ERROR
-
-defaults: &defaults
-  host: postgres
 
 script:
 - pep8 web
