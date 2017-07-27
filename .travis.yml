@@ -13,9 +13,6 @@ before_install:
 - pip install -r web/requirements.txt
 - pip install -r web/requirements_dev.txt
 
-before_script:
-- psql -c 'create database postgres;' -U postgres
-
 script:
 - pep8 web
 - flake8 web
