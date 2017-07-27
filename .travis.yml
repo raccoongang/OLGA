@@ -3,12 +3,18 @@ sudo: false
 python:
 - 2.7
 
+services:
+  - postgresql
+
 cache:
   pip: true
 
 before_install:
 - pip install -r web/requirements.txt
 - pip install -r web/requirements_dev.txt
+
+before_script:
+- psql -c 'create database travis_ci_test;' -U postgres
 
 script:
 - pep8 web
