@@ -7,9 +7,6 @@ python:
 services:
 - postgresql
 
-env:
-- DJANGO=1.11 DB=postgres
-
 cache:
   pip: true
 
@@ -19,6 +16,7 @@ before_install:
 - pip install -r web/requirements_dev.txt
 
 before_script:
+- cp config/database.yml.travis config/database.yml
 - mysql -e 'create database acceptor'
 - psql -c 'create database acceptor' -U postgres
 
@@ -26,8 +24,8 @@ script:
 - pep8 web
 - flake8 web
 - pylint web/olga
-- isort web
 - cd web
+- isort
 - python manage.py migrate
 - coverage run --source='.' manage.py test
 - coverage report -m
