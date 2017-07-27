@@ -4,11 +4,8 @@ sudo: false
 python:
 - 2.7
 
-services:
-  - postgresql
-
 env:
-- DB=postgresql
+- DJANGO=1.11 DB=postgres
 
 cache:
   pip: true
@@ -18,6 +15,7 @@ before_install:
 - pip install -r web/requirements_dev.txt
 
 before_script:
+- mysql -e 'create database acceptor'
 - psql -c 'create database acceptor' -U postgres
 
 script:
