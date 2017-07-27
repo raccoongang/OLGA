@@ -14,7 +14,7 @@ cache:
   pip: true
 
 before_install:
-- export DJANGO_SETTINGS_MODULE=your_project.settings
+- export DJANGO_SETTINGS_MODULE=acceptor.settings
 - pip install -r web/requirements.txt
 - pip install -r web/requirements_dev.txt
 
@@ -26,6 +26,7 @@ script:
 - pep8 web
 - flake8 web
 - pylint web/olga
+- isort web
 - cd web
 - python manage.py migrate
 - coverage run --source='.' manage.py test
