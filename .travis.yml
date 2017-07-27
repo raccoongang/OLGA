@@ -25,7 +25,6 @@ script:
 - flake8 web
 - pylint web/olga
 - cd web
-- isort
 - python manage.py migrate
 - coverage run --source='.' manage.py test
 - coverage report -m
