@@ -14,17 +14,17 @@ cache:
   pip: true
 
 before_install:
-  - pip install -r web/requirements.txt
-  - pip install -r web/requirements_dev.txt
+  - cd web
+  - pip install -r requirements.txt
+  - pip install -r requirements_dev.txt
 
 before_script:
   - psql -c 'create database acceptor' -U postgres
 
 script:
-  - pep8 web
-  - flake8 web
-  - pylint web/olga
-  - cd web
+  - pep8
+  - flake8
+  - pylint olga
   - python manage.py migrate
   - coverage run --source='.' manage.py test
   - coverage report -m
