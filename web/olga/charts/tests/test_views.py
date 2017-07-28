@@ -10,9 +10,9 @@ from mock import patch
 from django.test import TestCase
 
 from olga.charts.views import (
-    MapView,
+    get_data_created_datetime_scope,
     GraphsView,
-    get_data_created_datetime_scope
+    MapView
 )
 
 # pylint: disable=invalid-name
@@ -48,14 +48,14 @@ class TestMapView(TestCase):
         self.assertTemplateUsed(self.response, 'charts/worldmap.html')
 
     @patch('olga.charts.views.MapView.get_statistics_top_country')
-    @patch('olga.analytics.models.InstallationStatistics.get_students_per_country_to_render')
+    @patch('olga.analytics.models.InstallationStatistics.get_students_per_country')
     @patch('olga.analytics.models.InstallationStatistics.get_students_countries_amount')
     @patch('olga.charts.views.get_data_created_datetime_scope')
     def test_map_view_context_fields_values(
             self,
             mock_get_data_created_datetime_scope,
             mock_get_students_countries_amount,
-            mock_get_students_per_country_to_render,
+            mock_get_students_per_country,
             mock_get_statistics_top_country
     ):
         """
@@ -76,7 +76,7 @@ class TestMapView(TestCase):
             mock_first_datetime_of_update_data, mock_last_datetime_of_update_data
         )
 
-        mock_get_students_per_country_to_render.return_value = (
+        mock_get_students_per_country.return_value = (
             mock_datamap_format_countries_list, mock_tabular_format_countries_list
         )
 
