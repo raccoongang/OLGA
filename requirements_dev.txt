@@ -1,4 +1,4 @@
-flake8==3.3.0
+flake8==3.4.0
 flake8_docstrings==1.1.0
 pep8==1.7.0
 pylint==1.7.2
