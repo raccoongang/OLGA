@@ -1,0 +1,36 @@
+version: '2'
+services:
+  acceptor:
+    container_name: acceptor
+    env_file: ./envs/pg_prod.env
+    build:
+      context: ./web/
+      dockerfile: Dockerfile
+    command: "gunicorn acceptor.wsgi -b 0.0.0.0:8000"
+    volumes:
+      - ./web:/acceptor
+      - static:/acceptor/static
+    links:
+      - postgres
+
+  postgres:
+    container_name: postgres
+    image: postgres:9.6
+    env_file: ./envs/pg_prod.env
+    volumes:
+      - postgres:/var/lib/postgresql/data/
+
+  nginx:
+    container_name: nginx
+    image: nginx:alpine
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - static:/var/www/static
+    ports:
+      - "80:80"
+    links:
+      - acceptor
+
+volumes:
+  postgres:
+  static:

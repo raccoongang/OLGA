@@ -1,0 +1,29 @@
+language: python
+sudo: false
+
+python:
+- 2.7
+
+env:
+  - POSTGRES_HOST=localhost
+
+services:
+  - postgresql
+
+cache:
+  pip: true
+
+before_install:
+  - cd web
+  - pip install -r requirements.txt
+  - pip install -r requirements_dev.txt
+
+before_script:
+  - psql -c 'create database acceptor' -U postgres
+
+script:
+  - cd .. && pep8 web && flake8 web && pylint web/olga && cd web
+  - python manage.py migrate
+  - coverage run --source='.' manage.py test
+  - coverage report -m
+  - bash <(curl -s https://codecov.io/bash)
