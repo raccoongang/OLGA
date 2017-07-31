@@ -1,7 +1,0 @@
-test:
-  adapter: postgresql
-  database: acceptor
-  username: postgres
-  host: postgres
-  password: password
-  encoding: utf8
