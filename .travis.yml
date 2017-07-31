@@ -22,9 +22,7 @@ before_script:
   - psql -c 'create database acceptor' -U postgres
 
 script:
-  - pep8
-  - flake8
-  - pylint olga
+  - cd .. && pep8 web && flake8 web && pylint web/olga && cd web
   - python manage.py migrate
   - coverage run --source='.' manage.py test
   - coverage report -m
