@@ -1,0 +1,11 @@
+FROM python:2.7-alpine
+MAINTAINER devops@raccoongang.com
+ENV PYTHONUNBUFFERED 1
+RUN mkdir /acceptor
+WORKDIR /acceptor
+ADD requirements.txt /acceptor/requirements.txt
+ADD requirements_dev.txt /acceptor/requirements_dev.txt
+RUN apk --update add postgresql-dev alpine-sdk
+RUN pip install -r requirements.txt
+RUN pip install -r requirements_dev.txt
+ADD . /acceptor

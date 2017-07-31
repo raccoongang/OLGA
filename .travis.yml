@@ -1,18 +1,29 @@
 language: python
 sudo: false
+
 python:
 - 2.7
+
+env:
+  - POSTGRES_HOST=localhost
+
+services:
+  - postgresql
 
 cache:
   pip: true
 
 before_install:
-- pip install flake8_docstrings==1.1.0
-- pip install flake8==3.3.0
-- pip install pep8==1.7.0
-- pip install pylint==1.7.2
+  - cd web
+  - pip install -r requirements.txt
+  - pip install -r requirements_dev.txt
+
+before_script:
+  - psql -c 'create database acceptor' -U postgres
 
 script:
-- pep8
-- flake8
-- pylint olga
+  - cd .. && pep8 web && flake8 web && pylint web/olga && cd web
+  - python manage.py migrate
+  - coverage run --source='.' manage.py test
+  - coverage report -m
+  - bash <(curl -s https://codecov.io/bash)
