@@ -31,3 +31,4 @@ ratings:
 exclude_paths:
 - "**/vendor/**/*"
 - "**/vendored/**/*"
+- "web/olga/analytics/create_test_fixture.js"
