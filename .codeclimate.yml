@@ -1,7 +1,7 @@
 # Serves for configuration of CodeClimate (automated code review for test coverage, complexity, duplication, etc.)
 engines:
   csslint:
-    enabled: true
+    enabled: false
   duplication:
     enabled: false
     config:
@@ -31,4 +31,4 @@ ratings:
 exclude_paths:
 - "**/vendor/**/*"
 - "**/vendored/**/*"
-- "web/olga/analytics/create_test_fixture.js"
+- "web/olga/analytics/create_test_fixture.py"
