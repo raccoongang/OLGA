@@ -82,8 +82,8 @@ Acceptor receives statistics through own API, that provides next endpoints:
         * `courses_amount`
         * `statistics_level`
     * Parameters for `enthusiast` level (extends `paranoid` data ): 
-        * `latitude`
-        * `longitude`
+        * `latitude` (not used for now)
+        * `longitude` (not used for now)
         * `platform_name`
         * `platform_url`
         * `students_per_country`
