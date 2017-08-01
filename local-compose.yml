@@ -20,8 +20,6 @@ services:
     env_file: ./envs/pg_local.env
     volumes:
       - postgres:/var/lib/postgresql/data/
-    ports:
-      - "5432:5432"
 
 volumes:
   postgres:
