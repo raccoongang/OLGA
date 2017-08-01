@@ -88,7 +88,8 @@ def generate_model():
     for instance_num in range(number_of_instances):
         for day in range(cl.days):
             if probability(cl.send_data):
-                dt = (datetime.datetime.today() - datetime.timedelta(days=cl.days - day)).strftime('%Y-%m-%dT%H:%M:%SZ')
+                add_five_date_to_today = datetime.datetime.today() + datetime.timedelta(days=5)
+                dt = (add_five_date_to_today - datetime.timedelta(days=cl.days - day)).strftime('%Y-%m-%dT%H:%M:%SZ')
 
                 if cl.probability_to_add_course:
                     instance_dict[instance_num] = instance_dict.get(instance_num, 0) + 1
@@ -126,7 +127,7 @@ def generate_model():
                         "data_created_datetime": dt,
                         "edx_installation": pk,
                         "statistics_level": 1,
-                        "students_per_country": "{\"RU\": 2632, \"CA\": 18543, \"UA\": 2011, \"null\": 1}"
+                        "students_per_country": {"RU": 2632, "CA": 18543, "UA": 2011, "null": 1}
                     }
                 }
 
