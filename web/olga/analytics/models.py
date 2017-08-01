@@ -4,12 +4,12 @@ Models for analytics application. Models used to store and operate all data rece
 
 from __future__ import division
 
-import json
 from collections import defaultdict
 from datetime import date, timedelta
 
 import pycountry
 
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models import Sum, Count, DateField
 from django.db.models.functions import Trunc
@@ -61,7 +61,7 @@ class InstallationStatistics(models.Model):
         max_length=255,
         default='paranoid'
     )
-    students_per_country = models.TextField()
+    students_per_country = JSONField(blank=True, null=True)
 
     @classmethod
     def timeline(cls):
@@ -143,8 +143,6 @@ class InstallationStatistics(models.Model):
         students_per_country = cls.objects.filter(
             data_created_datetime__gte=start_of_day, data_created_datetime__lt=end_of_day
         ).values_list('students_per_country', flat=True)
-
-        students_per_country = [json.loads(instance_students) for instance_students in students_per_country]
 
         world_students_per_country = defaultdict(int)
 

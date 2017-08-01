@@ -39,4 +39,4 @@ class InstallationStatisticsFactory(DjangoModelFactory):
     data_created_datetime = datetime(2012, 1, 1, tzinfo=UTC)
     edx_installation = SubFactory(EdxInstallationFactory)
     statistics_level = 'enthusiast'
-    students_per_country = "{\"RU\": 2632, \"CA\": 18543, \"UA\": 2011, \"null\": 1}"
+    students_per_country = {"RU": 2632, "CA": 18543, "UA": 2011, "null": 1}

@@ -7,6 +7,9 @@ python:
 env:
   - POSTGRES_HOST=localhost
 
+addons:
+  postgresql: "9.6"
+
 services:
   - postgresql
 
@@ -22,7 +25,9 @@ before_script:
   - psql -c 'create database acceptor' -U postgres
 
 script:
-  - cd .. && pep8 web && flake8 web && pylint web/olga && cd web
+  - pep8
+  - flake8
+  - pylint olga
   - python manage.py migrate
   - coverage run --source='.' manage.py test
   - coverage report -m
