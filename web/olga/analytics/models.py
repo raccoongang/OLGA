@@ -4,7 +4,6 @@ Models for analytics application. Models used to store and operate all data rece
 
 from __future__ import division
 
-import json
 from collections import defaultdict
 from datetime import date, timedelta
 
