@@ -15,12 +15,12 @@ setup(
     license='AGPL v3',
     install_requires=[
         'ddt>=1.1.1',
-        'Django>=1.11',
+        'Django>=1.11.3',
         'gunicorn>=19.7.1',
-        'factory-boy==2.8.1',
+        'factory-boy==2.9.0',
         'mock==2.0.0',
-        'psycopg2==2.7.1',
-        'pycountry>=17.1.8',
-        'requests>=2.13.0',
+        'psycopg2==2.7.3',
+        'pycountry>=17.5.14',
+        'requests>=2.18.2',
     ],
 )
