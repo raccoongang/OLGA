@@ -2,8 +2,6 @@
 Test for map metrics.
 """
 
-import json
-
 import pycountry
 from ddt import ddt, data, unpack
 
@@ -70,7 +68,7 @@ class TestMapMetricsWithStatistics(TestCase):
         """
         Verify that html renders country alpha 3 name to country activity metric if students country statistics exists.
         """
-        factory_students_per_country_accordance = json.loads(InstallationStatisticsFactory.students_per_country)
+        factory_students_per_country_accordance = InstallationStatisticsFactory.students_per_country
 
         max_students_country_alpha_2 = max(
             factory_students_per_country_accordance, key=factory_students_per_country_accordance.get
@@ -90,7 +88,7 @@ class TestMapMetricsWithStatistics(TestCase):
         """
         Verify that html renders countries amount to activity metric if students country statistics exists.
         """
-        factory_students_per_country_accordance = json.loads(InstallationStatisticsFactory.students_per_country)
+        factory_students_per_country_accordance = InstallationStatisticsFactory.students_per_country
 
         unset_also_country = 1
         countries_in_statistics = len(factory_students_per_country_accordance) - unset_also_country
@@ -108,7 +106,7 @@ class TestMapMetricsWithStatistics(TestCase):
         """
         installation_statistics = InstallationStatistics()
 
-        factory_students_per_country_accordance = json.loads(InstallationStatisticsFactory.students_per_country)
+        factory_students_per_country_accordance = InstallationStatisticsFactory.students_per_country
 
         all_active_students = sum(factory_students_per_country_accordance.values())
 

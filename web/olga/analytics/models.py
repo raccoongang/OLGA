@@ -61,7 +61,7 @@ class InstallationStatistics(models.Model):
         max_length=255,
         default='paranoid'
     )
-    students_per_country = JSONField()
+    students_per_country = JSONField(blank=True, null=True)
 
     @classmethod
     def timeline(cls):
