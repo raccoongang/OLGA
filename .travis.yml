@@ -7,6 +7,9 @@ python:
 env:
   - POSTGRES_HOST=localhost
 
+addons:
+  postgresql: "9.6"
+
 services:
   - postgresql
 
