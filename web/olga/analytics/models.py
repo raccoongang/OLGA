@@ -71,7 +71,8 @@ class InstallationStatistics(models.Model):
         blank=True,
         null=True,
         help_text='This field has students country-count accordance. It follows `json` type. '
-                  'Example: {"RU": 2632, "CA": 18543, "UA": 2011, "null": 1}')
+                  'Example: {"RU": 2632, "CA": 18543, "UA": 2011, "null": 1}'
+    )
 
     @classmethod
     def timeline(cls):
