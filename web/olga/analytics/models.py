@@ -38,8 +38,14 @@ class EdxInstallation(models.Model):
     access_token = models.UUIDField(null=True)
     platform_name = models.CharField(max_length=255, null=True, blank=True)
     platform_url = models.URLField(null=True, blank=True)
-    latitude = models.FloatField(null=True, blank=True)
-    longitude = models.FloatField(null=True, blank=True)
+
+    latitude = models.FloatField(
+        null=True, blank=True, help_text='Latitude coordinate of edX platform follows `float` type. Example: 50.10'
+    )
+
+    longitude = models.FloatField(
+        null=True, blank=True, help_text='Longitude coordinate of edX platform follows `float` type. Example: 40.05'
+    )
 
 
 class InstallationStatistics(models.Model):
@@ -61,7 +67,12 @@ class InstallationStatistics(models.Model):
         max_length=255,
         default='paranoid'
     )
-    students_per_country = JSONField(blank=True, null=True)
+    students_per_country = JSONField(
+        blank=True,
+        null=True,
+        help_text='This field has students country-count accordance. It follows `json` type. '
+                  'Example: {"RU": 2632, "CA": 18543, "UA": 2011, "null": 1}'
+    )
 
     @classmethod
     def timeline(cls):
