@@ -12,7 +12,7 @@ setup(
     name="OLGA",
     version=VERSION,
     description=DESCRIPTION,
-    license='AGPL v3',
+    license='AL v2',
     install_requires=[
         'ddt>=1.1.1',
         'Django>=1.11.3',
