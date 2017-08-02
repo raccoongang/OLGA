@@ -1,7 +1,7 @@
 version: '2'
 services:
-  acceptor:
-    container_name: acceptor
+  olga:
+    container_name: olga
     env_file: ./envs/pg_local.env
     build:
       context: ./web/

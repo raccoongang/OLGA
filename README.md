@@ -1,12 +1,12 @@
-# acceptor
+# OLGA
 
-[![Travis](https://travis-ci.org/raccoongang/acceptor.svg?branch=master)](https://travis-ci.org/raccoongang/acceptor)
-[![Codecov](https://codecov.io/gh/raccoongang/acceptor/branch/tests%2Funit/graph/badge.svg)](https://codecov.io/gh/raccoongang/acceptor/branch/tests%2Funit)
-[![Release](https://img.shields.io/github/release/raccoongang/acceptor.svg)](https://github.com/raccoongang/acceptor/releases)
-[![Code Climate](https://img.shields.io/codeclimate/github/raccoongang/acceptor.svg)](https://codeclimate.com/github/raccoongang/acceptor)
+[![Travis](https://travis-ci.org/raccoongang/OLGA.svg?branch=master)](https://travis-ci.org/raccoongang/OLGA)
+[![Codecov](https://codecov.io/gh/raccoongang/OLGA/branch/tests%2Funit/graph/badge.svg)](https://codecov.io/gh/raccoongang/OLGA/branch/tests%2Funit)
+[![Release](https://img.shields.io/github/release/raccoongang/OLGA.svg)](https://github.com/raccoongang/OLGA/releases)
+[![Code Climate](https://img.shields.io/codeclimate/github/raccoongang/OLGA.svg)](https://codeclimate.com/github/raccoongang/OLGA)
 
-Acceptor has arisen out of [Open edX ](https://open.edx.org) requirement to collect edX platform installations
-statistics data from all over the world. Acceptor is  required to be able to collect, visualize and process this data
+OLGA has arisen out of [Open edX ](https://open.edx.org) requirement to collect edX platform installations
+statistics data from all over the world. OLGA is  required to be able to collect, visualize and process this data
 according to legal rules. In general, it provides possibilities for analysing trends of platform usage and users
 engagement in e-learning process per country and globally around the world.
 
@@ -17,10 +17,10 @@ Most of installation packages include docker-compose, but if it was not installe
 
 ## Development
 
-Clone Acceptor repository to your local machine under virtual environment:
+Clone OLGA repository to your local machine under virtual environment:
 
 ```
-    $ git clone https://github.com/raccoongang/acceptor.git
+    $ git clone https://github.com/raccoongang/OLGA.git
 ```
 
 Build container:
@@ -32,13 +32,13 @@ Build container:
 Make migrations:
 
 ```
-    $ docker-compose -f local-compose.yml run acceptor python manage.py migrate
+    $ docker-compose -f local-compose.yml run olga python manage.py migrate
 ```
 
 Create superuser:
 
 ```
-    $ docker-compose -f local-compose.yml run acceptor python manage.py createsuperuser
+    $ docker-compose -f local-compose.yml run olga python manage.py createsuperuser
 ```
 
 Run Django (runserver) and PostgreSQL containers. Django will be available on port `7000`.
@@ -50,7 +50,7 @@ Run Django (runserver) and PostgreSQL containers. Django will be available on po
 Environment will get bunch of linters, that you are able to use via:
 
 ```
-    $ docker-compose -f local-compose.yml run acceptor flake8 web && pep8 web && pylint web/olga
+    $ cd web && pep8 && flake8 & pylint olga && cd ..
 ```
 
 ## Production
@@ -59,7 +59,7 @@ Environment will get bunch of linters, that you are able to use via:
 
 ## API
 
-Acceptor receives statistics through own API, that provides next endpoints:
+OLGA receives statistics through own API, that provides next endpoints:
 
 `/api/token/registration/`
 * GET: register edX platform.
@@ -92,11 +92,11 @@ Acceptor receives statistics through own API, that provides next endpoints:
 
 ## Statistics visualization details
 
-Acceptor provides three graphs for instances, courses and active students, which have been gathered from the start of collecting till now.
+OLGA provides three graphs for instances, courses and active students, which have been gathered from the start of collecting till now.
 
 ![olga_students_graph](https://user-images.githubusercontent.com/22666467/27955348-17c4d3dc-631d-11e7-812a-43a5bdffbf90.png)
 
-In addition, Acceptor comprises `Global Activity Metrics` which show instances, courses and active students amounts for the last calendar day.
+In addition, OLGA comprises `Global Activity Metrics` which show instances, courses and active students amounts for the last calendar day.
 
 ![olga_activity_metrics_graphs](https://user-images.githubusercontent.com/22666467/27955707-b20a647e-631e-11e7-86ef-77a1da22f71c.png)
 
@@ -104,7 +104,7 @@ Besides that you are able to interact with world map, that contains darker marke
 
 ![olga_world_map](https://user-images.githubusercontent.com/22666467/27955282-c92b20aa-631c-11e7-96da-0fec7b25a12a.png)
 
-As well as graphs interface, Acceptor has `Global Activity Metrics` for top country by students amount and countries in statistics amount.
+As well as graphs interface, OLGA has `Global Activity Metrics` for top country by students amount and countries in statistics amount.
 
 ![olga_activity_metrics_map](https://user-images.githubusercontent.com/22666467/27955718-c9737042-631e-11e7-8fee-c8dd1803edd8.png)
 
@@ -116,4 +116,4 @@ Full report based on world map's `Global Activity Metrics` located within `Geogr
 
 The code in this repository is licensed under the AGPL v3 licence unless another noted.
 
-Please see [LICENSE](https://github.com/raccoongang/acceptor/blob/master/LICENSE) file for details.
+Please see [LICENSE](https://github.com/raccoongang/OLGA/blob/master/LICENSE) file for details.
