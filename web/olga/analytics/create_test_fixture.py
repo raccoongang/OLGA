@@ -10,10 +10,10 @@ Fixtures have few problems:
 
 So it needs to be rewritten.
 
-How to. From `olga/analytics` folder run:
-- python create_test_fixture.py
-- python ../../manage.py loaddata test_fixture.json
-- reload page.
+How to:
+    - from `olga/analytics` folder run `python create_test_fixture.py`.
+    - from root folder (contains `local-compose.yml` file) run `docker-compose -f local-compose.yml run olga python \
+                                                                manage.py loaddata olga/analytics/test_fixture.json`
 """
 
 import datetime

@@ -68,6 +68,7 @@ class InstallationStatistics(models.Model):
         default='paranoid'
     )
     students_per_country = JSONField(
+        default={},
         blank=True,
         null=True,
         help_text='This field has students country-count accordance. It follows `json` type. '
