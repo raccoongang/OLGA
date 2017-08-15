@@ -1,36 +1,38 @@
 version: '2'
 services:
   olga:
+    restart: on-failure
     container_name: olga
-    env_file: ./envs/pg_prod.env
+    restart: always
+    env_file: ./envs/environment
     build:
       context: ./web/
       dockerfile: Dockerfile
     command: "gunicorn acceptor.wsgi -b 0.0.0.0:8000"
     volumes:
-      - ./web:/acceptor
-      - static:/acceptor/static
+      - ./web:/olga
+      - /encrypted/static:/olga/static
     links:
       - postgres
 
   postgres:
+    restart: always
     container_name: postgres
     image: postgres:9.6
-    env_file: ./envs/pg_prod.env
+    env_file: ./envs/environment
     volumes:
-      - postgres:/var/lib/postgresql/data/
+      - /encrypted/database:/var/lib/postgresql/data/
 
   nginx:
+    restart: always
     container_name: nginx
     image: nginx:alpine
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
-      - static:/var/www/static
+      - ./nginx/ssl:/etc/nginx/ssl
+      - /encrypted/static:/var/www/static
     ports:
       - "80:80"
+      - "443:443"
     links:
       - olga
-
-volumes:
-  postgres:
-  static:

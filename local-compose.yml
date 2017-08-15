@@ -2,13 +2,13 @@ version: '2'
 services:
   olga:
     container_name: olga
-    env_file: ./envs/pg_local.env
+    env_file: ./envs/local.env
     build:
       context: ./web/
       dockerfile: Dockerfile-tests
     command: "python manage.py runserver 0.0.0.0:7000"
     volumes:
-      - ./web:/acceptor
+      - ./web:/olga
     ports:
       - "7000:7000"
     links:
@@ -17,7 +17,7 @@ services:
   postgres:
     container_name: postgres
     image: postgres:9.6
-    env_file: ./envs/pg_local.env
+    env_file: ./envs/local.env
     volumes:
       - postgres:/var/lib/postgresql/data/
 

@@ -128,3 +128,12 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+if os.environ.get('SENTRY_DNS'):
+    import raven
+    RAVEN_CONFIG = {
+        'dsn': os.environ.get('SENTRY_DNS'),
+        'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
+    }
+
+    INSTALLED_APPS += ('raven.contrib.django.raven_compat', )
