@@ -239,11 +239,9 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
             students_per_country, active_students_amount_day
         )
 
-        expected_students_per_country = "{\"RU\": 10, \"CA\": 5, \"UA\": 20, \"null\": 5}"
+        expected_students_per_country = {'RU': 10, 'CA': 5, 'UA': 20, 'null': 5}
 
-        self.assertDictContainsSubset(
-            json.loads(expected_students_per_country), json.loads(result)
-        )
+        self.assertDictContainsSubset(expected_students_per_country, result)
 
     def test_extend_stats_if_needed(self):
         """

@@ -1,7 +1,7 @@
 # OLGA
 
-[![Travis](https://travis-ci.org/raccoongang/OLGA.svg?branch=master)](https://travis-ci.org/raccoongang/OLGA)
-[![Codecov](https://codecov.io/gh/raccoongang/OLGA/branch/tests%2Funit/graph/badge.svg)](https://codecov.io/gh/raccoongang/OLGA/branch/tests%2Funit)
+[![Travis](https://travis-ci.org/raccoongang/OLGA.svg?branch=develop)](https://travis-ci.org/raccoongang/OLGA)
+[![Codecov](https://codecov.io/gh/raccoongang/OLGA/branch/develop/graph/badge.svg)](https://codecov.io/gh/raccoongang/OLGA/branch/develop)
 [![Release](https://img.shields.io/github/release/raccoongang/OLGA.svg)](https://github.com/raccoongang/OLGA/releases)
 [![Code Climate](https://img.shields.io/codeclimate/github/raccoongang/OLGA.svg)](https://codeclimate.com/github/raccoongang/OLGA)
 
@@ -51,6 +51,14 @@ Environment will get bunch of linters, that you are able to use via:
 
 ```
     $ cd web && pep8 && flake8 & pylint olga && cd ..
+```
+
+### Tests
+
+To run tests use command below:
+
+```
+    $ docker-compose -f local-compose.yml run olga python manage.py test
 ```
 
 ## Production

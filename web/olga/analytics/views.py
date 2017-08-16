@@ -127,7 +127,7 @@ class ReceiveInstallationStatistics(View):
         """
         students_after_update = copy.deepcopy(students_before_update)
 
-        students_after_update['null'] = \
+        students_after_update[u'null'] = \
             active_students_amount - sum(students_after_update.values())
 
         return students_after_update
