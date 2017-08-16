@@ -147,9 +147,7 @@ class ReceiveInstallationStatistics(View):
             active_students_amount_day, students_per_country_decoded
         )
 
-        students_per_country_encoded = json.dumps(students_per_country_updated)
-
-        return students_per_country_encoded
+        return students_per_country_updated
 
     def extend_stats_to_enthusiast(self, received_data, stats, edx_installation_object):
         """
