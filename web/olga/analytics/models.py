@@ -86,6 +86,10 @@ class InstallationStatistics(models.Model):
 
         timeline_dates = [x.date().strftime('%Y-%m-%d') for x in timeline_datetimes]
 
+        # Support case, when data are sent more often, for example when testing every 15 seconds.
+        # Then filter unique and sort back, because timeline should be ordered.
+        timeline_dates = sorted(set(timeline_dates))
+
         return timeline_dates
 
     @classmethod
