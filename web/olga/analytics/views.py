@@ -8,7 +8,6 @@ import json
 import logging
 from uuid import uuid4
 
-from datetime import datetime
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.generic import View

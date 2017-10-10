@@ -76,10 +76,16 @@ class InstallationStatistics(models.Model):
     )
 
     @classmethod
-    def get_last_for_this_day(cls, edx_installation_object):
+    def get_last_for_this_day(cls, edx_installation_object=None):
+        """
+        :param edx_installation_object: specific installation object.
+
+        :return: None or model from db, that was created today.
+        """
         try:
             query = cls.objects.filter(edx_installation=edx_installation_object)
             previous_stats = query.latest('data_created_datetime')
+        # pylint: disable=maybe-no-member
         except cls.DoesNotExist:
             return None
         else:
@@ -253,6 +259,11 @@ class InstallationStatistics(models.Model):
         return countries_amount
 
     def update(self, stats):
+        """
+        Update model from given dictionary and save it.
+
+        :param stats: dictionary with new data.
+        """
         for (key, value) in stats.items():
             setattr(self, key, value)
         self.save()

@@ -341,8 +341,8 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
 
         expected_logger_debug = [
             ((
-                 'Corresponding data was created in OLGA database.'
-             ),),
+                'Corresponding data was created in OLGA database.'
+            ),),
         ]
 
         # Factory Boy`s BaseFactory and LazyStub loggers occurs during method's logger occurs.
@@ -493,6 +493,9 @@ class TestReceiveInstallationStatistics(TestCase):
         mock_create_instance_data.assert_called_once_with(self.received_data_as_query_dict, self.access_token)
 
     def test_multiply_create_instance_data_in_same_day(self):
+        """
+        Verify that when twice call sending statistic from one instance only one record will be created.
+        """
         self.client.post('/api/installation/statistics/', self.received_data)
         self.assertEqual(1, InstallationStatistics.objects.all().count())
 
@@ -505,6 +508,9 @@ class TestReceiveInstallationStatistics(TestCase):
             stats[0].active_students_amount_day)
 
     def test_multiply_create_instance_data_in_different_day(self):
+        """
+        Verify that when twice call sending statistic in different day there are two records will be created.
+        """
         self.client.post('/api/installation/statistics/', self.received_data)
         stats = InstallationStatistics.objects.all()
         self.assertEqual(1, stats.count())
