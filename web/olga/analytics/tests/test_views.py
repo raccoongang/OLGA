@@ -6,6 +6,8 @@ import copy
 import httplib
 import json
 import uuid
+import logging
+from datetime import datetime, timedelta
 
 from mock import patch, call
 
@@ -14,7 +16,7 @@ from django.http import QueryDict
 from django.test import TestCase
 from django.utils.encoding import force_text
 
-from olga.analytics.models import EdxInstallation
+from olga.analytics.models import EdxInstallation, InstallationStatistics
 from olga.analytics.tests.factories import EdxInstallationFactory
 
 from olga.analytics.views import (
@@ -24,6 +26,11 @@ from olga.analytics.views import (
 )
 
 # pylint: disable=invalid-name
+
+logging.basicConfig()
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class MockUUID4(object):  # pylint: disable=too-few-public-methods
@@ -334,8 +341,8 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
 
         expected_logger_debug = [
             ((
-                'Corresponding data was created in OLGA database.'
-            ),),
+                 'Corresponding data was created in OLGA database.'
+             ),),
         ]
 
         # Factory Boy`s BaseFactory and LazyStub loggers occurs during method's logger occurs.
@@ -407,7 +414,7 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
         expected_logger_debugs = [
             call((
                 json.dumps(self.received_data, sort_keys=True, indent=4)
-            ),),
+            ), ),
         ]
 
         self.assertEqual(expected_logger_debugs, mock_logger_debug.call_args_list)
@@ -484,3 +491,24 @@ class TestReceiveInstallationStatistics(TestCase):
         """
         self.client.post('/api/installation/statistics/', self.received_data)
         mock_create_instance_data.assert_called_once_with(self.received_data_as_query_dict, self.access_token)
+
+    def test_multiply_create_instance_data_in_same_day(self):
+        self.client.post('/api/installation/statistics/', self.received_data)
+        self.assertEqual(1, InstallationStatistics.objects.all().count())
+
+        self.received_data['active_students_amount_day'] *= 2
+        self.client.post('/api/installation/statistics/', self.received_data)
+        stats = InstallationStatistics.objects.all()
+        self.assertEqual(1, stats.count())
+        self.assertEqual(
+            int(self.received_data['active_students_amount_day']),
+            stats[0].active_students_amount_day)
+
+    def test_multiply_create_instance_data_in_different_day(self):
+        self.client.post('/api/installation/statistics/', self.received_data)
+        stats = InstallationStatistics.objects.all()
+        self.assertEqual(1, stats.count())
+        stats.update(data_created_datetime=(datetime.now() - timedelta(days=1)))
+
+        self.client.post('/api/installation/statistics/', self.received_data)
+        self.assertEqual(2, InstallationStatistics.objects.all().count())

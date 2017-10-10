@@ -5,7 +5,7 @@ Models for analytics application. Models used to store and operate all data rece
 from __future__ import division
 
 from collections import defaultdict
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 import pycountry
 
@@ -74,6 +74,18 @@ class InstallationStatistics(models.Model):
         help_text='This field has students country-count accordance. It follows `json` type. '
                   'Example: {"RU": 2632, "CA": 18543, "UA": 2011, "null": 1}'
     )
+
+    @classmethod
+    def get_last_for_this_day(cls, edx_installation_object):
+        try:
+            query = cls.objects.filter(edx_installation=edx_installation_object)
+            previous_stats = query.latest('data_created_datetime')
+        except cls.DoesNotExist:
+            return None
+        else:
+            if previous_stats.data_created_datetime.date() != datetime.now().date():
+                return None
+        return previous_stats
 
     @classmethod
     def timeline(cls):
@@ -239,3 +251,8 @@ class InstallationStatistics(models.Model):
         countries_amount = len(tabular_format_countries_list) - 1
 
         return countries_amount
+
+    def update(self, stats):
+        for (key, value) in stats.items():
+            setattr(self, key, value)
+        self.save()

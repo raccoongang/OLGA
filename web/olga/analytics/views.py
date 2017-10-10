@@ -8,6 +8,7 @@ import json
 import logging
 from uuid import uuid4
 
+from datetime import datetime
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.generic import View
@@ -210,7 +211,11 @@ class ReceiveInstallationStatistics(View):
         if statistics_level == 'enthusiast':
             self.extend_stats_to_enthusiast(received_data, stats, edx_installation_object)
 
-        InstallationStatistics.objects.create(edx_installation=edx_installation_object, **stats)
+        previous_stats = InstallationStatistics.get_last_for_this_day(edx_installation_object)
+        if previous_stats:
+            previous_stats.update(stats)
+        else:
+            InstallationStatistics.objects.create(edx_installation=edx_installation_object, **stats)
         logger.debug('Corresponding data was created in OLGA database.')
 
     @staticmethod
