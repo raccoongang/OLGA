@@ -76,22 +76,17 @@ class InstallationStatistics(models.Model):
     )
 
     @classmethod
-    def get_last_for_this_day(cls, edx_installation_object=None):
+    def get_stats_for_this_day(cls, edx_installation_object=None):
         """
+        Provide model, for given installation object, that was created today, or None if it not exist.
         :param edx_installation_object: specific installation object.
-
-        :return: None or model from db, that was created today.
         """
-        try:
-            query = cls.objects.filter(edx_installation=edx_installation_object)
-            previous_stats = query.latest('data_created_datetime')
-        # pylint: disable=maybe-no-member
-        except cls.DoesNotExist:
-            return None
-        else:
-            if previous_stats.data_created_datetime.date() != datetime.now().date():
-                return None
-        return previous_stats
+        today_midnight = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        query = cls.objects.filter(
+            edx_installation=edx_installation_object,
+            data_created_datetime__gt=today_midnight
+        )
+        return None if query.count() == 0 else query.last()
 
     @classmethod
     def timeline(cls):

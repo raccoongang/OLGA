@@ -210,7 +210,7 @@ class ReceiveInstallationStatistics(View):
         if statistics_level == 'enthusiast':
             self.extend_stats_to_enthusiast(received_data, stats, edx_installation_object)
 
-        previous_stats = InstallationStatistics.get_last_for_this_day(edx_installation_object)
+        previous_stats = InstallationStatistics.get_stats_for_this_day(edx_installation_object)
         if previous_stats:
             previous_stats.update(stats)
         else:

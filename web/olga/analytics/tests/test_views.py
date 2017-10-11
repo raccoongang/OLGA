@@ -27,11 +27,6 @@ from olga.analytics.views import (
 
 # pylint: disable=invalid-name
 
-logging.basicConfig()
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
 
 class MockUUID4(object):  # pylint: disable=too-few-public-methods
     """
@@ -414,7 +409,7 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
         expected_logger_debugs = [
             call((
                 json.dumps(self.received_data, sort_keys=True, indent=4)
-            ), ),
+            ),),
         ]
 
         self.assertEqual(expected_logger_debugs, mock_logger_debug.call_args_list)
@@ -505,11 +500,12 @@ class TestReceiveInstallationStatistics(TestCase):
         self.assertEqual(1, stats.count())
         self.assertEqual(
             int(self.received_data['active_students_amount_day']),
-            stats[0].active_students_amount_day)
+            stats[0].active_students_amount_day
+        )
 
     def test_multiply_create_instance_data_in_different_day(self):
         """
-        Verify that when twice call sending statistic in different day there are two records will be created.
+        Verify that when twice call sending statistic in different days there are two records will be created.
         """
         self.client.post('/api/installation/statistics/', self.received_data)
         stats = InstallationStatistics.objects.all()
