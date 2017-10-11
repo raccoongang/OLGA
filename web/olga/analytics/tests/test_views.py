@@ -325,7 +325,7 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
             mock_logger_debug
     ):
         """
-        Test logger`s debug output occurs if installation was created and when it was updated.
+        Test logger`s debug output occurs if installation was created.
         """
         edx_installation_object = EdxInstallationFactory()
 
@@ -339,6 +339,22 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
         # So totally 5 loggers occurs, but only one last belongs to `create_instance_data` method.
         # https://factoryboy.readthedocs.io/en/latest/#debugging-factory-boy
         self.assertEqual(expected_logger_debug, mock_logger_debug.call_args_list[-1])
+
+    @patch('olga.analytics.views.logging.Logger.debug')
+    @patch('olga.analytics.models.EdxInstallation.objects.get')
+    def test_logger_debug_occurs_if_stats_was_updated(
+            self,
+            mock_edx_installation_objects_get,
+            mock_logger_debug
+    ):
+        """
+        Test logger`s debug output occurs if installation was updated.
+        """
+        edx_installation_object = EdxInstallationFactory()
+
+        mock_edx_installation_objects_get.return_value = edx_installation_object
+
+        ReceiveInstallationStatistics().create_instance_data(self.received_data, self.access_token)
 
         ReceiveInstallationStatistics().create_instance_data(self.received_data, self.access_token)
 
