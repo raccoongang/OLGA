@@ -6,7 +6,6 @@ import copy
 import httplib
 import json
 import uuid
-from datetime import datetime, timedelta
 
 from mock import patch, call
 
@@ -15,7 +14,7 @@ from django.http import QueryDict
 from django.test import TestCase
 from django.utils.encoding import force_text
 
-from olga.analytics.models import EdxInstallation, InstallationStatistics
+from olga.analytics.models import EdxInstallation
 from olga.analytics.tests.factories import EdxInstallationFactory
 
 from olga.analytics.views import (
@@ -333,27 +332,16 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
 
         ReceiveInstallationStatistics().create_instance_data(self.received_data, self.access_token)
 
-        mock_logger_debug.assert_called_once_with('Corresponding data was %s in OLGA database.', 'created')
+        expected_logger_debug = [
+            ((
+                'Corresponding data was created in OLGA database.'
+            ),),
+        ]
 
-    @patch('olga.analytics.views.logging.Logger.debug')
-    @patch('olga.analytics.models.EdxInstallation.objects.get')
-    def test_logger_debug_occurs_if_stats_was_updated(
-            self,
-            mock_edx_installation_objects_get,
-            mock_logger_debug
-    ):
-        """
-        Test logger`s debug output occurs if installation was updated.
-        """
-        edx_installation_object = EdxInstallationFactory()
-
-        mock_edx_installation_objects_get.return_value = edx_installation_object
-
-        ReceiveInstallationStatistics().create_instance_data(self.received_data, self.access_token)
-
-        ReceiveInstallationStatistics().create_instance_data(self.received_data, self.access_token)
-
-        mock_logger_debug.assert_any_call('Corresponding data was %s in OLGA database.', 'updated')
+        # Factory Boy`s BaseFactory and LazyStub loggers occurs during method's logger occurs.
+        # So totally 5 loggers occurs, but only one last belongs to `create_instance_data` method.
+        # https://factoryboy.readthedocs.io/en/latest/#debugging-factory-boy
+        self.assertEqual(expected_logger_debug, mock_logger_debug.call_args_list[-1])
 
     @patch('olga.analytics.models.EdxInstallation.objects.filter')
     def test_is_token_authorized_if_instance_is_authorized(self, mock_edx_installation_objects_filter):
@@ -496,31 +484,3 @@ class TestReceiveInstallationStatistics(TestCase):
         """
         self.client.post('/api/installation/statistics/', self.received_data)
         mock_create_instance_data.assert_called_once_with(self.received_data_as_query_dict, self.access_token)
-
-    def test_multiply_create_instance_data_in_same_day(self):
-        """
-        Verify that when double calls are sent statistic from one instance only one record will be created.
-        """
-        self.client.post('/api/installation/statistics/', self.received_data)
-        self.assertEqual(1, InstallationStatistics.objects.all().count())
-
-        self.received_data['active_students_amount_day'] *= 2
-        self.client.post('/api/installation/statistics/', self.received_data)
-        stats = InstallationStatistics.objects.all()
-        self.assertEqual(1, stats.count())
-        self.assertEqual(
-            int(self.received_data['active_students_amount_day']),
-            stats[0].active_students_amount_day
-        )
-
-    def test_multiply_create_instance_data_in_different_day(self):
-        """
-        Verify that when double calls are sent statistic in different days there are two records will be created.
-        """
-        self.client.post('/api/installation/statistics/', self.received_data)
-        stats = InstallationStatistics.objects.all()
-        self.assertEqual(1, stats.count())
-        stats.update(data_created_datetime=(datetime.now() - timedelta(days=1)))
-
-        self.client.post('/api/installation/statistics/', self.received_data)
-        self.assertEqual(2, InstallationStatistics.objects.all().count())
