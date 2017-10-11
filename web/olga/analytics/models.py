@@ -79,6 +79,7 @@ class InstallationStatistics(models.Model):
     def get_stats_for_this_day(cls, edx_installation_object=None):
         """
         Provide model, for given installation object, that was created today, or None if it not exist.
+
         :param edx_installation_object: specific installation object.
         """
         today_midnight = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)

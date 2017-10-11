@@ -333,12 +333,7 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
 
         ReceiveInstallationStatistics().create_instance_data(self.received_data, self.access_token)
 
-        expected_logger_debug = call('Corresponding data was %s in OLGA database.', 'crated')
-
-        # Factory Boy`s BaseFactory and LazyStub loggers occurs during method's logger occurs.
-        # So totally 5 loggers occurs, but only one last belongs to `create_instance_data` method.
-        # https://factoryboy.readthedocs.io/en/latest/#debugging-factory-boy
-        self.assertEqual(expected_logger_debug, mock_logger_debug.call_args_list[-1])
+        mock_logger_debug.assert_called_once_with('Corresponding data was %s in OLGA database.', 'created')
 
     @patch('olga.analytics.views.logging.Logger.debug')
     @patch('olga.analytics.models.EdxInstallation.objects.get')
@@ -357,13 +352,9 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
         ReceiveInstallationStatistics().create_instance_data(self.received_data, self.access_token)
 
         ReceiveInstallationStatistics().create_instance_data(self.received_data, self.access_token)
+        print mock_logger_debug.call_args_list
 
-        expected_logger_debug = call('Corresponding data was %s in OLGA database.', 'updated')
-
-        # Factory Boy`s BaseFactory and LazyStub loggers occurs during method's logger occurs.
-        # So totally 5 loggers occurs, but only one last belongs to `create_instance_data` method.
-        # https://factoryboy.readthedocs.io/en/latest/#debugging-factory-boy
-        self.assertEqual(expected_logger_debug, mock_logger_debug.call_args_list[-1])
+        mock_logger_debug.assert_any_call('Corresponding data was %s in OLGA database.', 'updated')
 
     @patch('olga.analytics.models.EdxInstallation.objects.filter')
     def test_is_token_authorized_if_instance_is_authorized(self, mock_edx_installation_objects_filter):

@@ -217,7 +217,7 @@ class ReceiveInstallationStatistics(View):
             logger.debug(log_msg, 'updated')
         else:
             InstallationStatistics.objects.create(edx_installation=edx_installation_object, **stats)
-            logger.debug(log_msg, 'crated')
+            logger.debug(log_msg, 'created')
 
     @staticmethod
     def log_debug_instance_details(received_data):
