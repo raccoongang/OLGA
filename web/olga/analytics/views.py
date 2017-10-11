@@ -211,11 +211,13 @@ class ReceiveInstallationStatistics(View):
             self.extend_stats_to_enthusiast(received_data, stats, edx_installation_object)
 
         previous_stats = InstallationStatistics.get_stats_for_this_day(edx_installation_object)
+        log_msg = 'Corresponding data was %s in OLGA database.'
         if previous_stats:
             previous_stats.update(stats)
+            logger.debug(log_msg, 'updated')
         else:
             InstallationStatistics.objects.create(edx_installation=edx_installation_object, **stats)
-        logger.debug('Corresponding data was created in OLGA database.')
+            logger.debug(log_msg, 'crated')
 
     @staticmethod
     def log_debug_instance_details(received_data):

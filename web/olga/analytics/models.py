@@ -82,11 +82,11 @@ class InstallationStatistics(models.Model):
         :param edx_installation_object: specific installation object.
         """
         today_midnight = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        query = cls.objects.filter(
+        stat_item = cls.objects.filter(
             edx_installation=edx_installation_object,
-            data_created_datetime__gt=today_midnight
-        )
-        return None if query.count() == 0 else query.last()
+            data_created_datetime__gte=today_midnight
+        ).last()
+        return stat_item
 
     @classmethod
     def timeline(cls):
