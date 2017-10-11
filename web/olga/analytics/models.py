@@ -5,7 +5,7 @@ Models for analytics application. Models used to store and operate all data rece
 from __future__ import division
 
 from collections import defaultdict
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta
 
 import pycountry
 
@@ -74,21 +74,6 @@ class InstallationStatistics(models.Model):
         help_text='This field has students country-count accordance. It follows `json` type. '
                   'Example: {"RU": 2632, "CA": 18543, "UA": 2011, "null": 1}'
     )
-
-    @classmethod
-    def get_stats_for_this_day(cls, edx_installation_object=None):
-        """
-        Provide statistic model instance for the given Edx installation.
-
-        :param edx_installation_object: specific installation object.
-        :return: statistic model instance if it is created today otherwise None
-        """
-        today_midnight = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-        stat_item = cls.objects.filter(
-            edx_installation=edx_installation_object,
-            data_created_datetime__gte=today_midnight
-        ).last()
-        return stat_item
 
     @classmethod
     def timeline(cls):
@@ -254,13 +239,3 @@ class InstallationStatistics(models.Model):
         countries_amount = len(tabular_format_countries_list) - 1
 
         return countries_amount
-
-    def update(self, stats):
-        """
-        Update model from given dictionary and save it.
-
-        :param stats: dictionary with new data.
-        """
-        for (key, value) in stats.items():
-            setattr(self, key, value)
-        self.save()
