@@ -6,7 +6,6 @@ import copy
 import httplib
 import json
 import uuid
-import logging
 from datetime import datetime, timedelta
 
 from mock import patch, call
