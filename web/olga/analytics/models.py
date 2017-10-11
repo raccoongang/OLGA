@@ -78,9 +78,10 @@ class InstallationStatistics(models.Model):
     @classmethod
     def get_stats_for_this_day(cls, edx_installation_object=None):
         """
-        Provide model, for given installation object, that was created today, or None if it not exist.
+        Provide statistic model instance for the given Edx installation.
 
         :param edx_installation_object: specific installation object.
+        :return: statistic model instance if it is created today otherwise None
         """
         today_midnight = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         stat_item = cls.objects.filter(
