@@ -325,7 +325,7 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
             mock_logger_debug
     ):
         """
-        Test logger`s debug output occurs if installation was created.
+        Test logger`s debug output occurs if installation was created and when it was updated.
         """
         edx_installation_object = EdxInstallationFactory()
 
@@ -333,11 +333,16 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
 
         ReceiveInstallationStatistics().create_instance_data(self.received_data, self.access_token)
 
-        expected_logger_debug = [
-            ((
-                'Corresponding data was created in OLGA database.'
-            ),),
-        ]
+        expected_logger_debug = call('Corresponding data was %s in OLGA database.', 'crated')
+
+        # Factory Boy`s BaseFactory and LazyStub loggers occurs during method's logger occurs.
+        # So totally 5 loggers occurs, but only one last belongs to `create_instance_data` method.
+        # https://factoryboy.readthedocs.io/en/latest/#debugging-factory-boy
+        self.assertEqual(expected_logger_debug, mock_logger_debug.call_args_list[-1])
+
+        ReceiveInstallationStatistics().create_instance_data(self.received_data, self.access_token)
+
+        expected_logger_debug = call('Corresponding data was %s in OLGA database.', 'updated')
 
         # Factory Boy`s BaseFactory and LazyStub loggers occurs during method's logger occurs.
         # So totally 5 loggers occurs, but only one last belongs to `create_instance_data` method.
