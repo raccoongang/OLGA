@@ -499,7 +499,7 @@ class TestReceiveInstallationStatistics(TestCase):
 
     def test_multiply_create_instance_data_in_same_day(self):
         """
-        Verify that when twice calls are sent statistic from one instance only one record will be created.
+        Verify that when double calls are sent statistic from one instance only one record will be created.
         """
         self.client.post('/api/installation/statistics/', self.received_data)
         self.assertEqual(1, InstallationStatistics.objects.all().count())
@@ -515,7 +515,7 @@ class TestReceiveInstallationStatistics(TestCase):
 
     def test_multiply_create_instance_data_in_different_day(self):
         """
-        Verify that when twice calls are sent statistic in different days there are two records will be created.
+        Verify that when double calls are sent statistic in different days there are two records will be created.
         """
         self.client.post('/api/installation/statistics/', self.received_data)
         stats = InstallationStatistics.objects.all()
