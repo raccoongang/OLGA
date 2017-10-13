@@ -84,6 +84,7 @@ class AccessTokenAuthorization(View):
         logger.debug('edX installation with token %s was not authorized', access_token)
         return False
 
+    # codecov skip start
     @staticmethod
     def get_refreshed_token(uid):
         """
@@ -98,6 +99,7 @@ class AccessTokenAuthorization(View):
             logger.debug('Refreshed token for edX installation is %s', refreshed_access_token)
             return refreshed_access_token
         return None
+    # codecov skip end
 
     def post(self, request):
         """
