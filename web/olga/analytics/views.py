@@ -84,23 +84,6 @@ class AccessTokenAuthorization(View):
         logger.debug('edX installation with token %s was not authorized', access_token)
         return False
 
-    # codecov skip start
-    @staticmethod
-    def get_refreshed_token(uid):
-        """
-        Candidate for remove.
-        Create new access token for edx installation if current doe not exists in OLGA storage.
-        """
-        installation_data = EdxInstallation.objects.filter(uid=uid)
-        if installation_data.count() is 1:
-            refreshed_access_token = uuid4().hex
-            installation_data[0].access_token = refreshed_access_token
-            installation_data[0].save()
-            logger.debug('Refreshed token for edX installation is %s', refreshed_access_token)
-            return refreshed_access_token
-        return None
-    # codecov skip end
-
     def post(self, request):
         """
         Verify that installation is allowed access to dispatch installation statistics.
