@@ -32,9 +32,10 @@ class AccessTokenRegistration(View):
     """
 
     @staticmethod
-    def get_access_token_for_uid(uid):
+    def get_or_create_access_token(uid):
         """
         Provide access token for the given uid.
+
         If uid already exist in database - return access token from storage,
         otherwise create a new record with given uid and generated token.
         :param uid: instance uid.
@@ -60,7 +61,7 @@ class AccessTokenRegistration(View):
         uid = str(request.POST.get('uid'))
 
         if uid_serializer.is_valid():
-            access_token = self.get_access_token_for_uid(uid)
+            access_token = self.get_or_create_access_token(uid)
             return JsonResponse({'access_token': access_token}, status=httplib.CREATED)
 
         return HttpResponse(status=httplib.BAD_REQUEST)

@@ -87,33 +87,33 @@ class TestAccessTokenRegistration(TestCase):
     Tests for access token registration.
     """
 
-    def test_get_access_token_for_uid(self):
+    def test_get_or_create_access_token(self):
         """
-        Verify that new installation created after call of get_access_token_for_uid call.
+        Verify that new installation created after call of get_or_create_access_token call.
         """
         uid = get_random_string()
-        AccessTokenRegistration().get_access_token_for_uid(uid)
+        AccessTokenRegistration().get_or_create_access_token(uid)
 
         self.assertEqual(1, EdxInstallation.objects.all().count())
 
-    def test_get_access_token_for_uid_double_with_same_uid(self):
+    def test_get_or_create_access_token_double_with_same_uid(self):
         """
-        Verify that only one new installation create after double call of get_access_token_for_uid call with same uid.
+        Verify that only one new installation create after double call of get_or_create_access_token call with same uid.
         """
         uid = get_random_string()
-        AccessTokenRegistration().get_access_token_for_uid(uid)
-        AccessTokenRegistration().get_access_token_for_uid(uid)
+        AccessTokenRegistration().get_or_create_access_token(uid)
+        AccessTokenRegistration().get_or_create_access_token(uid)
 
         self.assertEqual(1, EdxInstallation.objects.all().count())
 
-    def test_get_access_token_for_uid_double_with_different_uid(self):
+    def test_get_or_create_access_token_double_with_different_uid(self):
         """
-        Verify that two new installations are created after double get_access_token_for_uid call with different uid.
+        Verify that two new installations are created after double get_or_create_access_token call with different uid.
         """
         uid = get_random_string()
-        AccessTokenRegistration().get_access_token_for_uid(uid)
+        AccessTokenRegistration().get_or_create_access_token(uid)
         uid = get_random_string()
-        AccessTokenRegistration().get_access_token_for_uid(uid)
+        AccessTokenRegistration().get_or_create_access_token(uid)
 
         self.assertEqual(2, EdxInstallation.objects.all().count())
 
@@ -143,19 +143,19 @@ class TestAccessTokenRegistration(TestCase):
 
         self.assertEqual(response.status_code, httplib.BAD_REQUEST)
 
-    @patch('olga.analytics.views.AccessTokenRegistration.get_access_token_for_uid', )
-    def test_get_access_token_for_uid_occurs(
-            self, get_access_token_for_uid
+    @patch('olga.analytics.views.AccessTokenRegistration.get_or_create_access_token', )
+    def test_get_or_create_access_token_occurs(
+            self, get_or_create_access_token
     ):
         """
-        Test get_access_token_for_uid method accepts uid during post method`s process.
+        Test get_or_create_access_token method accepts uid during post method`s process.
         """
-        get_access_token_for_uid.return_value = uuid.uuid4().hex
+        get_or_create_access_token.return_value = uuid.uuid4().hex
         uid = get_random_string()
 
         self.client.post('/api/token/registration/', {'uid': uid})
 
-        get_access_token_for_uid.assert_called_once_with(uid)
+        get_or_create_access_token.assert_called_once_with(uid)
 
     @patch('olga.analytics.views.logging.Logger.debug')
     @patch('olga.analytics.views.uuid4')
