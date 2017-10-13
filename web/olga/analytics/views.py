@@ -8,13 +8,14 @@ import json
 import logging
 from uuid import uuid4
 
+import datetime
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
-from olga.analytics.forms import AccessTokenForm
+from olga.analytics.forms import AccessTokenForm, UidForm
 from olga.analytics.models import EdxInstallation, InstallationStatistics
 from olga.analytics.utils import validate_instance_stats_forms
 
@@ -31,13 +32,23 @@ class AccessTokenRegistration(View):
     """
 
     @staticmethod
-    def create_edx_installation(access_token):
+    def get_access_token_for_uid(uid):
         """
-        Create edx installation: insert access token field.
-
-        Access token is enough to fetching, sending and dispatching statistics. It called `Paranoid` level.
+        Provide access token for the given uid.
+        If uid already exist in database - return access token from storage,
+        otherwise create a new record with given uid and generated token.
+        :param uid: instance uid.
+        :return access_token.
         """
-        EdxInstallation.objects.create(access_token=access_token)
+        installation_data = EdxInstallation.objects.filter(uid=uid)
+        if installation_data.count() is 1:
+            access_token = installation_data[0].access_token
+            logger.debug('OLGA get previous edX installation with token %s for uid %s', access_token, uid)
+        else:
+            access_token = uuid4().hex
+            EdxInstallation.objects.create(access_token=access_token, uid=uid)
+            logger.debug('OLGA registered edX installation with token %s for uid %s', access_token, uid)
+        return access_token
 
     def post(self, request):  # pylint: disable=unused-argument
         """
@@ -45,11 +56,14 @@ class AccessTokenRegistration(View):
 
         Returns HTTP-response with status 201, that means object (installation token) was successfully created.
         """
-        access_token = uuid4().hex
-        self.create_edx_installation(access_token)
+        uid_serializer = UidForm(request.POST)
+        uid = str(request.POST.get('uid'))
 
-        logger.debug('OLGA registered edX installation with token %s', access_token)
-        return JsonResponse({'access_token': access_token}, status=httplib.CREATED)
+        if uid_serializer.is_valid():
+            access_token = self.get_access_token_for_uid(uid)
+            return JsonResponse({'access_token': access_token}, status=httplib.CREATED)
+
+        return HttpResponse(status=httplib.BAD_REQUEST)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -71,15 +85,19 @@ class AccessTokenAuthorization(View):
         return False
 
     @staticmethod
-    def get_refreshed_token():
+    def get_refreshed_token(uid):
         """
+        Candidate for remove.
         Create new access token for edx installation if current doe not exists in OLGA storage.
         """
-        refreshed_access_token = uuid4().hex
-        AccessTokenRegistration().create_edx_installation(refreshed_access_token)
-
-        logger.debug('Refreshed token for edX installation is %s', refreshed_access_token)
-        return refreshed_access_token
+        installation_data = EdxInstallation.objects.filter(uid=uid)
+        if installation_data.count() is 1:
+            refreshed_access_token = uuid4().hex
+            installation_data[0].access_token = refreshed_access_token
+            installation_data[0].save()
+            logger.debug('Refreshed token for edX installation is %s', refreshed_access_token)
+            return refreshed_access_token
+        return None
 
     def post(self, request):
         """
@@ -213,6 +231,7 @@ class ReceiveInstallationStatistics(View):
         previous_stats = InstallationStatistics.get_stats_for_this_day(edx_installation_object)
         log_msg = 'Corresponding data was %s in OLGA database.'
         if previous_stats:
+            stats['data_created_datetime'] = datetime.datetime.now()
             previous_stats.update(stats)
             logger.debug(log_msg, 'updated')
         else:
