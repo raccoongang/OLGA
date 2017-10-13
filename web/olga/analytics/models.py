@@ -38,6 +38,7 @@ class EdxInstallation(models.Model):
     access_token = models.UUIDField(null=True)
     platform_name = models.CharField(max_length=255, null=True, blank=True)
     platform_url = models.URLField(null=True, blank=True)
+    uid = models.CharField(null=True, max_length=255)
 
     latitude = models.FloatField(
         null=True, blank=True, help_text='Latitude coordinate of edX platform follows `float` type. Example: 50.10'
