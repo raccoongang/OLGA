@@ -96,33 +96,40 @@ class TestAccessTokenRegistration(TestCase):
         response = self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR=x_forward_for)
         return response, uid
 
-    def test_get_or_create_access_token(self):
+    def test_create_new_edx_instance(self):
         """
-        Verify that new installation created after call of get_or_create_access_token call.
+        Verify that new installation created after call of create_new_edx_instance call.
         """
         uid = get_random_string()
-        AccessTokenRegistration().get_or_create_access_token(uid)
+        access_token = uuid.uuid4().hex
+        AccessTokenRegistration().create_new_edx_instance(access_token, uid)
 
         self.assertEqual(1, EdxInstallation.objects.all().count())
 
-    def test_get_or_create_access_token_double_with_same_uid(self):
+    def test_create_new_edx_instance_double_with_same_uid(self):
         """
-        Verify that only one new installation create after double call of get_or_create_access_token call with same uid.
+        Verify that only one new installation create after double call of create_new_edx_instance call with same uid.
         """
         uid = get_random_string()
-        AccessTokenRegistration().get_or_create_access_token(uid)
-        AccessTokenRegistration().get_or_create_access_token(uid)
+        access_token, is_need_create = AccessTokenRegistration().get_access_token(uid)
+        self.assertEqual(is_need_create, True)
+        AccessTokenRegistration().create_new_edx_instance(access_token, uid)
+        access_token, is_need_create = AccessTokenRegistration().get_access_token(uid)
 
+        self.assertEqual(is_need_create, False)
         self.assertEqual(1, EdxInstallation.objects.all().count())
 
-    def test_get_or_create_access_token_double_with_different_uid(self):
+    def test_create_new_edx_instance_double_with_different_uid(self):
         """
-        Verify that two new installations are created after double get_or_create_access_token call with different uid.
+        Verify that two new installations are created after double create_new_edx_instance call with different uid.
         """
         uid = get_random_string()
-        AccessTokenRegistration().get_or_create_access_token(uid)
+        access_token = uuid.uuid4().hex
+        AccessTokenRegistration().create_new_edx_instance(access_token, uid)
+
         uid = get_random_string()
-        AccessTokenRegistration().get_or_create_access_token(uid)
+        access_token = uuid.uuid4().hex
+        AccessTokenRegistration().create_new_edx_instance(access_token, uid)
 
         self.assertEqual(2, EdxInstallation.objects.all().count())
 
@@ -141,18 +148,32 @@ class TestAccessTokenRegistration(TestCase):
             {'access_token': mock_uuid4.return_value.access_token}
         )
 
-    @patch('olga.analytics.views.AccessTokenRegistration.get_or_create_access_token', )
-    def test_get_or_create_access_token_occurs(
-            self, get_or_create_access_token
+    @patch('olga.analytics.views.AccessTokenRegistration.get_access_token', )
+    def test_get_access_token_occurs(
+            self, get_access_token
     ):
         """
-        Test get_or_create_access_token method accepts uid during post method`s process.
+        Test get_access_token method accepts uid during post method`s process.
         """
-        get_or_create_access_token.return_value = uuid.uuid4().hex, True
+        get_access_token.return_value = uuid.uuid4().hex, True
 
         _, uid = self.call_post()
 
-        get_or_create_access_token.assert_called_once_with(uid)
+        get_access_token.assert_called_once_with(uid)
+
+    @patch('olga.analytics.views.AccessTokenRegistration.get_access_token')
+    @patch('olga.analytics.views.AccessTokenRegistration.create_new_edx_instance')
+    def test_create_new_edx_instance_occurs(
+            self, create_new_edx_instance, get_access_token
+    ):
+        """
+        Test create_new_edx_instance method accepts uid during post method`s process.
+        """
+        access_token = uuid.uuid4().hex
+        get_access_token.return_value = (access_token, True)
+        _, uid = self.call_post()
+
+        create_new_edx_instance.assert_called_once_with(access_token, uid)
 
     @patch('olga.analytics.views.logging.Logger.debug')
     @patch('olga.analytics.views.uuid4')

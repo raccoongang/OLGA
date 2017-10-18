@@ -33,26 +33,32 @@ class AccessTokenRegistration(View):
     """
 
     @staticmethod
-    def get_or_create_access_token(uid):
+    def create_new_edx_instance(access_token, uid):
+        """
+        Create new edx instance with given access_token and uid.
+        """
+        EdxInstallation.objects.create(access_token=access_token, uid=uid)
+        logger.debug('OLGA registered edX installation with token %s for uid %s', access_token, uid)
+
+    @staticmethod
+    def get_access_token(uid):
         """
         Provide access token for the given uid.
 
         If uid already exist in database - return access token from storage,
-        otherwise create a new record with given uid and generated token.
+        otherwise return generated uid and flag for it creation
         :param uid: instance uid.
-        :return tuple(access_token,is_create)
+        :return tuple(access_token, is_need_create)
         """
         installation_data = EdxInstallation.objects.filter(uid=uid)
         if installation_data.exists():
             access_token = installation_data[0].access_token
             logger.debug('OLGA get previous edX installation with token %s for uid %s', access_token, uid)
-            created = False
+            is_need_create = False
         else:
             access_token = uuid4().hex
-            EdxInstallation.objects.create(access_token=access_token, uid=uid)
-            logger.debug('OLGA registered edX installation with token %s for uid %s', access_token, uid)
-            created = True
-        return access_token, created
+            is_need_create = True
+        return access_token, is_need_create
 
     def post(self, request):  # pylint: disable=unused-argument
         """
@@ -61,7 +67,9 @@ class AccessTokenRegistration(View):
         Returns HTTP-response with status 201, that means object (installation token) was successfully created.
         """
         uid = hashlib.md5(request.META['HTTP_X_FORWARDED_FOR']).hexdigest()
-        access_token, _ = self.get_or_create_access_token(uid)
+        access_token, is_need_create = self.get_access_token(uid)
+        if is_need_create:
+            self.create_new_edx_instance(access_token, uid)
         return JsonResponse({'access_token': access_token}, status=httplib.CREATED)
 
 
