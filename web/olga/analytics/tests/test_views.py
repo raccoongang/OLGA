@@ -3,6 +3,7 @@ Tests for analytics views.
 """
 
 import copy
+import hashlib
 import httplib
 import json
 import uuid
@@ -87,6 +88,14 @@ class TestAccessTokenRegistration(TestCase):
     Tests for access token registration.
     """
 
+    def call_post(self, x_forward_for='123.0.0.1'):
+        """
+        Call  post to `/api/token/registration/` and return tuple(response,uid).
+        """
+        uid = hashlib.md5(x_forward_for).hexdigest()
+        response = self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR=x_forward_for)
+        return response, uid
+
     def test_get_or_create_access_token(self):
         """
         Verify that new installation created after call of get_or_create_access_token call.
@@ -124,24 +133,13 @@ class TestAccessTokenRegistration(TestCase):
         """
         mock_uuid4.return_value = MockUUID4()
 
-        response = self.client.post('/api/token/registration/', {'uid': get_random_string()})
+        response, _ = self.call_post()
 
         self.assertEqual(response.status_code, httplib.CREATED)
         self.assertJSONEqual(
             force_text(response.content),
             {'access_token': mock_uuid4.return_value.access_token}
         )
-
-    @patch('olga.analytics.views.uuid4')
-    def test_post_method_without_uid(self, mock_uuid4):
-        """
-        Test post method response from registration endpoint without uid.
-        """
-        mock_uuid4.return_value = MockUUID4()
-
-        response = self.client.post('/api/token/registration/', {})
-
-        self.assertEqual(response.status_code, httplib.BAD_REQUEST)
 
     @patch('olga.analytics.views.AccessTokenRegistration.get_or_create_access_token', )
     def test_get_or_create_access_token_occurs(
@@ -151,9 +149,8 @@ class TestAccessTokenRegistration(TestCase):
         Test get_or_create_access_token method accepts uid during post method`s process.
         """
         get_or_create_access_token.return_value = uuid.uuid4().hex, True
-        uid = get_random_string()
 
-        self.client.post('/api/token/registration/', {'uid': uid})
+        _, uid = self.call_post()
 
         get_or_create_access_token.assert_called_once_with(uid)
 
@@ -165,8 +162,7 @@ class TestAccessTokenRegistration(TestCase):
         """
         mock_uuid4.return_value = MockUUID4()
 
-        uid = get_random_string()
-        self.client.post('/api/token/registration/', {'uid': uid})
+        _, uid = self.call_post()
 
         mock_logger_debug.assert_any_call(
             'OLGA registered edX installation with token %s for uid %s',
@@ -174,8 +170,7 @@ class TestAccessTokenRegistration(TestCase):
             uid
         )
 
-        uid = get_random_string()
-        self.client.post('/api/token/registration/', {'uid': uid})
+        _, uid = self.call_post("127.0.0.2")
 
         mock_logger_debug.assert_any_call(
             'OLGA registered edX installation with token %s for uid %s',

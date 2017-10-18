@@ -16,10 +16,6 @@ class AccessTokenForm(forms.Form):
     access_token = forms.UUIDField()
 
 
-class UidForm(forms.Form):
-    uid = forms.CharField()
-
-
 class EdxInstallationParanoidLevelForm(forms.ModelForm):
     class Meta(object):
         model = EdxInstallation

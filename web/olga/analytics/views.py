@@ -7,7 +7,6 @@ import hashlib
 import httplib
 import json
 import logging
-import md5
 from uuid import uuid4
 
 import datetime
@@ -17,7 +16,7 @@ from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
-from olga.analytics.forms import AccessTokenForm, UidForm
+from olga.analytics.forms import AccessTokenForm
 from olga.analytics.models import EdxInstallation, InstallationStatistics
 from olga.analytics.utils import validate_instance_stats_forms
 
@@ -43,7 +42,6 @@ class AccessTokenRegistration(View):
         :param uid: instance uid.
         :return tuple(access_token,is_create)
         """
-
         installation_data = EdxInstallation.objects.filter(uid=uid)
         if installation_data.exists():
             access_token = installation_data[0].access_token
@@ -62,12 +60,9 @@ class AccessTokenRegistration(View):
 
         Returns HTTP-response with status 201, that means object (installation token) was successfully created.
         """
-
-        uid = hashlib.md5(request.META['REMOTE_ADDR'])
-        print(request.META['HTTP_X_FORWARDED_FOR'])
-        access_token, created = self.get_or_create_access_token(uid)
+        uid = hashlib.md5(request.META['HTTP_X_FORWARDED_FOR']).hexdigest()
+        access_token, _ = self.get_or_create_access_token(uid)
         return JsonResponse({'access_token': access_token}, status=httplib.CREATED)
-        return HttpResponse(status=httplib.BAD_REQUEST)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
