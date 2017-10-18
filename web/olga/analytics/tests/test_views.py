@@ -88,14 +88,6 @@ class TestAccessTokenRegistration(TestCase):
     Tests for access token registration.
     """
 
-    def call_post(self, x_forward_for='123.0.0.1'):
-        """
-        Call  post to `/api/token/registration/` and return tuple(response,uid).
-        """
-        uid = hashlib.md5(x_forward_for).hexdigest()
-        response = self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR=x_forward_for)
-        return response, uid
-
     def test_create_new_edx_instance(self):
         """
         Verify that new installation created after call of create_new_edx_instance call.
@@ -140,7 +132,7 @@ class TestAccessTokenRegistration(TestCase):
         """
         mock_uuid4.return_value = MockUUID4()
 
-        response, _ = self.call_post()
+        response = self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR='123.0.0.1')
 
         self.assertEqual(response.status_code, httplib.CREATED)
         self.assertJSONEqual(
@@ -157,7 +149,9 @@ class TestAccessTokenRegistration(TestCase):
         """
         get_access_token.return_value = uuid.uuid4().hex, True
 
-        _, uid = self.call_post()
+        x_forward_for = '123.0.0.1'
+        uid = hashlib.md5(x_forward_for).hexdigest()
+        self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR=x_forward_for)
 
         get_access_token.assert_called_once_with(uid)
 
@@ -171,7 +165,10 @@ class TestAccessTokenRegistration(TestCase):
         """
         access_token = uuid.uuid4().hex
         get_access_token.return_value = (access_token, True)
-        _, uid = self.call_post()
+
+        x_forward_for = '123.0.0.1'
+        uid = hashlib.md5(x_forward_for).hexdigest()
+        self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR=x_forward_for)
 
         create_new_edx_instance.assert_called_once_with(access_token, uid)
 
@@ -183,7 +180,9 @@ class TestAccessTokenRegistration(TestCase):
         """
         mock_uuid4.return_value = MockUUID4()
 
-        _, uid = self.call_post()
+        x_forward_for = '123.0.0.1'
+        uid = hashlib.md5(x_forward_for).hexdigest()
+        self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR=x_forward_for)
 
         mock_logger_debug.assert_any_call(
             'OLGA registered edX installation with token %s for uid %s',
@@ -191,7 +190,10 @@ class TestAccessTokenRegistration(TestCase):
             uid
         )
 
-        _, uid = self.call_post("127.0.0.2")
+        x_forward_for = '123.0.0.2'
+        uid = hashlib.md5(x_forward_for).hexdigest()
+        self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR=x_forward_for)
+        mock_uuid4.return_value = MockUUID4()
 
         mock_logger_debug.assert_any_call(
             'OLGA registered edX installation with token %s for uid %s',
