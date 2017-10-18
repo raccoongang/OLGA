@@ -3,9 +3,11 @@ Views for the analytics application.
 """
 
 import copy
+import hashlib
 import httplib
 import json
 import logging
+import md5
 from uuid import uuid4
 
 import datetime
@@ -39,17 +41,20 @@ class AccessTokenRegistration(View):
         If uid already exist in database - return access token from storage,
         otherwise create a new record with given uid and generated token.
         :param uid: instance uid.
-        :return access_token.
+        :return tuple(access_token,is_create)
         """
+
         installation_data = EdxInstallation.objects.filter(uid=uid)
-        if installation_data.count() is 1:
+        if installation_data.exists():
             access_token = installation_data[0].access_token
             logger.debug('OLGA get previous edX installation with token %s for uid %s', access_token, uid)
+            created = False
         else:
             access_token = uuid4().hex
             EdxInstallation.objects.create(access_token=access_token, uid=uid)
             logger.debug('OLGA registered edX installation with token %s for uid %s', access_token, uid)
-        return access_token
+            created = True
+        return access_token, created
 
     def post(self, request):  # pylint: disable=unused-argument
         """
@@ -57,13 +62,11 @@ class AccessTokenRegistration(View):
 
         Returns HTTP-response with status 201, that means object (installation token) was successfully created.
         """
-        uid_serializer = UidForm(request.POST)
-        uid = str(request.POST.get('uid'))
 
-        if uid_serializer.is_valid():
-            access_token = self.get_or_create_access_token(uid)
-            return JsonResponse({'access_token': access_token}, status=httplib.CREATED)
-
+        uid = hashlib.md5(request.META['REMOTE_ADDR'])
+        print(request.META['HTTP_X_FORWARDED_FOR'])
+        access_token, created = self.get_or_create_access_token(uid)
+        return JsonResponse({'access_token': access_token}, status=httplib.CREATED)
         return HttpResponse(status=httplib.BAD_REQUEST)
 
 

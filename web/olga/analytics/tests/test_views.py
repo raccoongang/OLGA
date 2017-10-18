@@ -150,7 +150,7 @@ class TestAccessTokenRegistration(TestCase):
         """
         Test get_or_create_access_token method accepts uid during post method`s process.
         """
-        get_or_create_access_token.return_value = uuid.uuid4().hex
+        get_or_create_access_token.return_value = uuid.uuid4().hex, True
         uid = get_random_string()
 
         self.client.post('/api/token/registration/', {'uid': uid})
