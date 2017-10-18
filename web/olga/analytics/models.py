@@ -203,10 +203,11 @@ class InstallationStatistics(models.Model):
             student_amount_percentage = cls.get_student_amount_percentage(count, all_active_students)
 
             try:
-                country_alpha_3 = str(pycountry.countries.get(alpha_2=country).alpha_3)
+                country_info = pycountry.countries.get(alpha_2=country)
+                country_alpha_3 = str(country_info.alpha_3)
                 datamap_format_countries_list += [[country_alpha_3, count]]
 
-                country_name = str(pycountry.countries.get(alpha_2=country).name)
+                country_name = str(country_info.name)
                 tabular_format_countries_list += [[country_name, count, student_amount_percentage]]
             except KeyError:
                 # Create students without country amount.
