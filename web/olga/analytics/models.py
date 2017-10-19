@@ -204,7 +204,6 @@ class InstallationStatistics(models.Model):
             student_amount_percentage = cls.get_student_amount_percentage(count, all_active_students)
 
             try:
-
                 country_info = pycountry.countries.get(alpha_2=country)
                 country_alpha_3 = str(country_info.alpha_3)
                 datamap_format_countries_list += [[country_alpha_3, count]]

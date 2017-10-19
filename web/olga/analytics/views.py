@@ -58,6 +58,7 @@ class AccessTokenRegistration(View):
         else:
             access_token = uuid4().hex
             new_token = True
+            logger.debug('OLGA create new access token %s for uid %s without storing it in database', access_token, uid)
         return access_token, new_token
 
     def post(self, request):  # pylint: disable=unused-argument

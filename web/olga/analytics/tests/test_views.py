@@ -115,13 +115,11 @@ class TestAccessTokenRegistration(TestCase):
         """
         Verify that two new installations are created after double create_new_edx_instance call with different uid.
         """
-        uid = get_random_string()
         access_token = uuid.uuid4().hex
-        AccessTokenRegistration().create_new_edx_instance(access_token, uid)
+        AccessTokenRegistration().create_new_edx_instance(access_token,  get_random_string())
 
-        uid = get_random_string()
         access_token = uuid.uuid4().hex
-        AccessTokenRegistration().create_new_edx_instance(access_token, uid)
+        AccessTokenRegistration().create_new_edx_instance(access_token, get_random_string())
 
         self.assertEqual(2, EdxInstallation.objects.all().count())
 
@@ -482,7 +480,7 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
         expected_logger_debugs = [
             call((
                 json.dumps(self.received_data, sort_keys=True, indent=4)
-            ), ),
+            ),),
         ]
 
         self.assertEqual(expected_logger_debugs, mock_logger_debug.call_args_list)
