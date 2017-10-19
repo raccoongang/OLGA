@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='edxinstallation',
             name='uid',
-            field=models.CharField(max_length=255, null=True),
+            field=models.CharField(max_length=32, null=True),
         ),
     ]
