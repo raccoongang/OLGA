@@ -3,11 +3,13 @@ Views for the analytics application.
 """
 
 import copy
+import hashlib
 import httplib
 import json
 import logging
 from uuid import uuid4
 
+import datetime
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.generic import View
@@ -31,13 +33,37 @@ class AccessTokenRegistration(View):
     """
 
     @staticmethod
-    def create_edx_installation(access_token):
+    def create_new_edx_instance(access_token, uid):
         """
-        Create edx installation: insert access token field.
+        Create new edx instance with given access_token and uid.
+        """
+        EdxInstallation.objects.create(access_token=access_token, uid=uid)
+        logger.debug('OLGA registered edX installation with token %s for uid %s', access_token, uid)
 
-        Access token is enough to fetching, sending and dispatching statistics. It called `Paranoid` level.
+    @staticmethod
+    def get_access_token(uid):
         """
-        EdxInstallation.objects.create(access_token=access_token)
+        Provide access token for the given uid.
+
+        If uid already exist in database - return access token from storage,
+        otherwise return generated uid and flag for it creation
+        :param uid: instance uid.
+        :return tuple(access_token, new_token)
+        """
+        installation_data = EdxInstallation.objects.filter(uid=uid)
+        if installation_data.exists():
+            access_token = installation_data[0].access_token
+            logger.debug('OLGA get previous edX installation with token %s for uid %s', access_token, uid)
+            new_token = False
+        else:
+            access_token = uuid4().hex
+            new_token = True
+            logger.debug(
+                'OLGA has created new access token %s for the uid %s without storing in the database',
+                access_token,
+                uid
+            )
+        return access_token, new_token
 
     def post(self, request):  # pylint: disable=unused-argument
         """
@@ -45,10 +71,10 @@ class AccessTokenRegistration(View):
 
         Returns HTTP-response with status 201, that means object (installation token) was successfully created.
         """
-        access_token = uuid4().hex
-        self.create_edx_installation(access_token)
-
-        logger.debug('OLGA registered edX installation with token %s', access_token)
+        uid = hashlib.md5(request.META['HTTP_X_FORWARDED_FOR']).hexdigest()
+        access_token, is_new_token = self.get_access_token(uid)
+        if is_new_token:
+            self.create_new_edx_instance(access_token, uid)
         return JsonResponse({'access_token': access_token}, status=httplib.CREATED)
 
 
@@ -69,17 +95,6 @@ class AccessTokenAuthorization(View):
 
         logger.debug('edX installation with token %s was not authorized', access_token)
         return False
-
-    @staticmethod
-    def get_refreshed_token():
-        """
-        Create new access token for edx installation if current doe not exists in OLGA storage.
-        """
-        refreshed_access_token = uuid4().hex
-        AccessTokenRegistration().create_edx_installation(refreshed_access_token)
-
-        logger.debug('Refreshed token for edX installation is %s', refreshed_access_token)
-        return refreshed_access_token
 
     def post(self, request):
         """
@@ -213,6 +228,7 @@ class ReceiveInstallationStatistics(View):
         previous_stats = InstallationStatistics.get_stats_for_this_day(edx_installation_object)
         log_msg = 'Corresponding data was %s in OLGA database.'
         if previous_stats:
+            stats['data_created_datetime'] = datetime.datetime.now()
             previous_stats.update(stats)
             logger.debug(log_msg, 'updated')
         else:

@@ -3,6 +3,7 @@ Tests for analytics views.
 """
 
 import copy
+import hashlib
 import httplib
 import json
 import uuid
@@ -10,10 +11,10 @@ from datetime import datetime, timedelta
 
 from mock import patch, call
 
-from django.http import HttpResponse
-from django.http import QueryDict
+from django.http import HttpResponse, QueryDict
 from django.test import TestCase
 from django.utils.encoding import force_text
+from django.utils.crypto import get_random_string
 
 from olga.analytics.models import EdxInstallation, InstallationStatistics
 from olga.analytics.tests.factories import EdxInstallationFactory
@@ -23,6 +24,7 @@ from olga.analytics.views import (
     AccessTokenRegistration,
     ReceiveInstallationStatistics
 )
+
 
 # pylint: disable=invalid-name
 
@@ -35,8 +37,7 @@ class MockUUID4(object):  # pylint: disable=too-few-public-methods
     Mock raises ValueError with F() expressions can only be used to update, not to insert.
     """
 
-    access_token = uuid.uuid4().hex
-    hex = access_token
+    hex = uuid.uuid4().hex
 
 
 class InstallationDefaultData(object):  # pylint: disable=too-few-public-methods
@@ -86,14 +87,40 @@ class TestAccessTokenRegistration(TestCase):
     Tests for access token registration.
     """
 
-    def test_create_edx_installation(self):
+    def test_create_new_edx_instance(self):
         """
-        Verify that create_edx_installation method create one EdxInstallation object.
+        Verify that new installation created after call of create_new_edx_instance call.
         """
+        uid = get_random_string()
         access_token = uuid.uuid4().hex
-        AccessTokenRegistration().create_edx_installation(access_token)
+        AccessTokenRegistration().create_new_edx_instance(access_token, uid)
 
         self.assertEqual(1, EdxInstallation.objects.all().count())
+
+    def test_create_new_edx_instance_double_with_same_uid(self):
+        """
+        Verify that only one new installation create after double call of create_new_edx_instance call with same uid.
+        """
+        uid = get_random_string()
+        access_token, is_new_token = AccessTokenRegistration().get_access_token(uid)
+        self.assertEqual(is_new_token, True)
+        AccessTokenRegistration().create_new_edx_instance(access_token, uid)
+        access_token, is_new_token = AccessTokenRegistration().get_access_token(uid)
+
+        self.assertEqual(is_new_token, False)
+        self.assertEqual(1, EdxInstallation.objects.all().count())
+
+    def test_create_new_edx_instance_double_with_different_uid(self):
+        """
+        Verify that two new installations are created after double create_new_edx_instance call with different uid.
+        """
+        access_token = uuid.uuid4().hex
+        AccessTokenRegistration().create_new_edx_instance(access_token, get_random_string())
+
+        access_token = uuid.uuid4().hex
+        AccessTokenRegistration().create_new_edx_instance(access_token, get_random_string())
+
+        self.assertEqual(2, EdxInstallation.objects.all().count())
 
     @patch('olga.analytics.views.uuid4')
     def test_post_method(self, mock_uuid4):
@@ -102,27 +129,45 @@ class TestAccessTokenRegistration(TestCase):
         """
         mock_uuid4.return_value = MockUUID4()
 
-        response = self.client.post('/api/token/registration/', {})
+        response = self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR='123.0.0.1')
 
         self.assertEqual(response.status_code, httplib.CREATED)
         self.assertJSONEqual(
             force_text(response.content),
-            {'access_token': mock_uuid4.return_value.access_token}
+            {'access_token': mock_uuid4.return_value.hex}
         )
 
-    @patch('olga.analytics.views.AccessTokenRegistration.create_edx_installation')
-    @patch('olga.analytics.views.uuid4')
-    def test_create_edx_installation_occurs(
-            self, mock_uuid4, mock_create_edx_installation
+    @patch('olga.analytics.views.AccessTokenRegistration.get_access_token', )
+    def test_get_access_token_occurs(
+            self, get_access_token
     ):
         """
-        Test create_edx_installation method accepts access token parameter during post method`s process.
+        Test get_access_token method accepts uid during post method`s process.
         """
-        mock_uuid4.return_value = MockUUID4()
+        get_access_token.return_value = uuid.uuid4().hex, True
 
-        self.client.post('/api/token/registration/', {})
+        x_forward_for = '123.0.0.1'
+        uid = hashlib.md5(x_forward_for).hexdigest()
+        self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR=x_forward_for)
 
-        mock_create_edx_installation.assert_called_once_with(mock_uuid4.return_value.access_token)
+        get_access_token.assert_called_once_with(uid)
+
+    @patch('olga.analytics.views.AccessTokenRegistration.get_access_token')
+    @patch('olga.analytics.views.AccessTokenRegistration.create_new_edx_instance')
+    def test_create_new_edx_instance_occurs(
+            self, create_new_edx_instance, get_access_token
+    ):
+        """
+        Test create_new_edx_instance method accepts uid during post method`s process.
+        """
+        access_token = uuid.uuid4().hex
+        get_access_token.return_value = (access_token, True)
+
+        x_forward_for = '123.0.0.1'
+        uid = hashlib.md5(x_forward_for).hexdigest()
+        self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR=x_forward_for)
+
+        create_new_edx_instance.assert_called_once_with(access_token, uid)
 
     @patch('olga.analytics.views.logging.Logger.debug')
     @patch('olga.analytics.views.uuid4')
@@ -132,10 +177,25 @@ class TestAccessTokenRegistration(TestCase):
         """
         mock_uuid4.return_value = MockUUID4()
 
-        self.client.post('/api/token/registration/', {})
+        x_forward_for = '123.0.0.1'
+        uid = hashlib.md5(x_forward_for).hexdigest()
+        self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR=x_forward_for)
 
-        mock_logger_debug.assert_called_once_with(
-            'OLGA registered edX installation with token %s', mock_uuid4.return_value.access_token
+        mock_logger_debug.assert_any_call(
+            'OLGA registered edX installation with token %s for uid %s',
+            mock_uuid4.return_value.hex,
+            uid
+        )
+
+        x_forward_for = '123.0.0.2'
+        uid = hashlib.md5(x_forward_for).hexdigest()
+        self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR=x_forward_for)
+        mock_uuid4.return_value = MockUUID4()
+
+        mock_logger_debug.assert_any_call(
+            'OLGA registered edX installation with token %s for uid %s',
+            mock_uuid4.return_value.hex,
+            uid
         )
 
 
