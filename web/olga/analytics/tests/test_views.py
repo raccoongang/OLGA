@@ -116,7 +116,7 @@ class TestAccessTokenRegistration(TestCase):
         Verify that two new installations are created after double create_new_edx_instance call with different uid.
         """
         access_token = uuid.uuid4().hex
-        AccessTokenRegistration().create_new_edx_instance(access_token,  get_random_string())
+        AccessTokenRegistration().create_new_edx_instance(access_token, get_random_string())
 
         access_token = uuid.uuid4().hex
         AccessTokenRegistration().create_new_edx_instance(access_token, get_random_string())
