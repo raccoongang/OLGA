@@ -58,7 +58,11 @@ class AccessTokenRegistration(View):
         else:
             access_token = uuid4().hex
             new_token = True
-            logger.debug('OLGA create new access token %s for uid %s without storing it in database', access_token, uid)
+            logger.debug(
+                'OLGA has created new access token %s for the uid %s without storing in the database',
+                access_token,
+                uid
+            )
         return access_token, new_token
 
     def post(self, request):  # pylint: disable=unused-argument
@@ -68,8 +72,8 @@ class AccessTokenRegistration(View):
         Returns HTTP-response with status 201, that means object (installation token) was successfully created.
         """
         uid = hashlib.md5(request.META['HTTP_X_FORWARDED_FOR']).hexdigest()
-        access_token, new_token = self.get_access_token(uid)
-        if new_token:
+        access_token, is_new_token = self.get_access_token(uid)
+        if is_new_token:
             self.create_new_edx_instance(access_token, uid)
         return JsonResponse({'access_token': access_token}, status=httplib.CREATED)
 

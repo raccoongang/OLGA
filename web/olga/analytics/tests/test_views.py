@@ -37,8 +37,7 @@ class MockUUID4(object):  # pylint: disable=too-few-public-methods
     Mock raises ValueError with F() expressions can only be used to update, not to insert.
     """
 
-    access_token = uuid.uuid4().hex
-    hex = access_token
+    hex = uuid.uuid4().hex
 
 
 class InstallationDefaultData(object):  # pylint: disable=too-few-public-methods
@@ -103,12 +102,12 @@ class TestAccessTokenRegistration(TestCase):
         Verify that only one new installation create after double call of create_new_edx_instance call with same uid.
         """
         uid = get_random_string()
-        access_token, is_need_create = AccessTokenRegistration().get_access_token(uid)
-        self.assertEqual(is_need_create, True)
+        access_token, is_new_token = AccessTokenRegistration().get_access_token(uid)
+        self.assertEqual(is_new_token, True)
         AccessTokenRegistration().create_new_edx_instance(access_token, uid)
-        access_token, is_need_create = AccessTokenRegistration().get_access_token(uid)
+        access_token, is_new_token = AccessTokenRegistration().get_access_token(uid)
 
-        self.assertEqual(is_need_create, False)
+        self.assertEqual(is_new_token, False)
         self.assertEqual(1, EdxInstallation.objects.all().count())
 
     def test_create_new_edx_instance_double_with_different_uid(self):
@@ -135,7 +134,7 @@ class TestAccessTokenRegistration(TestCase):
         self.assertEqual(response.status_code, httplib.CREATED)
         self.assertJSONEqual(
             force_text(response.content),
-            {'access_token': mock_uuid4.return_value.access_token}
+            {'access_token': mock_uuid4.return_value.hex}
         )
 
     @patch('olga.analytics.views.AccessTokenRegistration.get_access_token', )
@@ -184,7 +183,7 @@ class TestAccessTokenRegistration(TestCase):
 
         mock_logger_debug.assert_any_call(
             'OLGA registered edX installation with token %s for uid %s',
-            mock_uuid4.return_value.access_token,
+            mock_uuid4.return_value.hex,
             uid
         )
 
@@ -195,7 +194,7 @@ class TestAccessTokenRegistration(TestCase):
 
         mock_logger_debug.assert_any_call(
             'OLGA registered edX installation with token %s for uid %s',
-            mock_uuid4.return_value.access_token,
+            mock_uuid4.return_value.hex,
             uid
         )
 
