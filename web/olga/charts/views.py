@@ -40,10 +40,11 @@ class MapView(View):
         Actually `Unset` field is not a country, so it does not fill up in top country value.
         Instead of `Unset` it returns None.
         """
-        if tabular_format_countries_list[0][0] == 'Unset':
+        country = tabular_format_countries_list[0][0]
+        if country == 'Unset':
             return None
 
-        return tabular_format_countries_list[0][0]
+        return country
 
     def get(self, request):
         """

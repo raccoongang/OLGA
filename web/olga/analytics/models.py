@@ -4,9 +4,10 @@ Models for analytics application. Models used to store and operate all data rece
 
 from __future__ import division
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from datetime import date, timedelta, datetime
 
+import operator
 import pycountry
 
 from django.contrib.postgres.fields import JSONField
@@ -118,11 +119,7 @@ class InstallationStatistics(models.Model):
         """
         subquery = cls.objects.annotate(
             date_in_days=Trunc('data_created_datetime', 'day', output_field=DateField())
-        ).values('date_in_days').order_by()
-
-        # last order_by() is needed:
-        # http://chase-seibert.github.io/blog/2012/02/24/django-aggregation-group-by-day.html
-        # https://docs.djangoproject.com/en/dev/topics/db/aggregation/#interaction-with-default-ordering-or-order-by
+        ).values('date_in_days').order_by('date_in_days')
 
         students_per_day = subquery.annotate(
             students=Sum('active_students_amount_day')
@@ -192,11 +189,11 @@ class InstallationStatistics(models.Model):
         Graphs require list-format data.
         """
         datamap_format_countries_list = []
-        tabular_format_countries_list = []
+        tabular_format_countries_map = OrderedDict()
 
         if not worlds_students_per_country:
-            tabular_format_countries_list.append(['Unset', 0, 0])
-            return datamap_format_countries_list, tabular_format_countries_list
+            tabular_format_countries_map['Unset'] = (0, 0)
+            return datamap_format_countries_list, tabular_format_countries_map.items()
 
         all_active_students = sum(worlds_students_per_country.itervalues())
 
@@ -205,19 +202,31 @@ class InstallationStatistics(models.Model):
 
             try:
                 country_info = pycountry.countries.get(alpha_2=country)
-                country_alpha_3 = str(country_info.alpha_3)
+                country_alpha_3 = country_info.alpha_3.encode("utf8")
                 datamap_format_countries_list += [[country_alpha_3, count]]
 
-                country_name = str(country_info.name)
-                tabular_format_countries_list += [[country_name, count, student_amount_percentage]]
+                country_name = country_info.name.encode("utf8")
             except KeyError:
                 # Create students without country amount.
-                tabular_format_countries_list += [['Unset', count, student_amount_percentage]]
+                country_name = 'Unset'
+
+            if country_name in tabular_format_countries_map:
+                tabular_format_countries_map[country_name] = tuple(map(
+                    operator.add,
+                    tabular_format_countries_map[country_name],
+                    (count, student_amount_percentage)))
+            else:
+                tabular_format_countries_map[country_name] = (count, student_amount_percentage)
 
         # Sort in descending order.
-        tabular_format_countries_list.sort(key=lambda row: row[1], reverse=True)
+        tabular_format_countries_map = tabular_format_countries_map.items()
+        tabular_format_countries_map = sorted(
+            tabular_format_countries_map,
+            key=lambda x: x[1][0],
+            reverse=True
+        )
 
-        return datamap_format_countries_list, tabular_format_countries_list
+        return datamap_format_countries_list, tabular_format_countries_map
 
     @classmethod
     def get_students_per_country(cls):
