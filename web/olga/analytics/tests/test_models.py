@@ -15,7 +15,7 @@ from olga.analytics.models import InstallationStatistics, get_last_calendar_day
 
 # pylint: disable=invalid-name, attribute-defined-outside-init
 
-worlds_students_per_country = OrderedDict([
+WORLDS_STUDENTS_PER_COUNTRY = OrderedDict([
     ('AX', 2922),
     ('RU', 5264),
     ('CA', 37086),
@@ -25,11 +25,11 @@ worlds_students_per_country = OrderedDict([
     ('missing country', 2)
 ])
 
-expected_data_map_format_countries_list = [
+EXPECTED_DATA_MAP_FORMAT_COUNTRIES_LIST = [
     ['ALA', 2922], ['RUS', 5264], ['CAN', 37086], ['UKR', 4022]
 ]
 
-expected_tabular_format_countries_list = [
+EXPECTED_TABULAR_FORMAT_COUNTRIES_LIST = [
     ('Canada', [37086, 75]),
     ('Russian Federation', [5264, 10]),
     ('Ukraine', [4022, 8]),
@@ -59,7 +59,7 @@ class TestInstallationStatisticsMethods(TestCase):
             - fourth object with 2017-06-01 15:30:30, 2017-06-04 15:30:30, 2017-06-05 15:30:30
             - fifth object with 2017-06-01 15:30:30, 2017-06-04 15:30:30, 2017-06-05 15:30:30
         """
-        students_division_by_2_part = OrderedDict([(k, v / 2) for k, v in worlds_students_per_country.iteritems()])
+        students_division_by_2_part = OrderedDict([(k, v / 2) for k, v in WORLDS_STUDENTS_PER_COUNTRY.iteritems()])
 
         data_created_datetimes = [
             datetime(2017, 6, 1, 15, 30, 30),
@@ -138,7 +138,7 @@ class TestInstallationStatisticsMethods(TestCase):
 
         result = InstallationStatistics.get_students_per_country_stats()
 
-        self.assertDictEqual(worlds_students_per_country, result)
+        self.assertDictEqual(WORLDS_STUDENTS_PER_COUNTRY, result)
 
     def test_datamap_and_tabular_lists(self):
         """
@@ -146,10 +146,10 @@ class TestInstallationStatisticsMethods(TestCase):
         Model method is create_students_per_country.
 
         """
-        result = InstallationStatistics.create_students_per_country(worlds_students_per_country)
+        result = InstallationStatistics.create_students_per_country(WORLDS_STUDENTS_PER_COUNTRY)
 
         self.assertEqual(
-            (expected_data_map_format_countries_list, expected_tabular_format_countries_list), result
+            (EXPECTED_DATA_MAP_FORMAT_COUNTRIES_LIST, EXPECTED_TABULAR_FORMAT_COUNTRIES_LIST), result
         )
 
     @patch('olga.analytics.models.get_last_calendar_day')
@@ -160,9 +160,9 @@ class TestInstallationStatisticsMethods(TestCase):
         mock_get_last_calendar_day.return_value = date(2017, 6, 1), date(2017, 6, 2)
         country_list, country_tab_list = InstallationStatistics.get_students_per_country()
 
-        self.assertEqual(expected_tabular_format_countries_list, country_tab_list)
+        self.assertEqual(EXPECTED_TABULAR_FORMAT_COUNTRIES_LIST, country_tab_list)
         for i in country_list:
-            self.assertIn(i, expected_data_map_format_countries_list)
+            self.assertIn(i, EXPECTED_DATA_MAP_FORMAT_COUNTRIES_LIST)
 
 
 @ddt
