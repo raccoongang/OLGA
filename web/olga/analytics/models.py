@@ -4,7 +4,7 @@ Models for analytics application. Models used to store and operate all data rece
 
 from __future__ import division
 
-from collections import defaultdict, OrderedDict
+from collections import defaultdict
 from datetime import date, timedelta, datetime
 
 import operator
@@ -189,10 +189,10 @@ class InstallationStatistics(models.Model):
         Graphs require list-format data.
         """
         datamap_format_countries_list = []
-        tabular_format_countries_map = OrderedDict()
+        tabular_format_countries_map = {}
 
         if not worlds_students_per_country:
-            tabular_format_countries_map['Unset'] = (0, 0)
+            tabular_format_countries_map['Unset'] = [0, 0]
             return datamap_format_countries_list, tabular_format_countries_map.items()
 
         all_active_students = sum(worlds_students_per_country.itervalues())
@@ -211,12 +211,13 @@ class InstallationStatistics(models.Model):
                 country_name = 'Unset'
 
             if country_name in tabular_format_countries_map:
-                tabular_format_countries_map[country_name] = tuple(map(
+                tabular_format_countries_map[country_name] = map(
                     operator.add,
                     tabular_format_countries_map[country_name],
-                    (count, student_amount_percentage)))
+                    [count, student_amount_percentage]
+                )
             else:
-                tabular_format_countries_map[country_name] = (count, student_amount_percentage)
+                tabular_format_countries_map[country_name] = [count, student_amount_percentage]
 
         # Sort in descending order.
         tabular_format_countries_map = tabular_format_countries_map.items()

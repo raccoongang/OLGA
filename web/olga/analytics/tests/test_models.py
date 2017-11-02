@@ -25,16 +25,16 @@ worlds_students_per_country = OrderedDict([
     ('missing country', 2)
 ])
 
-datamap_format_countries_list = [
+expected_data_map_format_countries_list = [
     ['ALA', 2922], ['RUS', 5264], ['CAN', 37086], ['UKR', 4022]
 ]
 
-tabular_format_countries_list = [
-    ('Canada', (37086, 75)),
-    ('Russian Federation', (5264, 10)),
-    ('Ukraine', (4022, 8)),
-    ('Åland Islands', (2922, 5)),
-    ('Unset', (6, 0))
+expected_tabular_format_countries_list = [
+    ('Canada', [37086, 75]),
+    ('Russian Federation', [5264, 10]),
+    ('Ukraine', [4022, 8]),
+    ('Åland Islands', [2922, 5]),
+    ('Unset', [6, 0])
 ]
 
 
@@ -149,7 +149,7 @@ class TestInstallationStatisticsMethods(TestCase):
         result = InstallationStatistics.create_students_per_country(worlds_students_per_country)
 
         self.assertEqual(
-            (datamap_format_countries_list, tabular_format_countries_list), result
+            (expected_data_map_format_countries_list, expected_tabular_format_countries_list), result
         )
 
     @patch('olga.analytics.models.get_last_calendar_day')
@@ -160,9 +160,9 @@ class TestInstallationStatisticsMethods(TestCase):
         mock_get_last_calendar_day.return_value = date(2017, 6, 1), date(2017, 6, 2)
         country_list, country_tab_list = InstallationStatistics.get_students_per_country()
 
-        self.assertEqual(tabular_format_countries_list, country_tab_list)
+        self.assertEqual(expected_tabular_format_countries_list, country_tab_list)
         for i in country_list:
-            self.assertIn(i, datamap_format_countries_list)
+            self.assertIn(i, expected_data_map_format_countries_list)
 
 
 @ddt
