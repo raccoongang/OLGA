@@ -1,7 +1,8 @@
+# coding=utf-8
 """
 Tests for analytics models.
 """
-
+from collections import OrderedDict
 from datetime import date, datetime
 
 from ddt import ddt, data, unpack
@@ -12,8 +13,29 @@ from django.test import TestCase
 from olga.analytics.tests.factories import InstallationStatisticsFactory
 from olga.analytics.models import InstallationStatistics, get_last_calendar_day
 
-
 # pylint: disable=invalid-name, attribute-defined-outside-init
+
+WORLDS_STUDENTS_PER_COUNTRY = OrderedDict([
+    ('AX', 2922),
+    ('RU', 5264),
+    ('CA', 37086),
+    ('UA', 4022),
+    ('null', 2),
+    ('', 2),
+    ('missing country', 2)
+])
+
+EXPECTED_DATA_MAP_FORMAT_COUNTRIES_LIST = [
+    ['ALA', 2922], ['RUS', 5264], ['CAN', 37086], ['UKR', 4022]
+]
+
+EXPECTED_TABULAR_FORMAT_COUNTRIES_LIST = [
+    ('Canada', [37086, 75]),
+    ('Russian Federation', [5264, 10]),
+    ('Ukraine', [4022, 8]),
+    ('Åland Islands', [2922, 5]),
+    ('Unset', [6, 0])
+]
 
 
 class TestInstallationStatisticsMethods(TestCase):
@@ -37,6 +59,8 @@ class TestInstallationStatisticsMethods(TestCase):
             - fourth object with 2017-06-01 15:30:30, 2017-06-04 15:30:30, 2017-06-05 15:30:30
             - fifth object with 2017-06-01 15:30:30, 2017-06-04 15:30:30, 2017-06-05 15:30:30
         """
+        students_division_by_2_part = OrderedDict([(k, v / 2) for k, v in WORLDS_STUDENTS_PER_COUNTRY.iteritems()])
+
         data_created_datetimes = [
             datetime(2017, 6, 1, 15, 30, 30),
             datetime(2017, 6, 1, 15, 30, 30),
@@ -47,7 +71,10 @@ class TestInstallationStatisticsMethods(TestCase):
 
         for data_created_datetime in data_created_datetimes:
             mock_timezone_now.return_value = data_created_datetime
-            InstallationStatisticsFactory(data_created_datetime=data_created_datetime)
+            InstallationStatisticsFactory(
+                data_created_datetime=data_created_datetime,
+                students_per_country=students_division_by_2_part
+            )
 
         data_created_datetimes_for_acquainted_edx_installation = [
             datetime(2017, 6, 4, 15, 30, 30),
@@ -59,31 +86,15 @@ class TestInstallationStatisticsMethods(TestCase):
 
             InstallationStatisticsFactory(
                 data_created_datetime=data_created_datetime,
-                edx_installation=InstallationStatistics.objects.all()[4].edx_installation
+                edx_installation=InstallationStatistics.objects.all()[4].edx_installation,
+                students_per_country=students_division_by_2_part
             )
 
             InstallationStatisticsFactory(
                 data_created_datetime=data_created_datetime,
-                edx_installation=InstallationStatistics.objects.all()[5].edx_installation
+                edx_installation=InstallationStatistics.objects.all()[5].edx_installation,
+                students_per_country=students_division_by_2_part
             )
-
-    @staticmethod
-    def create_expected_default_data():
-        """
-        Create datamap and tabular format lists for testing.
-        """
-        datamap_format_countries_list = [
-            ['RUS', 5264], ['CAN', 37086], ['UKR', 4022]
-        ]
-
-        tabular_format_countries_list = [
-            ['Canada', 37086, 79],
-            ['Russian Federation', 5264, 11],
-            ['Ukraine', 4022, 8],
-            ['Unset', 2, 0]
-        ]
-
-        return datamap_format_countries_list, tabular_format_countries_list
 
     def test_timeline(self):
         """
@@ -102,7 +113,7 @@ class TestInstallationStatisticsMethods(TestCase):
         result = InstallationStatistics.data_per_period()
 
         self.assertEqual(
-            ([10, 10, 10, 5, 10], [2, 2, 2, 1, 2], [2, 2, 2, 1, 2]), result
+            ([10, 5, 10, 10, 10], [2, 1, 2, 2, 2], [2, 1, 2, 2, 2]), result
         )
 
     @patch('olga.analytics.models.get_last_calendar_day')
@@ -127,14 +138,7 @@ class TestInstallationStatisticsMethods(TestCase):
 
         result = InstallationStatistics.get_students_per_country_stats()
 
-        country_count_accordance_for_previous_calendar_day = {
-            'RU': 5264,
-            'CA': 37086,
-            'UA': 4022,
-            'null': 2
-        }
-
-        self.assertDictEqual(country_count_accordance_for_previous_calendar_day, result)
+        self.assertDictEqual(WORLDS_STUDENTS_PER_COUNTRY, result)
 
     def test_datamap_and_tabular_lists(self):
         """
@@ -142,19 +146,10 @@ class TestInstallationStatisticsMethods(TestCase):
         Model method is create_students_per_country.
 
         """
-        worlds_students_per_country = {
-            'RU': 5264,
-            'CA': 37086,
-            'UA': 4022,
-            'null': 2
-        }
-
-        datamap_format_countries_list, tabular_format_countries_list = self.create_expected_default_data()
-
-        result = InstallationStatistics.create_students_per_country(worlds_students_per_country)
+        result = InstallationStatistics.create_students_per_country(WORLDS_STUDENTS_PER_COUNTRY)
 
         self.assertEqual(
-            (datamap_format_countries_list, tabular_format_countries_list), result
+            (EXPECTED_DATA_MAP_FORMAT_COUNTRIES_LIST, EXPECTED_TABULAR_FORMAT_COUNTRIES_LIST), result
         )
 
     @patch('olga.analytics.models.get_last_calendar_day')
@@ -163,14 +158,11 @@ class TestInstallationStatisticsMethods(TestCase):
         Verify that get_students_per_country method returns data to render correct values.
         """
         mock_get_last_calendar_day.return_value = date(2017, 6, 1), date(2017, 6, 2)
+        country_list, country_tab_list = InstallationStatistics.get_students_per_country()
 
-        datamap_format_countries_list, tabular_format_countries_list = self.create_expected_default_data()
-
-        result = InstallationStatistics.get_students_per_country()
-
-        self.assertEqual(
-            (datamap_format_countries_list, tabular_format_countries_list), result
-        )
+        self.assertEqual(EXPECTED_TABULAR_FORMAT_COUNTRIES_LIST, country_tab_list)
+        for i in country_list:
+            self.assertIn(i, EXPECTED_DATA_MAP_FORMAT_COUNTRIES_LIST)
 
 
 @ddt

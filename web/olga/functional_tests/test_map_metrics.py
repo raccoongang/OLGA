@@ -117,7 +117,7 @@ class TestMapMetricsWithStatistics(TestCase):
                     count, all_active_students
                 )
 
-                max_students_country_name = str(pycountry.countries.get(alpha_2=country).name)
+                max_students_country_name = str(pycountry.countries.get(alpha_2=country).name.encode("utf8"))
 
                 target_html_object_country = html_target.country_grid_cell.format(max_students_country_name)
                 target_html_object_count = html_target.country_count_grid_cell.format(count)
