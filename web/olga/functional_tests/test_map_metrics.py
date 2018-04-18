@@ -26,7 +26,7 @@ class TestMapMetricsWithoutStatistics(TestCase):
         """
         self.response = self.client.get('/map/')
 
-    @data([None, 'Top Country by Enrollment'], [0, 'Countries in Statistics'])
+    @data([InstallationStatistics.unspecified_country_name, 'Top Country by Enrollment'], [0, 'Countries in Statistics'])
     @unpack
     def test_unset_country(self, value, label):
         """
@@ -40,7 +40,7 @@ class TestMapMetricsWithoutStatistics(TestCase):
         """
         Verify that html renders table only with unset values to geographic breakdown if no students country.
         """
-        unset_country = 'Unset'
+        unset_country = InstallationStatistics.unspecified_country_name
         unset_count, unset_percentage = 0, 0
 
         target_html_object_country = html_target.country_grid_cell.format(unset_country)

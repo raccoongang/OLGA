@@ -37,14 +37,8 @@ class MapView(View):
         Get first country from tabular format country list.
 
         List is sorted, first country is a top active students rank country.
-        Actually `Unset` field is not a country, so it does not fill up in top country value.
-        Instead of `Unset` it returns None.
         """
-        country = tabular_format_countries_list[0][0]
-        if country == 'Unset':
-            return None
-
-        return country
+        return tabular_format_countries_list[0][0]
 
     def get(self, request):
         """

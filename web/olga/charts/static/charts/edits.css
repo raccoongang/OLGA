@@ -49,3 +49,7 @@
 #instances, #courses, #students {
     margin-top: 0 !important;
 }
+
+.unspecified-country {
+    color: #666;
+}
