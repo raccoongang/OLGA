@@ -26,7 +26,10 @@ class TestMapMetricsWithoutStatistics(TestCase):
         """
         self.response = self.client.get('/map/')
 
-    @data([InstallationStatistics.unspecified_country_name, 'Top Country by Enrollment'], [0, 'Countries in Statistics'])
+    @data(
+        [InstallationStatistics.unspecified_country_name, 'Top Country by Enrollment'],
+        [0, 'Countries in Statistics']
+    )
     @unpack
     def test_unset_country(self, value, label):
         """
