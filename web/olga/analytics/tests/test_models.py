@@ -34,7 +34,7 @@ EXPECTED_TABULAR_FORMAT_COUNTRIES_LIST = [
     ('Russian Federation', [5264, 10]),
     ('Ukraine', [4022, 8]),
     ('Åland Islands', [2922, 5]),
-    ('Unset', [6, 0])
+    (InstallationStatistics.unspecified_country_name, [6, 0])
 ]
 
 

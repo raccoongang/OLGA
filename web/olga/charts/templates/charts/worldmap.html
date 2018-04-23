@@ -110,7 +110,7 @@
                                             </thead>
                                             <tbody>
                                                 {% for country in tabular_countries_list %}
-                                                    <tr role="row" class="odd">
+                                                    <tr role="row" class="odd {% if country.0 == "Country is not specified" %}unspecified-country{% endif %}">
                                                         <td role="gridcell">{{ country.0 }}</td>
                                                         <td class="text-right" role="gridcell">{{ country.1.1 }}</td>
                                                         <td class="text-right sorting_1" role="gridcell">{{ country.1.0 }}</td>

@@ -76,6 +76,7 @@ class InstallationStatistics(models.Model):
         help_text='This field has students country-count accordance. It follows `json` type. '
                   'Example: {"RU": 2632, "CA": 18543, "UA": 2011, "null": 1}'
     )
+    unspecified_country_name = 'Country is not specified'
 
     @classmethod
     def get_stats_for_this_day(cls, edx_installation_object=None):
@@ -192,7 +193,7 @@ class InstallationStatistics(models.Model):
         tabular_format_countries_map = {}
 
         if not worlds_students_per_country:
-            tabular_format_countries_map['Unset'] = [0, 0]
+            tabular_format_countries_map[cls.unspecified_country_name] = [0, 0]
             return datamap_format_countries_list, tabular_format_countries_map.items()
 
         all_active_students = sum(worlds_students_per_country.itervalues())
@@ -208,7 +209,7 @@ class InstallationStatistics(models.Model):
                 country_name = country_info.name.encode("utf8")
             except KeyError:
                 # Create students without country amount.
-                country_name = 'Unset'
+                country_name = cls.unspecified_country_name
 
             if country_name in tabular_format_countries_map:
                 tabular_format_countries_map[country_name] = map(
@@ -219,6 +220,9 @@ class InstallationStatistics(models.Model):
             else:
                 tabular_format_countries_map[country_name] = [count, student_amount_percentage]
 
+        # Pop out the unspecified country
+        unspecified_country_values = tabular_format_countries_map.pop(cls.unspecified_country_name, None)
+
         # Sort in descending order.
         tabular_format_countries_map = tabular_format_countries_map.items()
         tabular_format_countries_map = sorted(
@@ -226,6 +230,9 @@ class InstallationStatistics(models.Model):
             key=lambda x: x[1][0],
             reverse=True
         )
+
+        if unspecified_country_values:
+            tabular_format_countries_map.append((cls.unspecified_country_name, unspecified_country_values))
 
         return datamap_format_countries_list, tabular_format_countries_map
 
@@ -257,9 +264,9 @@ class InstallationStatistics(models.Model):
         Calculate countries amount in world students per country statistics (from tabular countries list).
         Tabular format countries list can be empty - countries amount is zero.
         Tabular format countries list can be not empty - it contains particular country-count accordance
-        and `Unset` field, that has students without country amount.
+        and `Country is not specified` field, that has students without country amount.
 
-        Actually `Unset` field is not a country, so it does not fill up in countries amount.
+        Actually `Country is not specified` field is not a country, so it does not fill up in countries amount.
         """
         _, tabular_format_countries_list = cls.get_students_per_country()
         countries_amount = len(tabular_format_countries_list) - 1

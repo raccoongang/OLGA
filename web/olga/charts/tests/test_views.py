@@ -104,16 +104,6 @@ class TestMapView(TestCase):
 
         self.assertEqual('Canada', result)
 
-    def test_top_country_if_no_tabular_list(self):
-        """
-        Verify that get_statistics_top_country method returns non if tabular format countries list is empty.
-        """
-        tabular_format_countries_list = [['Unset', 0, 0]]
-
-        result = MapView.get_statistics_top_country(tabular_format_countries_list)
-
-        self.assertEqual(None, result)
-
 
 @patch('olga.analytics.models.InstallationStatistics.objects.aggregate')
 class TestViewsHelpFunctions(TestCase):
