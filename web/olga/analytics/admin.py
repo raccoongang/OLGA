@@ -47,7 +47,7 @@ class InstallationStatisticsAdmin(admin.ModelAdmin):
         """
         Get queryset for the list view.
 
-        Overriding the queriset for the admin list view of the InstallationStatistics
+        Overriding the queryset for the admin list view of the InstallationStatistics
         """
         return super(InstallationStatisticsAdmin, self).get_queryset(request).order_by(
             'edx_installation__platform_name'
