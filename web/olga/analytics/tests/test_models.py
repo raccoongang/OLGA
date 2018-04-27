@@ -15,15 +15,20 @@ from olga.analytics.models import InstallationStatistics, get_last_calendar_day
 
 # pylint: disable=invalid-name, attribute-defined-outside-init
 
-WORLDS_STUDENTS_PER_COUNTRY = OrderedDict([
-    ('AX', 2922),
-    ('RU', 5264),
-    ('CA', 37086),
-    ('UA', 4022),
-    ('null', 2),
-    ('', 2),
-    ('missing country', 2)
-])
+WORLDS_STUDENTS_PER_COUNTRY = {
+    '2017-06': {
+        'label': 'June 2017',
+        'countries': {
+            'ax': 2922,
+            'ru': 5264,
+            'ca': 37086,
+            'ua': 4022,
+            'null': 2,
+            '': 2,
+            'missing country': 2,
+        },
+    }
+}
 
 EXPECTED_DATA_MAP_FORMAT_COUNTRIES_LIST = [
     ['ALA', 2922], ['RUS', 5264], ['CAN', 37086], ['UKR', 4022]
@@ -59,7 +64,7 @@ class TestInstallationStatisticsMethods(TestCase):
             - fourth object with 2017-06-01 15:30:30, 2017-06-04 15:30:30, 2017-06-05 15:30:30
             - fifth object with 2017-06-01 15:30:30, 2017-06-04 15:30:30, 2017-06-05 15:30:30
         """
-        students_division_by_2_part = OrderedDict([(k, v / 2) for k, v in WORLDS_STUDENTS_PER_COUNTRY.iteritems()])
+        students_division_by_2_part = OrderedDict([(k, v / 2) for k, v in WORLDS_STUDENTS_PER_COUNTRY['2017-06']['countries'].iteritems()])
 
         data_created_datetimes = [
             datetime(2017, 6, 1, 15, 30, 30),
@@ -129,16 +134,17 @@ class TestInstallationStatisticsMethods(TestCase):
             (2, 2, 10), result
         )
 
-    @patch('olga.analytics.models.get_last_calendar_day')
-    def test_students_per_country_as_dict(self, mock_get_last_calendar_day):
+    def test_students_per_country_as_dict(self):
         """
         Verify that get_students_per_country_stats method returns correct accordance as dict.
         """
-        mock_get_last_calendar_day.return_value = date(2017, 6, 1), date(2017, 6, 2)
-
         result = InstallationStatistics.get_students_per_country_stats()
+        wanted_result = {}
 
-        self.assertDictEqual(WORLDS_STUDENTS_PER_COUNTRY, result)
+        for key, value in WORLDS_STUDENTS_PER_COUNTRY['2017-06']['countries'].iteritems():
+            wanted_result[unicode(key.lower())] = value * 9 / 2
+
+        self.assertDictEqual(wanted_result, result['2017-06']['countries'])
 
     def test_datamap_and_tabular_lists(self):
         """

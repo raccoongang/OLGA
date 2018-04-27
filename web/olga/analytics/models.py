@@ -13,6 +13,7 @@ import pycountry
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models import Sum, Count, DateField
+from django.db.models.expressions import F, Func, Value
 from django.db.models.functions import Trunc
 
 
@@ -77,6 +78,15 @@ class InstallationStatistics(models.Model):
                   'Example: {"RU": 2632, "CA": 18543, "UA": 2011, "null": 1}'
     )
     unspecified_country_name = 'Country is not specified'
+
+    @staticmethod
+    def get_statistics_top_country(tabular_countries_list):
+        """
+        Get first country from tabular format country list.
+
+        List is sorted, first country is a top active students rank country.
+        """
+        return tabular_countries_list[0][0]
 
     @classmethod
     def get_stats_for_this_day(cls, edx_installation_object=None):
@@ -162,25 +172,70 @@ class InstallationStatistics(models.Model):
     @classmethod
     def get_students_per_country_stats(cls):
         """
-        Total of students amount per country to display on world map from all instances per previous calendar day.
+        Total of students amount per country to display on world map from all instances per month.
 
         Returns:
             world_students_per_country (dict): Country-count accordance as pair of key-value.
         """
-        start_of_day, end_of_day = get_last_calendar_day()
-
         # Get list of instances's students per country data as unicode strings.
-        students_per_country = cls.objects.filter(
-            data_created_datetime__gte=start_of_day, data_created_datetime__lt=end_of_day
-        ).values_list('students_per_country', flat=True)
+        queryset = cls.objects.annotate(
+            month_verbose=Func(
+                F('data_created_datetime'), Value('TMMonth YYYY'), function='to_char'
+            ),
+            month_ordering=Func(
+                F('data_created_datetime'), Value('YYYY-MM'), function='to_char'
+            ),
+        )
+        result_rows = queryset.values_list(
+            'month_ordering', 'month_verbose', 'students_per_country'
+        )
 
-        world_students_per_country = defaultdict(int)
+        return cls.aggregate_countries_by_months(result_rows)
 
-        for instance_students in students_per_country:
-            for country, count in instance_students.iteritems():
-                world_students_per_country[country] += count
+    @classmethod
+    def aggregate_countries_by_months(cls, values_list):
+        """
+        Aggregate all the months and countries data by the month.
 
-        return world_students_per_country
+        Returns:
+            dictionary of months with the student countries statistics.
+        """
+        months = {}
+
+        for month_ordering, month_verbose, countries in values_list:
+            cls.add_month_countries_data_to_months(
+                month_ordering, month_verbose, countries, months
+            )
+
+        return months
+
+    @classmethod
+    def add_month_countries_data_to_months(
+        cls, month_ordering, month_verbose, countries, months
+    ):
+        """
+        Add a month data to the months dictionary.
+        """
+        if month_ordering not in months:
+            months[month_ordering] = {
+                'countries': countries,
+                'label': month_verbose,
+            }
+            return
+
+        cls.add_up_new_month_data(months[month_ordering]['countries'], countries)
+
+    @classmethod
+    def add_up_new_month_data(cls, existing_data, new_data):
+        """
+        Add a new month data to the resulting data dictionary.
+
+        Adds the counts from the new countries data dictionary to the existing ones or adds new countries if the don't exist in the existing_data
+        """
+        for existent_key in existing_data.keys():
+            existing_data[existent_key] += new_data.pop(existent_key, 0)
+
+        existing_data.update(new_data)
 
     @classmethod
     def create_students_per_country(cls, worlds_students_per_country):
@@ -241,12 +296,18 @@ class InstallationStatistics(models.Model):
         """
         Gather convenient and necessary data formats to render it from view.
         """
-        students_per_country = cls.get_students_per_country_stats()
+        months = cls.get_students_per_country_stats()
 
-        datamap_format_countries_list, tabular_format_countries_list = \
-            cls.create_students_per_country(students_per_country)
+        for month_key, month in months.iteritems():
+            datamap_list, tabular_list = cls.create_students_per_country(month['countries'])
+            month['datamap_countries_list'] = datamap_list
+            month['tabular_countries_list'] = tabular_list
+            month['top_country'] = cls.get_statistics_top_country(tabular_list)
+            month['countries_amount'] = (
+                len(month['countries']) - 1 * (cls.unspecified_country_name in month['countries'])
+            )
 
-        return datamap_format_countries_list, tabular_format_countries_list
+        return months
 
     @staticmethod
     def get_student_amount_percentage(country_count_in_statistics, all_active_students):
@@ -257,7 +318,7 @@ class InstallationStatistics(models.Model):
         return students_amount_percentage
 
     @classmethod
-    def get_students_countries_amount(cls):
+    def get_students_countries_amount(cls, months):
         """
         Provide countries amount from students per country statistics as table.
 
@@ -268,8 +329,8 @@ class InstallationStatistics(models.Model):
 
         Actually `Country is not specified` field is not a country, so it does not fill up in countries amount.
         """
-        _, tabular_format_countries_list = cls.get_students_per_country()
-        countries_amount = len(tabular_format_countries_list) - 1
+        for month in months:
+            countries_amount = len(month['tabular_countries_list']) - 1
 
         return countries_amount
 

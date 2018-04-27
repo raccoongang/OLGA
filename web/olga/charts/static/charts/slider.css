@@ -1,0 +1,26 @@
+#custom-handle {
+    width: 9em;
+    height: 1.6em;
+    top: 50%;
+    margin-left: -4.5em;
+    margin-top: -.8em;
+    text-align: center;
+    line-height: 1.6em;
+}
+#slider {
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+.slider-wrapper {
+    width: 85%;
+    float: left;
+}
+.slider-button {
+    width: 142px;
+    float: left;
+    margin-top: -11px;
+}
+.slider-button input {
+    border-radius: 5px;
+}

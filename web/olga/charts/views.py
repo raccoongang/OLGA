@@ -31,35 +31,13 @@ class MapView(View):
     Display information on a world map and tabular view.
     """
 
-    @staticmethod
-    def get_statistics_top_country(tabular_format_countries_list):
-        """
-        Get first country from tabular format country list.
-
-        List is sorted, first country is a top active students rank country.
-        """
-        return tabular_format_countries_list[0][0]
-
     def get(self, request):
         """
         Pass graph data to frontend.
         """
-        first_datetime_of_update_data, last_datetime_of_update_data = get_data_created_datetime_scope()
-
-        datamap_format_countries_list, tabular_format_countries_list = \
-            InstallationStatistics().get_students_per_country()
-
-        countries_amount = InstallationStatistics().get_students_countries_amount()
-
         context = {
-            'datamap_countries_list': json.dumps(datamap_format_countries_list),
-            'tabular_countries_list': tabular_format_countries_list,
-            'top_country': self.get_statistics_top_country(tabular_format_countries_list),
-            'countries_amount': countries_amount,
-            'first_datetime_of_update_data': first_datetime_of_update_data,
-            'last_datetime_of_update_data': last_datetime_of_update_data
+            'months': json.dumps(InstallationStatistics().get_students_per_country()),
         }
-
         return render(request, 'charts/worldmap.html', context)
 
 

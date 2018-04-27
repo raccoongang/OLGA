@@ -3,6 +3,9 @@
 {% block head %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js"></script>
     <link rel="stylesheet" href="{% static 'charts/edits.css' %}">
+
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="{% static 'charts/slider.css' %}">
 {% endblock %}
 
 {% block body %}
@@ -52,17 +55,32 @@
                     <div class="row">
                         <div class="col col-12 sm-col-12 md-col-3" data-activity-type="any">
                             <div class="summary-point text-center">
-                                <div class="summary-point-wrapper"><div class="summary-point-number" title="{{ top_country }}">{{ top_country }}</div><div class="summary-point-label">Top Country by Enrollment</div></div>
+                                <div class="summary-point-wrapper"><div class="summary-point-number" title="" id="top_country"></div><div class="summary-point-label">Top Country by Enrollment</div></div>
                             </div>
                         </div>
 
                         <div class="col col-12 sm-col-12 md-col-3" data-activity-type="any">
                             <div class="summary-point text-center">
-                                <div class="summary-point-wrapper"><div class="summary-point-number" title="{{ countries_amount }}">{{ countries_amount }}</div><div class="summary-point-label">Countries in Statistics</div></div>
+                                <div class="summary-point-wrapper"><div class="summary-point-number" title="" id="countries_amount"></div><div class="summary-point-label">Countries in Statistics<br/><br/></div></div>
                             </div>
                         </div>
                     </div>
                 </section>
+
+                {#FILTER#}
+                <section class="view-section">
+                    <div class="row">
+                        <div class="slider-wrapper">
+                            <div id="slider">
+                                <div id="custom-handle" class="ui-slider-handle"></div>
+                            </div>
+                        </div>
+                        <div class="slider-button">
+                            <input type="button" value="Play retrospective" id="play_retrospective" class="btn btn-default">
+                        </div>
+                    </div>
+                </section>
+                {#FILTER#}
 
                 <section class="view-section" aria-hidden="false">
                     <div class="section-heading">
@@ -108,15 +126,6 @@
                                                         scope="col">Active Students</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
-                                                {% for country in tabular_countries_list %}
-                                                    <tr role="row" class="odd {% if country.0 == "Country is not specified" %}unspecified-country{% endif %}">
-                                                        <td role="gridcell">{{ country.0 }}</td>
-                                                        <td class="text-right" role="gridcell">{{ country.1.1 }}</td>
-                                                        <td class="text-right sorting_1" role="gridcell">{{ country.1.0 }}</td>
-                                                    </tr>
-                                                {% endfor %}
-                                            </tbody>
                                         </table>
                                     </div>
                                 </div>
@@ -124,9 +133,6 @@
                         </div>
                     </div>
                 </section>
-
-                <div class="data-update-message">Course engagement data was last updated {{ last_datetime_of_update_data|date:"Y-m-d" }} at {{ last_datetime_of_update_data|date:"H:i" }} UTC+2.</div>
-
             </main>
         </div>
     </div>
@@ -140,10 +146,16 @@
 {% endblock %}
 
 {% block script %}
-<script>
-    // Define JS global vars to work with external datamap.js file.
-    var countries_list = JSON.parse('{{ datamap_countries_list|safe }}');
-</script>
+    <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        var months = JSON.parse('{{ months|safe }}');
+        var months_keys_sorted = Object.keys(months).sort();
+        var last_month_key = months_keys_sorted[months_keys_sorted.length - 1];
+
+        // Define JS global vars to work with external datamap.js file.
+        var countries_list = months[last_month_key]['datamap_countries_list'];
+    </script>
+    <script src="{% static 'charts/slider.js' %}"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.3/d3.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/topojson/1.6.9/topojson.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/datamaps/0.5.8/datamaps.all.js"></script>
