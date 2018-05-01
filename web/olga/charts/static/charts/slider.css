@@ -20,6 +20,10 @@
     width: 142px;
     float: left;
     margin-top: -11px;
+    border-style: 1px solid #ddd;
+}
+.slider-button .btn:focus {
+    outline: inherit;
 }
 .slider-button input {
     border-radius: 5px;

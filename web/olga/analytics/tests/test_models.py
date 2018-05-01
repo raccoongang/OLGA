@@ -19,27 +19,40 @@ WORLDS_STUDENTS_PER_COUNTRY = {
     '2017-06': {
         'label': 'June 2017',
         'countries': {
-            'ax': 2922,
-            'ru': 5264,
-            'ca': 37086,
-            'ua': 4022,
+            'AX': 2922,
+            'RU': 5264,
+            'CA': 37086,
+            'UA': 4022,
             'null': 2,
             '': 2,
             'missing country': 2,
         },
+        'datamap_countries_list': [],
+        'tabular_countries_list': [],
     }
 }
 
-EXPECTED_DATA_MAP_FORMAT_COUNTRIES_LIST = [
-    ['ALA', 2922], ['RUS', 5264], ['CAN', 37086], ['UKR', 4022]
+EXPECTED_CLEAN_DATAMAP_FORMAT_COUNTRIES_LIST = [
+    ['ALA', 2922],
+    ['RUS', 5264],
+    ['CAN', 37086],
+    ['UKR', 4022],
 ]
 
-EXPECTED_TABULAR_FORMAT_COUNTRIES_LIST = [
+# "<number> / 2 * 9" - is the operation from the TestInstallationStatisticsMethods.setUp
+EXPECTED_DATAMAP_FORMAT_COUNTRIES_LIST = [[a, b / 2 * 9] for a, b in EXPECTED_CLEAN_DATAMAP_FORMAT_COUNTRIES_LIST]
+
+EXPECTED_CLEAN_TABULAR_FORMAT_COUNTRIES_LIST = [
     ('Canada', [37086, 75]),
     ('Russian Federation', [5264, 10]),
     ('Ukraine', [4022, 8]),
     ('Åland Islands', [2922, 5]),
-    (InstallationStatistics.unspecified_country_name, [6, 0])
+    (InstallationStatistics.unspecified_country_name, [6, 0]),
+]
+
+# "<number> / 2 * 9" - is the operation from the TestInstallationStatisticsMethods.setUp
+EXPECTED_TABULAR_FORMAT_COUNTRIES_LIST = [
+    (a, [b[0] / 2 * 9, b[1]]) for a, b in EXPECTED_CLEAN_TABULAR_FORMAT_COUNTRIES_LIST
 ]
 
 
@@ -64,7 +77,9 @@ class TestInstallationStatisticsMethods(TestCase):
             - fourth object with 2017-06-01 15:30:30, 2017-06-04 15:30:30, 2017-06-05 15:30:30
             - fifth object with 2017-06-01 15:30:30, 2017-06-04 15:30:30, 2017-06-05 15:30:30
         """
-        students_division_by_2_part = OrderedDict([(k, v / 2) for k, v in WORLDS_STUDENTS_PER_COUNTRY['2017-06']['countries'].iteritems()])
+        students_division_by_2_part = OrderedDict([
+            (k, v / 2) for k, v in WORLDS_STUDENTS_PER_COUNTRY['2017-06']['countries'].iteritems()
+        ])
 
         data_created_datetimes = [
             datetime(2017, 6, 1, 15, 30, 30),
@@ -142,7 +157,7 @@ class TestInstallationStatisticsMethods(TestCase):
         wanted_result = {}
 
         for key, value in WORLDS_STUDENTS_PER_COUNTRY['2017-06']['countries'].iteritems():
-            wanted_result[unicode(key.lower())] = value * 9 / 2
+            wanted_result[key] = value * 9 / 2
 
         self.assertDictEqual(wanted_result, result['2017-06']['countries'])
 
@@ -152,23 +167,37 @@ class TestInstallationStatisticsMethods(TestCase):
         Model method is create_students_per_country.
 
         """
-        result = InstallationStatistics.create_students_per_country(WORLDS_STUDENTS_PER_COUNTRY)
+        result_datamap, result_tabular = InstallationStatistics.create_students_per_country(
+            WORLDS_STUDENTS_PER_COUNTRY['2017-06']['countries']
+        )
+        result_datamap = self.sort_datamap_list(result_datamap)
+        wanted_datamap = self.sort_datamap_list(EXPECTED_CLEAN_DATAMAP_FORMAT_COUNTRIES_LIST)
 
-        self.assertEqual(
-            (EXPECTED_DATA_MAP_FORMAT_COUNTRIES_LIST, EXPECTED_TABULAR_FORMAT_COUNTRIES_LIST), result
+        self.assertEqual(wanted_datamap, result_datamap)
+        self.assertEqual(EXPECTED_CLEAN_TABULAR_FORMAT_COUNTRIES_LIST, result_tabular)
+
+    @staticmethod
+    def sort_datamap_list(datamap_list):
+        """
+        Sort datamap list to cast it into the sorted form that will be tested later in comparison.
+        """
+        return sorted(
+            datamap_list,
+            key=lambda x: x[1],
+            reverse=True
         )
 
-    @patch('olga.analytics.models.get_last_calendar_day')
-    def test_students_per_country_render(self, mock_get_last_calendar_day):
+    def test_students_per_country_render(self):
         """
         Verify that get_students_per_country method returns data to render correct values.
         """
-        mock_get_last_calendar_day.return_value = date(2017, 6, 1), date(2017, 6, 2)
-        country_list, country_tab_list = InstallationStatistics.get_students_per_country()
+        months = InstallationStatistics.get_students_per_country()
+        datamap_list = self.sort_datamap_list(months['2017-06']['datamap_countries_list'])
+        tabular_list = months['2017-06']['tabular_countries_list']
+        self.assertEqual(EXPECTED_TABULAR_FORMAT_COUNTRIES_LIST, tabular_list)
 
-        self.assertEqual(EXPECTED_TABULAR_FORMAT_COUNTRIES_LIST, country_tab_list)
-        for i in country_list:
-            self.assertIn(i, EXPECTED_DATA_MAP_FORMAT_COUNTRIES_LIST)
+        for i in datamap_list:
+            self.assertIn(i, EXPECTED_DATAMAP_FORMAT_COUNTRIES_LIST)
 
 
 @ddt

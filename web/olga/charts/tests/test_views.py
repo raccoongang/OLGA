@@ -9,6 +9,7 @@ from mock import patch
 
 from django.test import TestCase
 
+from olga.analytics.models import InstallationStatistics
 from olga.charts.views import (
     get_data_created_datetime_scope,
     GraphsView,
@@ -47,51 +48,6 @@ class TestMapView(TestCase):
         """
         self.assertTemplateUsed(self.response, 'charts/worldmap.html')
 
-    @patch('olga.charts.views.InstallationStatistics.get_statistics_top_country')
-    @patch('olga.analytics.models.InstallationStatistics.get_students_per_country')
-    @patch('olga.analytics.models.InstallationStatistics.get_students_countries_amount')
-    @patch('olga.charts.views.get_data_created_datetime_scope')
-    def test_map_view_context_fields_values(
-            self,
-            mock_get_data_created_datetime_scope,
-            mock_get_students_countries_amount,
-            mock_get_students_per_country,
-            mock_get_statistics_top_country
-    ):
-        """
-        Verify that map view render correct context fields values.
-        """
-        mock_countries_amount = 10
-        mock_datamap_countries_list = [['US', '10'], ['CA', '20']]
-        mock_tabular_countries_list = [['Canada', 66, '20'], ['United States', 33, '10']]
-
-        mock_first_datetime_of_update_data, mock_last_datetime_of_update_data = \
-            datetime(2017, 6, 1, 14, 56, 18), datetime(2017, 7, 2, 23, 12, 8)
-
-        top_country = 'Canada'
-
-        mock_get_students_countries_amount.return_value = mock_countries_amount
-
-        mock_get_data_created_datetime_scope.return_value = (
-            mock_first_datetime_of_update_data, mock_last_datetime_of_update_data
-        )
-
-        mock_get_students_per_country.return_value = (
-            mock_datamap_countries_list, mock_tabular_countries_list
-        )
-
-        mock_get_statistics_top_country.return_value = top_country
-
-        response = self.client.get('/map/')
-        __import__('pdb').set_trace()
-
-        self.assertEqual(json.loads(response.context['datamap_countries_list']), mock_datamap_countries_list)
-        self.assertEqual(response.context['tabular_countries_list'], mock_tabular_countries_list)
-        self.assertEqual(response.context['top_country'], top_country)
-        self.assertEqual(response.context['countries_amount'], mock_countries_amount)
-        self.assertEqual(response.context['first_datetime_of_update_data'], mock_first_datetime_of_update_data)
-        self.assertEqual(response.context['last_datetime_of_update_data'], mock_last_datetime_of_update_data)
-
     def test_top_country(self):
         """
         Verify that get_statistics_top_country method returns top country if tabular format countries list exists.
@@ -101,7 +57,7 @@ class TestMapView(TestCase):
         """
         tabular_format_countries_list = [['Canada', 66, '20'], ['United States', 33, '10']]
 
-        result = MapView.get_statistics_top_country(tabular_format_countries_list)
+        result = InstallationStatistics.get_statistics_top_country(tabular_format_countries_list)
 
         self.assertEqual('Canada', result)
 

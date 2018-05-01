@@ -4,7 +4,6 @@ Models for analytics application. Models used to store and operate all data rece
 
 from __future__ import division
 
-from collections import defaultdict
 from datetime import date, timedelta, datetime
 
 import operator
@@ -203,15 +202,15 @@ class InstallationStatistics(models.Model):
         months = {}
 
         for month_ordering, month_verbose, countries in values_list:
-            cls.add_month_countries_data_to_months(
+            cls.add_month_countries_data(
                 month_ordering, month_verbose, countries, months
             )
 
         return months
 
     @classmethod
-    def add_month_countries_data_to_months(
-        cls, month_ordering, month_verbose, countries, months
+    def add_month_countries_data(
+            cls, month_ordering, month_verbose, countries, months
     ):
         """
         Add a month data to the months dictionary.
@@ -230,7 +229,8 @@ class InstallationStatistics(models.Model):
         """
         Add a new month data to the resulting data dictionary.
 
-        Adds the counts from the new countries data dictionary to the existing ones or adds new countries if the don't exist in the existing_data
+        Adds the counts from the new countries data dictionary to the existing ones or adds
+        new countries if the don't exist in the existing_data
         """
         for existent_key in existing_data.keys():
             existing_data[existent_key] += new_data.pop(existent_key, 0)
@@ -298,7 +298,7 @@ class InstallationStatistics(models.Model):
         """
         months = cls.get_students_per_country_stats()
 
-        for month_key, month in months.iteritems():
+        for _, month in months.iteritems():
             datamap_list, tabular_list = cls.create_students_per_country(month['countries'])
             month['datamap_countries_list'] = datamap_list
             month['tabular_countries_list'] = tabular_list

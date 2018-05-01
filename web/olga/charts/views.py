@@ -31,7 +31,8 @@ class MapView(View):
     Display information on a world map and tabular view.
     """
 
-    def get(self, request):
+    @staticmethod
+    def get(request):
         """
         Pass graph data to frontend.
         """
