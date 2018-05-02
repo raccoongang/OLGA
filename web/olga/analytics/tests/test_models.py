@@ -201,6 +201,9 @@ class TestInstallationStatisticsMethods(TestCase):
             self.assertIn(i, EXPECTED_DATAMAP_FORMAT_COUNTRIES_LIST)
 
     def test_get_students_countries_amount(self):
+        """
+        Test get_students_countries_amount method of the Installation statistics.
+        """
         countries_amount = InstallationStatistics.get_students_countries_amount(
             deepcopy(WORLDS_STUDENTS_PER_COUNTRY)
         )
@@ -208,6 +211,9 @@ class TestInstallationStatisticsMethods(TestCase):
         self.assertEqual(countries_amount, 4)
 
     def test_get_statistics_top_country_empty(self):
+        """
+        Test get_statistics_top_country method of the Installation statistics with an empty parameter.
+        """
         top_country_name_empty = InstallationStatistics.get_statistics_top_country([])
 
         self.assertEqual(top_country_name_empty, '')
