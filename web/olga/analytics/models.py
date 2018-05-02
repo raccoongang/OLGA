@@ -84,11 +84,13 @@ class InstallationStatistics(models.Model):
         Get first country from tabular format country list.
 
         List is sorted, first country is a top active students rank country.
+        :param tabular_countries_list: list of the two elements tuples
+        :return: top country name as a string
         """
-        if len(tabular_countries_list) and len(tabular_countries_list[0]):
-            return tabular_countries_list[0][0]
-        else:
+        if not tabular_countries_list or not tabular_countries_list[0]:
             return ''
+
+        return tabular_countries_list[0][0]
 
     @classmethod
     def get_stats_for_this_day(cls, edx_installation_object=None):
@@ -220,7 +222,7 @@ class InstallationStatistics(models.Model):
 
         :param month_ordering: sortable date key represented as a string
         :param month_verbose: human friendly date represented as a string
-        :param countries: dictionary of countries where the key is the country code and 
+        :param countries: dictionary of countries where the key is the country code and
             the value is the amount of the students
         :param months: dictionary that needs to be updated by the data, passed to the method
         """
@@ -288,17 +290,18 @@ class InstallationStatistics(models.Model):
         unspecified_country_values = tabular_format_countries_map.pop(cls.unspecified_country_name, None)
 
         # Sort in descending order.
-        tabular_format_countries_map = tabular_format_countries_map.items()
-        tabular_format_countries_map = sorted(
-            tabular_format_countries_map,
+        tabular_format_countries_list = sorted(
+            tabular_format_countries_map.items(),
             key=lambda x: x[1][0],
             reverse=True
         )
 
         if unspecified_country_values:
-            tabular_format_countries_map.append((cls.unspecified_country_name, unspecified_country_values))
+            tabular_format_countries_list.append(
+                (cls.unspecified_country_name, unspecified_country_values)
+            )
 
-        return datamap_format_countries_list, tabular_format_countries_map
+        return datamap_format_countries_list, tabular_format_countries_list
 
     @classmethod
     def get_students_per_country(cls):
