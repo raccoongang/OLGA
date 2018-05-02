@@ -37,9 +37,28 @@ class InstallationStatisticsAdmin(admin.ModelAdmin):
         'students_per_country'
     ]
 
+    list_display = ('platform_name', 'statistics_level')
+
     readonly_fields = (
         'data_created_datetime',
     )
+
+    def get_queryset(self, request):
+        """
+        Get queryset for the list view.
+
+        Overriding the queryset for the admin list view of the InstallationStatistics
+        """
+        return super(InstallationStatisticsAdmin, self).get_queryset(request).order_by(
+            'edx_installation__platform_name'
+        )
+
+    @staticmethod
+    def platform_name(obj):
+        """
+        Return the platform_name field of the related edx_installation object.
+        """
+        return obj.edx_installation.platform_name
 
 
 admin.site.register(EdxInstallation, EdxInstallationAdmin)
