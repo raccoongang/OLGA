@@ -87,7 +87,7 @@ class InstallationStatistics(models.Model):
         :param tabular_countries_list: list of the two elements tuples
         :return: top country name as a string
         """
-        if not tabular_countries_list or not tabular_countries_list[0]:
+        if not tabular_countries_list:
             return ''
 
         return tabular_countries_list[0][0]
@@ -316,7 +316,7 @@ class InstallationStatistics(models.Model):
             month['tabular_countries_list'] = tabular_list
             month['top_country'] = cls.get_statistics_top_country(tabular_list)
             month['countries_amount'] = (
-                len(month['countries']) - 1 * (cls.unspecified_country_name in month['countries'])
+                len(month['countries']) - (cls.unspecified_country_name in month['countries'])
             )
 
         return months
@@ -345,7 +345,7 @@ class InstallationStatistics(models.Model):
 
         for month in months:
             countries_amount += len(month['tabular_countries_list'])
-            countries_amount -= 1 * (cls.unspecified_country_name in month['tabular_countries_list'])
+            countries_amount -= (cls.unspecified_country_name in month['tabular_countries_list'])
 
         return countries_amount
 
