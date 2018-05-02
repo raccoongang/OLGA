@@ -37,10 +37,10 @@ $(document).ready(function() {
 });
 
 function make_tr_from_tabular_countries(month_key, countries) {
-    countries_trs = '';
+    var countries_trs = '';
 
-    for (var country_key in countries) {
-        country = countries[country_key];
+    for (let country_key in countries) {
+        let country = countries[country_key];
         countries_trs += `
             <tr role="row" class="odd ${country[0] == "Country is not specified" ? "unspecified-country" : ""}">
             <td role="gridcell">${country[0]}</td>
@@ -54,13 +54,11 @@ function make_tr_from_tabular_countries(month_key, countries) {
 }
 
 function select_month(month_key) {
-    var month = months[month_key]
+    var month = months[month_key];
     // Update top_country
     $('#top_country').html(month.top_country);
-
     // Update countries_amount
     $('#countries_amount').html(month.countries_amount);
-
     // Update countries_table
     $('#DataTables_Table_0 tbody').hide();
     $('#tbody_' + month_key).show();
@@ -72,7 +70,7 @@ function select_month(month_key) {
 function prepare_months_table() {
     var country_table = $('#DataTables_Table_0');
 
-    for (var month_key in months) {
+    for (let month_key in months) {
         country_table.append(
             make_tr_from_tabular_countries(month_key, months[month_key].tabular_countries_list)
         )

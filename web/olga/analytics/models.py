@@ -85,7 +85,10 @@ class InstallationStatistics(models.Model):
 
         List is sorted, first country is a top active students rank country.
         """
-        return tabular_countries_list[0][0]
+        if len(tabular_countries_list) and len(tabular_countries_list[0]):
+            return tabular_countries_list[0][0]
+        else:
+            return ''
 
     @classmethod
     def get_stats_for_this_day(cls, edx_installation_object=None):
@@ -196,8 +199,8 @@ class InstallationStatistics(models.Model):
         """
         Aggregate all the months and countries data by the month.
 
-        Returns:
-            dictionary of months with the student countries statistics.
+        :param values_list: list queryset result with three elements for every row
+        :return: dictionary of months with the student countries statistics
         """
         months = {}
 
@@ -214,6 +217,12 @@ class InstallationStatistics(models.Model):
     ):
         """
         Add a month data to the months dictionary.
+
+        :param month_ordering: sortable date key represented as a string
+        :param month_verbose: human friendly date represented as a string
+        :param countries: dictionary of countries where the key is the country code and 
+            the value is the amount of the students
+        :param months: dictionary that needs to be updated by the data, passed to the method
         """
         if month_ordering not in months:
             months[month_ordering] = {
@@ -298,7 +307,7 @@ class InstallationStatistics(models.Model):
         """
         months = cls.get_students_per_country_stats()
 
-        for _, month in months.iteritems():
+        for month in months.values():
             datamap_list, tabular_list = cls.create_students_per_country(month['countries'])
             month['datamap_countries_list'] = datamap_list
             month['tabular_countries_list'] = tabular_list
@@ -329,8 +338,11 @@ class InstallationStatistics(models.Model):
 
         Actually `Country is not specified` field is not a country, so it does not fill up in countries amount.
         """
+        countries_amount = 0
+
         for month in months:
-            countries_amount = len(month['tabular_countries_list']) - 1
+            countries_amount += len(month['tabular_countries_list'])
+            countries_amount -= 1 * (cls.unspecified_country_name in month['tabular_countries_list'])
 
         return countries_amount
 
