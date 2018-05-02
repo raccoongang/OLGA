@@ -343,9 +343,10 @@ class InstallationStatistics(models.Model):
         """
         countries_amount = 0
 
-        for month in months:
-            countries_amount += len(month['tabular_countries_list'])
-            countries_amount -= (cls.unspecified_country_name in month['tabular_countries_list'])
+        for month in months.values():
+            countries = dict(month['tabular_countries_list'])
+            countries.pop(cls.unspecified_country_name, None)
+            countries_amount += len(countries)
 
         return countries_amount
 

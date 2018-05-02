@@ -3,6 +3,7 @@
 Tests for analytics models.
 """
 from collections import OrderedDict
+from copy import deepcopy
 from datetime import date, datetime
 
 from ddt import ddt, data, unpack
@@ -14,23 +15,6 @@ from olga.analytics.tests.factories import InstallationStatisticsFactory
 from olga.analytics.models import InstallationStatistics, get_last_calendar_day
 
 # pylint: disable=invalid-name, attribute-defined-outside-init
-
-WORLDS_STUDENTS_PER_COUNTRY = {
-    '2017-06': {
-        'label': 'June 2017',
-        'countries': {
-            'AX': 2922,
-            'RU': 5264,
-            'CA': 37086,
-            'UA': 4022,
-            'null': 2,
-            '': 2,
-            'missing country': 2,
-        },
-        'datamap_countries_list': [],
-        'tabular_countries_list': [],
-    }
-}
 
 EXPECTED_CLEAN_DATAMAP_FORMAT_COUNTRIES_LIST = [
     ['ALA', 2922],
@@ -54,6 +38,23 @@ EXPECTED_CLEAN_TABULAR_FORMAT_COUNTRIES_LIST = [
 EXPECTED_TABULAR_FORMAT_COUNTRIES_LIST = [
     (a, [b[0] / 2 * 9, b[1]]) for a, b in EXPECTED_CLEAN_TABULAR_FORMAT_COUNTRIES_LIST
 ]
+
+WORLDS_STUDENTS_PER_COUNTRY = {
+    '2017-06': {
+        'label': 'June 2017',
+        'countries': {
+            'AX': 2922,
+            'RU': 5264,
+            'CA': 37086,
+            'UA': 4022,
+            'null': 2,
+            '': 2,
+            'missing country': 2,
+        },
+        'datamap_countries_list': EXPECTED_DATAMAP_FORMAT_COUNTRIES_LIST,
+        'tabular_countries_list': EXPECTED_TABULAR_FORMAT_COUNTRIES_LIST,
+    }
+}
 
 
 class TestInstallationStatisticsMethods(TestCase):
@@ -198,6 +199,18 @@ class TestInstallationStatisticsMethods(TestCase):
 
         for i in datamap_list:
             self.assertIn(i, EXPECTED_DATAMAP_FORMAT_COUNTRIES_LIST)
+
+    def test_get_students_countries_amount(self):
+        countries_amount = InstallationStatistics.get_students_countries_amount(
+            deepcopy(WORLDS_STUDENTS_PER_COUNTRY)
+        )
+
+        self.assertEqual(countries_amount, 4)
+
+    def test_get_statistics_top_country_empty(self):
+        top_country_name_empty = InstallationStatistics.get_statistics_top_country([])
+
+        self.assertEqual(top_country_name_empty, '')
 
 
 @ddt
