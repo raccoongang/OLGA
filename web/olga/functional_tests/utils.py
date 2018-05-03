@@ -48,11 +48,11 @@ class _HtmlTargets(object):
         """
         self._activity_metric = \
             '<div class="summary-point-wrapper">' \
-            '<div class="summary-point-number" title="{0}">{0}</div>' \
+            '<div class="summary-point-number" title="{0}"%s>{0}</div>' \
             '<div class="summary-point-label">{1}</div>' \
             '</div>'
 
-        self._country_grid_cell = '<td role="gridcell">{0}</td>'
+        self._country_grid_cell = '"{0}":'
         self._country_count_grid_cell = '<td class="text-right sorting_1" role="gridcell">{0}</td>'
         self._percentage = '<td class="text-right" role="gridcell">{0}</td>'
 
@@ -67,7 +67,14 @@ class _HtmlTargets(object):
         """
         Return activity metric part, that contains activity metric count and label testing parameters.
         """
-        return self._activity_metric
+        return self._activity_metric % ''
+
+    def activity_metric_with_id(self, element_id):
+        """
+        Return activity metric part with the specific id attribute.
+        """
+        element_id_param = ' id="{}"'.format(element_id)
+        return self._activity_metric % element_id_param
 
     @property
     def country_grid_cell(self):
