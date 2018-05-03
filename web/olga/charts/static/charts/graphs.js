@@ -38,23 +38,89 @@
      */
     function appendChartData(chart, chart_data, chart_title) {
         layout = {
-          xaxis: {
-            title: chart_title
-          }
+            xaxis: {
+                title: chart_title,
+
+            },
+            yaxis: {
+                nticks: 4,
+                tickfont: {color: '#70A3FF'},
+                showline: true,
+            },
+            yaxis2: {
+                nticks: 4,
+                anchor: 'x',
+                overlaying: 'y',
+                side: 'right',
+                tickfont: {color: '#8BB22A'},
+                showline: true,
+            },
+            yaxis4: {
+                nticks: 4,
+                anchor: 'x',
+                overlaying: 'y',
+                side: 'right',
+                tickfont: {color: '#CC4630'},
+            },
+            legend: {
+                x: 0,
+                y: 100,
+            }
+        };
+        let traceInstance = {
+            x: timeline,
+            y: chart_data[0],
+            mode: 'lines',
+            name: 'Instance',
+            line: {
+                color: '#70A3FF',
+                width: 2.3,
+                smoothing: 1.25,
+            },
+            hovermode:'closest',
+            hoverdistance:1000,
+            spikedistance:1000,
+            type: 'scatter',
         };
 
-        Plotly.plot(chart, [
-          {
+        let traceCourses = {
             x: timeline,
-            y: chart_data,
-            type: 'scatter'
-          }
-        ], layout, {displayModeBar: false});
+            y: chart_data[1],
+            mode: 'lines',
+            name: 'Courses',
+            line: {
+                shape: 'hv',
+                color: '#8BB22A',
+            },
+            yaxis: 'y2',
+            type: 'scatter',
+        };
+
+        let traceStudents = {
+            x: timeline,
+            y: chart_data[2],
+            mode: 'lines',
+            name: 'Students',
+            yaxis: 'y4',
+            line: {
+                shape: 'hv',
+                color: '#CC4630',
+            },
+            type: 'scatter',
+        };
+
+
+        let data = [
+            traceInstance,
+            traceCourses,
+            traceStudents,
+        ];
+
+        Plotly.plot(chart, data, layout, {displayModeBar: false});
     }
 
-    appendChartData(instances_gd, instances, 'Active Instances');
-    appendChartData(courses_gd, courses, 'Active Courses');
-    appendChartData(students_gd, students, 'Active Students');
+    appendChartData(instances_gd, [instances,courses,students], 'Instances, Courses, Students');
+    
 
     var debounceWindowResizePlotly = _.debounce(function() {
         window.onresize = function() {
