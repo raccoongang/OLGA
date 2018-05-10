@@ -182,7 +182,7 @@ class InstallationStatistics(models.Model):
             world_students_per_country (dict): Country-count accordance as pair of key-value.
         """
         # Get list of instances's students per country data as unicode strings.
-        queryset = cls.objects.annotate(
+        queryset = cls.objects.filter(data_created_datetime__gte='2018-05-09').annotate(
             month_verbose=Func(
                 F('data_created_datetime'), Value('TMMonth YYYY'), function='to_char'
             ),
@@ -326,6 +326,9 @@ class InstallationStatistics(models.Model):
         """
         Calculate student amount percentage based on total countries amount and particular county amount comparison.
         """
+        if all_active_students == 0:
+            return 0
+
         students_amount_percentage = int(country_count_in_statistics / all_active_students * 100)
         return students_amount_percentage
 
