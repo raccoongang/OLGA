@@ -71,7 +71,8 @@ class AccessTokenRegistration(View):
 
         Returns HTTP-response with status 201, that means object (installation token) was successfully created.
         """
-        uid = hashlib.md5(request.META['HTTP_X_FORWARDED_FOR']).hexdigest()
+        ip_address = ReceiveInstallationStatistics.get_client_ip(request)
+        uid = hashlib.md5(ip_address).hexdigest()
         access_token, is_new_token = self.get_access_token(uid)
         if is_new_token:
             self.create_new_edx_instance(access_token, uid)
