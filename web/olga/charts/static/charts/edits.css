@@ -53,3 +53,8 @@
 .unspecified-country {
     color: #666;
 }
+.tooltip-unzoom {
+    text-align: center;
+    padding: 12px 0;
+    font-size: 12px;
+}
