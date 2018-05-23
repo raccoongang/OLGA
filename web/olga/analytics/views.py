@@ -177,7 +177,6 @@ class ReceiveInstallationStatistics(View):
         students_per_country = self.get_students_per_country(
             received_data.get('students_per_country'), int(received_data.get('active_students_amount_day'))
         )
-
         enthusiast_edx_installation = {
             'latitude': float(received_data.get('latitude')),
             'longitude': float(received_data.get('longitude')),
@@ -185,11 +184,13 @@ class ReceiveInstallationStatistics(View):
             'platform_url': received_data.get('platform_url'),
         }
 
+        if 'null' in students_per_country and not students_per_country['null']:
+            students_per_country.pop('null')
+
         enthusiast_statistics = {
             'statistics_level': 'enthusiast',
             'students_per_country': students_per_country
         }
-
         stats.update(enthusiast_statistics)
 
         edx_installation_object.latitude = enthusiast_edx_installation['latitude']
