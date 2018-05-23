@@ -182,7 +182,7 @@ class InstallationStatistics(models.Model):
             world_students_per_country (dict): Country-count accordance as pair of key-value.
         """
         # Get list of instances's students per country data as unicode strings.
-        queryset = cls.objects.filter(data_created_datetime__gte='2018-05-09').annotate(
+        queryset = cls.objects.annotate(
             month_verbose=Func(
                 F('data_created_datetime'), Value('TMMonth YYYY'), function='to_char'
             ),
