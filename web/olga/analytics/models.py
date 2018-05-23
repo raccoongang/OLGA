@@ -326,6 +326,9 @@ class InstallationStatistics(models.Model):
         """
         Calculate student amount percentage based on total countries amount and particular county amount comparison.
         """
+        if all_active_students == 0:
+            return 0
+
         students_amount_percentage = int(country_count_in_statistics / all_active_students * 100)
         return students_amount_percentage
 
