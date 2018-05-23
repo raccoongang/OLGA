@@ -130,8 +130,6 @@
             enthNum.push(newData.monthly[item][2]);
         }
 
-
-
         var trace1 = {
             x: time,
             y: studNum,
@@ -163,8 +161,6 @@
     appendChartData(instances_gd, [instances,courses,students], 'Instances, Courses, Students');
     appendSecChart(courses_gd, [], 'Need_a_name');
 
-
-
     var debounceWindowResizePlotly = _.debounce(function() {
         window.onresize = function() {
             Plotly.Plots.resize(instances_gd);
@@ -174,5 +170,4 @@
     }, 300);
 
     window.addEventListener('resize', debounceWindowResizePlotly);
-
 }());
