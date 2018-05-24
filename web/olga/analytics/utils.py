@@ -24,6 +24,9 @@ def validate_instance_stats_forms(receive_instance_stats_method):
         """
         Wrapper.
         """
+        if request.POST and 'aaaa' in request.POST:
+            __import__('pdb').set_trace()
+
         paranoid_installation_form = EdxInstallationParanoidLevelForm(request.POST)
         enthusiast_installation_form = EdxInstallationEnthusiastLevelForm(request.POST)
         paranoid_statistics_form = InstallationStatisticsParanoidLevelForm(request.POST)
