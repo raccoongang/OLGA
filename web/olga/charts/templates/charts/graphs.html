@@ -13,6 +13,15 @@
         var students = JSON.parse('{{ students|safe }}');
         var courses = JSON.parse('{{ courses|safe }}');
         var instances = JSON.parse('{{ instances|safe }}');
+        var newData = {
+            'total_registered_students': 123,
+            'total_generated_certificates': 432,
+            'monthly': {
+                '2018-01': [11, 33, 55],
+                '2018-05': [22, 44, 66],
+                '2018-02': [12, 23, 34]
+            }
+        }
     </script>
 
 <div id="wrap-content-push-footer-sock">
@@ -74,19 +83,29 @@
                             <h4 class="section-title">Global Activity Metrics</h4>
                         </div>
                         <div class="row">
-                            <div class="col col-12 sm-col-12 md-col-3" data-activity-type="any">
+                            <div class="col col-12 sm-col-12 md-col-2" data-activity-type="any">
                                 <div class="summary-point text-center">
                                     <div class="summary-point-wrapper"><div class="summary-point-number" title="{{ instances_count }}">{{ instances_count }}</div><div class="summary-point-label">Instances</div></div>
                                 </div>
                             </div>
-                            <div class="col col-12 sm-col-12 md-col-3" data-activity-type="any">
+                            <div class="col col-12 sm-col-12 md-col-2" data-activity-type="any">
                                 <div class="summary-point text-center">
                                     <div class="summary-point-wrapper"><div class="summary-point-number" title="{{ courses_count }}">{{ courses_count }}</div><div class="summary-point-label">Courses</div></div>
                                 </div>
                             </div>
-                            <div class="col col-12 sm-col-12 md-col-3" data-activity-type="any">
+                            <div class="col col-12 sm-col-12 md-col-2" data-activity-type="any">
                                 <div class="summary-point text-center">
                                     <div class="summary-point-wrapper"><div class="summary-point-number" title="{{ students_count }}">{{ students_count }}</div><div class="summary-point-label">Active Students</div></div>
+                                </div>
+                            </div>
+                            <div class="col col-12 sm-col-12 md-col-3" data-activity-type="any">
+                                <div class="summary-point text-center">
+                                    <div class="summary-point-wrapper"><div class="summary-point-number" title="{{ total_generated_certificates }}">{{ total_generated_certificates }}</div><div class="summary-point-label">Certificates</div></div>
+                                </div>
+                            </div>
+                            <div class="col col-12 sm-col-12 md-col-3" data-activity-type="any">
+                                <div class="summary-point text-center">
+                                    <div class="summary-point-wrapper"><div class="summary-point-number" title="{{ total_registered_students }}">{{ total_registered_students }}</div><div class="summary-point-label">Total Registered Students</div></div>
                                 </div>
                             </div>
                         </div>

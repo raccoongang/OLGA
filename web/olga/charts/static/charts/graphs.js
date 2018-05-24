@@ -119,8 +119,47 @@
         Plotly.plot(chart, data, layout, {displayModeBar: false});
     }
 
+    function appendSecChart(chart, chart_data, chart_title) {
+        let time = Object.keys(newData.monthly);
+        let studNum = [];
+        let certNum = [];
+        let enthNum = [];
+        for (let item in newData.monthly) {
+            studNum.push(newData.monthly[item][0]);
+            certNum.push(newData.monthly[item][1]);
+            enthNum.push(newData.monthly[item][2]);
+        }
+
+        var trace1 = {
+            x: time,
+            y: studNum,
+            name: 'Registered students',
+            type: 'bar'
+        };
+
+        var trace2 = {
+            x: time,
+            y: certNum,
+            name: 'Certificate number',
+            type: 'bar'
+        };
+
+        var trace3 = {
+            x: time,
+            y: enthNum,
+            name: 'Enthusiastic students',
+            type: 'bar'
+        };
+
+        var data = [trace1, trace2, trace3];
+
+        var layout = {barmode: 'group'};
+
+        Plotly.newPlot(chart, data, layout);
+    }
+
     appendChartData(instances_gd, [instances,courses,students], 'Instances, Courses, Students');
-    
+    appendSecChart(courses_gd, [], 'Need_a_name');
 
     var debounceWindowResizePlotly = _.debounce(function() {
         window.onresize = function() {
@@ -131,5 +170,4 @@
     }, 300);
 
     window.addEventListener('resize', debounceWindowResizePlotly);
-
 }());
