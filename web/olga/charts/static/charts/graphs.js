@@ -56,7 +56,7 @@
                 showline: true,
             },
             yaxis4: {
-                nticks: 4,
+                nticks: 5,
                 anchor: 'x',
                 overlaying: 'y',
                 side: 'right',
