@@ -355,7 +355,7 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
         mock_edx_installation_objects_get.return_value = edx_installation_object
 
         ReceiveInstallationStatistics().create_instance_data(
-            self.received_data, edx_installation_object
+            self.received_data, edx_installation_object, datetime.now()
         )
 
         # Assertion `mock_installation_statistics_installation_objects_create.assert_called_once_with()` does not work.
@@ -542,16 +542,16 @@ class TestReceiveInstallationStatistics(TestCase):
         mock_logger_debug_instance_details.assert_called_once_with(self.received_data_as_query_dict)
 
     @patch('olga.analytics.views.ReceiveInstallationStatistics.process_instance_datas')
-    def test_create_instance_data_occurs(self, mock_process_intance_data):
+    def test_process_instance_datas_occurs(self, mock_process_intance_data):
         """
-        Verify that create_instance_data method occurs during post method`s process.
+        Verify that process_instance_datas method occurs during post method`s process.
         """
         self.client.post('/api/installation/statistics/', self.received_data)
         mock_process_intance_data.assert_called_with(
             self.received_data_as_query_dict, self.received_data.get('access_token')
         )
 
-    def test_multiply_create_instance_data_in_same_day(self):
+    def test_multiply_process_instance_datas_in_same_day(self):
         """
         Verify that when double calls are sent statistic from one instance only one record will be created.
         """
@@ -562,7 +562,6 @@ class TestReceiveInstallationStatistics(TestCase):
         self.client.post('/api/installation/statistics/', self.received_data)
         stats = InstallationStatistics.objects.all()
         self.assertEqual(6, stats.count())
-        __import__('pdb').set_trace()
         self.assertEqual(
             int(self.received_data['active_students_amount_day']),
             stats.last().active_students_amount_day

@@ -7,7 +7,6 @@ import hashlib
 import httplib
 import json
 import logging
-import pytz
 from uuid import uuid4
 
 import datetime
@@ -247,10 +246,6 @@ class ReceiveInstallationStatistics(View):
             'registered_students': 0,
             'enthusiastic_students': 0,
             'generated_certificates': 0,
-            'active_students_amount_day': 0,
-            'active_students_amount_week': 0,
-            'active_students_amount_month': 0,
-            'courses_amount': 0,
             'statistics_level': received_data.get('statistics_level'),
         }
         registered_students_dates = json.loads(received_data.get('registered_students', '{}'))
@@ -274,9 +269,6 @@ class ReceiveInstallationStatistics(View):
         Return a dictionary for today's stats from the received data to create the object.
         """
         today_stats = {
-            'registered_students': 0,
-            'enthusiastic_students': 0,
-            'generated_certificates': 0,
             'active_students_amount_day': int(received_data.get('active_students_amount_day')),
             'active_students_amount_week': int(received_data.get('active_students_amount_week')),
             'active_students_amount_month': int(received_data.get('active_students_amount_month')),
@@ -289,7 +281,7 @@ class ReceiveInstallationStatistics(View):
 
         return today_stats
 
-    def create_instance_data(self, stats, edx_installation_object, statistics_date=None):
+    def create_instance_data(self, stats, edx_installation_object, statistics_date):
         """
         Save edX installation data into a database.
 
@@ -298,11 +290,7 @@ class ReceiveInstallationStatistics(View):
             access_token (unicode): Secret key to allow edX instance send a data to server.
                                     If token is empty, it will be generated with uuid.UUID in string format.
         """
-        if statistics_date is None:
-            statistics_date = datetime.datetime.now()
-        
-        stats_to_write = dict((key, value) for key, value in stats.iteritems() if key in STATS_TO_WRITE_KEYS)
-        statistics_date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=pytz.utc)
+        statistics_date.replace(hour=0, minute=0, second=0, microsecond=0)
         stats['data_created_datetime'] = statistics_date
         previous_stats = InstallationStatistics.get_stats_for_the_date(
             statistics_date,
@@ -311,13 +299,13 @@ class ReceiveInstallationStatistics(View):
         log_msg = 'Corresponding data was %s in OLGA database.'
 
         if previous_stats:
-            previous_stats.registered_students += stats_to_write.pop('registered_students', 0)
-            previous_stats.enthusiastic_students += stats_to_write.pop('enthusiastic_students', 0)
-            previous_stats.generated_certificates += stats_to_write.pop('generated_certificates', 0)
-            previous_stats.update(stats_to_write)
+            previous_stats.registered_students += stats.pop('registered_students', 0)
+            previous_stats.enthusiastic_students += stats.pop('enthusiastic_students', 0)
+            previous_stats.generated_certificates += stats.pop('generated_certificates', 0)
+            previous_stats.update(stats)
             logger.debug(log_msg, 'updated')
         else:
-            created = InstallationStatistics.objects.create(edx_installation=edx_installation_object, **stats_to_write)
+            created = InstallationStatistics.objects.create(edx_installation=edx_installation_object, **stats)
             created.data_created_datetime = statistics_date
             created.save()
             logger.debug(log_msg, 'created')
