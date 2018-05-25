@@ -293,9 +293,7 @@ class ReceiveInstallationStatistics(View):
             previous_stats.update(stats)
             logger.debug(log_msg, 'updated')
         else:
-            created = InstallationStatistics.objects.create(edx_installation=edx_installation_object, **stats)
-            created.data_created_datetime = statistics_date
-            created.save()
+            InstallationStatistics.objects.create(edx_installation=edx_installation_object, **stats)
             logger.debug(log_msg, 'created')
 
     @staticmethod

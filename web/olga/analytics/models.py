@@ -62,7 +62,7 @@ class InstallationStatistics(models.Model):
     enthusiastic_students = models.IntegerField(default=0)
     generated_certificates = models.IntegerField(default=0)
     courses_amount = models.IntegerField(default=0)
-    data_created_datetime = models.DateTimeField(auto_now_add=True)
+    data_created_datetime = models.DateTimeField()
     edx_installation = models.ForeignKey(EdxInstallation)
     statistics_level = models.CharField(
         choices=(
