@@ -564,5 +564,5 @@ class TestReceiveInstallationStatistics(TestCase):
         self.assertEqual(6, stats.count())
         self.assertEqual(
             int(self.received_data['active_students_amount_day']),
-            stats.last().active_students_amount_day
+            stats.order_by('-data_created_datetime').first().active_students_amount_day
         )

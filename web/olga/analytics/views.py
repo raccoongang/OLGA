@@ -25,18 +25,6 @@ logging.basicConfig()
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-STATS_TO_WRITE_KEYS = (
-    'statistics_level',
-    'active_students_amount_day',
-    'active_students_amount_week',
-    'active_students_amount_month',
-    'courses_amount',
-    'students_per_country',
-    'data_created_datetime',
-    'enthusiastic_students',
-    'generated_certificates',
-    'registered_students',
-)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
