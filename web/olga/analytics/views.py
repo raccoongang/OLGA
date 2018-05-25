@@ -208,7 +208,7 @@ class ReceiveInstallationStatistics(View):
         dates = self.get_all_stats_by_dates(received_data, access_token)
         self.add_today_to_dates(today_date, today_stats, dates)
 
-        for date in sorted(dates.keys()):
+        for date in dates.keys():
             statistics = dates[date]
             self.create_instance_data(statistics, edx_installation_object, date)
 
