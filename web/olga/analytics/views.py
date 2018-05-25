@@ -10,6 +10,7 @@ import logging
 from uuid import uuid4
 
 import datetime
+from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.http import JsonResponse
 from django.views.generic import View
@@ -199,7 +200,82 @@ class ReceiveInstallationStatistics(View):
         edx_installation_object.platform_url = enthusiast_edx_installation['platform_url']
         edx_installation_object.save()
 
-    def create_instance_data(self, received_data, access_token):
+    @atomic
+    def process_instance_datas(self, received_data, access_token):
+        """
+        Add statistics data for all received dates.
+        """
+        today_date = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        edx_installation_object = EdxInstallation.objects.get(access_token=access_token)
+        today_stats = self.get_today_stats(received_data, edx_installation_object)
+        dates = self.get_all_stats_by_dates(received_data)
+        self.add_today_to_dates(today_date, today_stats, dates)
+
+        for date in dates:
+            statistics = dates[date]
+            self.create_instance_data(statistics, edx_installation_object, date)
+
+    @staticmethod
+    def add_today_to_dates(today_date, today_stats, dates):
+        """
+        Add today statistics data to the dates dictionary for the further pass to the create_instance_data.
+        """
+        if today_date not in dates:
+            dates[today_date] = today_stats
+            return
+
+        today_stats['registered_students'] = dates[today_date]['registered_students']
+        today_stats['enthusiastic_students'] = dates[today_date]['enthusiastic_students']
+        today_stats['generated_certificates'] = dates[today_date]['generated_certificates']
+        dates[today_date] = today_stats
+
+    @staticmethod
+    def get_all_stats_by_dates(received_data):
+        """
+        Return a dictionary of dates and stats (as the keys and the values respectively) to create the object.
+        """
+        dates = {}
+        data_template = {
+            'registered_students': 0,
+            'enthusiastic_students': 0,
+            'generated_certificates': 0,
+            'statistics_level': received_data.get('statistics_level'),
+        }
+        registered_students_dates = json.loads(received_data.get('registered_students', '{}'))
+        enthusiastic_students_dates = json.loads(received_data.get('enthusiastic_students', '{}'))
+        generated_certificates_dates = json.loads(received_data.get('generated_certificates', '{}'))
+        all_dates = set(registered_students_dates.keys())
+        all_dates.update(enthusiastic_students_dates.keys())
+        all_dates.update(generated_certificates_dates.keys())
+
+        for str_date in all_dates:
+            date = datetime.datetime.strptime(str_date, '%Y-%m-%d')
+            dates[date] = data_template.copy()
+            dates[date]['registered_students'] += registered_students_dates.get(date, 0)
+            dates[date]['enthusiastic_students'] += enthusiastic_students_dates.get(date, 0)
+            dates[date]['generated_certificates'] += generated_certificates_dates.get(date, 0)
+
+        return dates
+
+    def get_today_stats(self, received_data, edx_installation_object):
+        """
+        Return a dictionary for today's stats from the received data to create the object.
+        """
+        today_stats = {
+            'active_students_amount_day': int(received_data.get('active_students_amount_day')),
+            'active_students_amount_week': int(received_data.get('active_students_amount_week')),
+            'active_students_amount_month': int(received_data.get('active_students_amount_month')),
+            'courses_amount': int(received_data.get('courses_amount')),
+            'statistics_level': received_data.get('statistics_level'),
+        }
+
+        if today_stats['statistics_level'] == 'enthusiast':
+            self.extend_stats_to_enthusiast(received_data, today_stats, edx_installation_object)
+
+        return today_stats
+
+    @staticmethod
+    def create_instance_data(stats, edx_installation_object, statistics_date):
         """
         Save edX installation data into a database.
 
@@ -208,29 +284,18 @@ class ReceiveInstallationStatistics(View):
             access_token (unicode): Secret key to allow edX instance send a data to server.
                                     If token is empty, it will be generated with uuid.UUID in string format.
         """
-        active_students_amount_day = int(received_data.get('active_students_amount_day'))
-        active_students_amount_week = int(received_data.get('active_students_amount_week'))
-        active_students_amount_month = int(received_data.get('active_students_amount_month'))
-        courses_amount = int(received_data.get('courses_amount'))
-        statistics_level = received_data.get('statistics_level')
-
-        stats = {
-            'active_students_amount_day': active_students_amount_day,
-            'active_students_amount_week': active_students_amount_week,
-            'active_students_amount_month': active_students_amount_month,
-            'courses_amount': courses_amount,
-            'statistics_level': statistics_level
-        }
-
-        edx_installation_object = EdxInstallation.objects.get(access_token=access_token)
-
-        if statistics_level == 'enthusiast':
-            self.extend_stats_to_enthusiast(received_data, stats, edx_installation_object)
-
-        previous_stats = InstallationStatistics.get_stats_for_this_day(edx_installation_object)
+        statistics_date.replace(hour=0, minute=0, second=0, microsecond=0)
+        stats['data_created_datetime'] = statistics_date
+        previous_stats = InstallationStatistics.get_stats_for_the_date(
+            statistics_date,
+            edx_installation_object=edx_installation_object,
+        )
         log_msg = 'Corresponding data was %s in OLGA database.'
+
         if previous_stats:
-            stats['data_created_datetime'] = datetime.datetime.now()
+            previous_stats.registered_students += stats.pop('registered_students', 0)
+            previous_stats.enthusiastic_students += stats.pop('enthusiastic_students', 0)
+            previous_stats.generated_certificates += stats.pop('generated_certificates', 0)
             previous_stats.update(stats)
             logger.debug(log_msg, 'updated')
         else:
@@ -279,7 +344,7 @@ class ReceiveInstallationStatistics(View):
             self.log_debug_instance_details(received_data)
             self.log_client_ip(request)
 
-            self.create_instance_data(received_data, access_token)
+            self.process_instance_datas(received_data, access_token)
             return HttpResponse(status=httplib.CREATED)
 
         return HttpResponse(status=httplib.UNAUTHORIZED)

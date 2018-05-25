@@ -7,7 +7,7 @@ import hashlib
 import httplib
 import json
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from mock import patch, call
 
@@ -61,7 +61,10 @@ class InstallationDefaultData(object):  # pylint: disable=too-few-public-methods
             'platform_name': 'platform_name',
             'platform_url': 'https://platform.url',
             'statistics_level': 'enthusiast',
-            'students_per_country': "{\"RU\": 10, \"CA\": 5, \"UA\": 20}"
+            'students_per_country': "{\"RU\": 10, \"CA\": 5, \"UA\": 20}",
+            'registered_students': '{"2018-05-01": 1, "2015-01-01": 4}',
+            'enthusiastic_students': '{"2017-05-01": 2, "2016-01-01": 5}',
+            'generated_certificates': '{"2014-01-01": 3, "2015-01-01": 6}',
         }
 
         installation_statistics = {
@@ -322,24 +325,6 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
 
     @patch('olga.analytics.views.ReceiveInstallationStatistics.extend_stats_to_enthusiast')
     @patch('olga.analytics.models.EdxInstallation.objects.get')
-    def test_extend_stats_occurs(
-            self, mock_edx_installation_objects_get, mock_receive_installation_statistics_extend_stats_to_enthusiast,
-    ):
-        """
-        Verify that extend_stats_to_enthusiast method occurs if edx installation statistics level is enthusiast.
-        """
-        edx_installation_object = EdxInstallationFactory()
-
-        mock_edx_installation_objects_get.return_value = edx_installation_object
-
-        ReceiveInstallationStatistics().create_instance_data(self.received_data, self.access_token)
-
-        mock_receive_installation_statistics_extend_stats_to_enthusiast.assert_called_once_with(
-            self.received_data, self.installation_statistics, edx_installation_object
-        )
-
-    @patch('olga.analytics.views.ReceiveInstallationStatistics.extend_stats_to_enthusiast')
-    @patch('olga.analytics.models.EdxInstallation.objects.get')
     def test_extend_stats_does_not_occur(
             self, mock_edx_installation_objects_get, mock_receive_installation_statistics_extend_stats_to_enthusiast,
     ):
@@ -347,12 +332,11 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
         Verify that extend_stats_to_enthusiast method does not occurs if edx installation statistics level is paranoid.
         """
         self.received_data['statistics_level'] = 'paranoid'
-
         edx_installation_object = EdxInstallationFactory()
-
         mock_edx_installation_objects_get.return_value = edx_installation_object
-
-        ReceiveInstallationStatistics().create_instance_data(self.received_data, self.access_token)
+        ReceiveInstallationStatistics().process_instance_datas(
+            self.received_data, self.received_data['access_token']
+        )
 
         self.assertEqual(0, mock_receive_installation_statistics_extend_stats_to_enthusiast.call_count)
 
@@ -370,7 +354,9 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
 
         mock_edx_installation_objects_get.return_value = edx_installation_object
 
-        ReceiveInstallationStatistics().create_instance_data(self.received_data, self.access_token)
+        ReceiveInstallationStatistics().create_instance_data(
+            self.received_data, edx_installation_object, datetime.now()
+        )
 
         # Assertion `mock_installation_statistics_installation_objects_create.assert_called_once_with()` does not work.
         # I did debug, all passed arguments as `edx_installation_object` and `installation_statistics` equal
@@ -391,9 +377,11 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
 
         mock_edx_installation_objects_get.return_value = edx_installation_object
 
-        ReceiveInstallationStatistics().create_instance_data(self.received_data, self.access_token)
+        ReceiveInstallationStatistics().process_instance_datas(
+            self.received_data, edx_installation_object.access_token
+        )
 
-        mock_logger_debug.assert_called_once_with('Corresponding data was %s in OLGA database.', 'created')
+        mock_logger_debug.assert_called_with('Corresponding data was %s in OLGA database.', 'created')
 
     @patch('olga.analytics.views.logging.Logger.debug')
     @patch('olga.analytics.models.EdxInstallation.objects.get')
@@ -409,9 +397,13 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
 
         mock_edx_installation_objects_get.return_value = edx_installation_object
 
-        ReceiveInstallationStatistics().create_instance_data(self.received_data, self.access_token)
+        ReceiveInstallationStatistics().process_instance_datas(
+            self.received_data, edx_installation_object.access_token
+        )
 
-        ReceiveInstallationStatistics().create_instance_data(self.received_data, self.access_token)
+        ReceiveInstallationStatistics().process_instance_datas(
+            self.received_data, edx_installation_object.access_token
+        )
 
         mock_logger_debug.assert_any_call('Corresponding data was %s in OLGA database.', 'updated')
 
@@ -549,38 +541,28 @@ class TestReceiveInstallationStatistics(TestCase):
         self.client.post('/api/installation/statistics/', self.received_data)
         mock_logger_debug_instance_details.assert_called_once_with(self.received_data_as_query_dict)
 
-    @patch('olga.analytics.views.ReceiveInstallationStatistics.create_instance_data')
-    def test_create_instance_data_occurs(self, mock_create_instance_data):
+    @patch('olga.analytics.views.ReceiveInstallationStatistics.process_instance_datas')
+    def test_process_instance_datas_occurs(self, mock_process_intance_data):
         """
-        Verify that create_instance_data method occurs during post method`s process.
+        Verify that process_instance_datas method occurs during post method`s process.
         """
         self.client.post('/api/installation/statistics/', self.received_data)
-        mock_create_instance_data.assert_called_once_with(self.received_data_as_query_dict, self.access_token)
+        mock_process_intance_data.assert_called_with(
+            self.received_data_as_query_dict, self.received_data.get('access_token')
+        )
 
-    def test_multiply_create_instance_data_in_same_day(self):
+    def test_multiply_process_instance_datas_in_same_day(self):
         """
         Verify that when double calls are sent statistic from one instance only one record will be created.
         """
         self.client.post('/api/installation/statistics/', self.received_data)
-        self.assertEqual(1, InstallationStatistics.objects.all().count())
-
-        self.received_data['active_students_amount_day'] *= 2
+        self.assertEqual(6, InstallationStatistics.objects.all().count())
+        active_students_amount_day = int(self.received_data['active_students_amount_day'])
+        self.received_data['active_students_amount_day'] = str(active_students_amount_day * 2)
         self.client.post('/api/installation/statistics/', self.received_data)
         stats = InstallationStatistics.objects.all()
-        self.assertEqual(1, stats.count())
+        self.assertEqual(6, stats.count())
         self.assertEqual(
             int(self.received_data['active_students_amount_day']),
-            stats[0].active_students_amount_day
+            stats.order_by('-data_created_datetime').first().active_students_amount_day
         )
-
-    def test_multiply_create_instance_data_in_different_day(self):
-        """
-        Verify that when double calls are sent statistic in different days there are two records will be created.
-        """
-        self.client.post('/api/installation/statistics/', self.received_data)
-        stats = InstallationStatistics.objects.all()
-        self.assertEqual(1, stats.count())
-        stats.update(data_created_datetime=(datetime.now() - timedelta(days=1)))
-
-        self.client.post('/api/installation/statistics/', self.received_data)
-        self.assertEqual(2, InstallationStatistics.objects.all().count())

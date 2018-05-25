@@ -4,7 +4,7 @@ Models for analytics application. Models used to store and operate all data rece
 
 from __future__ import division
 
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta
 
 import operator
 import pycountry
@@ -58,8 +58,11 @@ class InstallationStatistics(models.Model):
     active_students_amount_day = models.IntegerField(default=0)
     active_students_amount_week = models.IntegerField(default=0)
     active_students_amount_month = models.IntegerField(default=0)
+    registered_students = models.IntegerField(default=0)
+    enthusiastic_students = models.IntegerField(default=0)
+    generated_certificates = models.IntegerField(default=0)
     courses_amount = models.IntegerField(default=0)
-    data_created_datetime = models.DateTimeField(auto_now_add=True)
+    data_created_datetime = models.DateTimeField()
     edx_installation = models.ForeignKey(EdxInstallation)
     statistics_level = models.CharField(
         choices=(
@@ -93,17 +96,17 @@ class InstallationStatistics(models.Model):
         return tabular_countries_list[0][0]
 
     @classmethod
-    def get_stats_for_this_day(cls, edx_installation_object=None):
+    def get_stats_for_the_date(cls, statistics_date, edx_installation_object=None):
         """
         Provide statistic model instance for the given Edx installation.
 
         :param edx_installation_object: specific installation object.
-        :return: statistic model instance if it is created today otherwise None
+        :return: statistic model instance if it is created at the specified day otherwise None
         """
-        today_midnight = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         stat_item = cls.objects.filter(
             edx_installation=edx_installation_object,
-            data_created_datetime__gte=today_midnight
+            data_created_datetime__gte=statistics_date,
+            data_created_datetime__lt=(statistics_date + timedelta(days=1))
         ).last()
         return stat_item
 
