@@ -7,7 +7,7 @@ import hashlib
 import httplib
 import json
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from mock import patch, call
 
@@ -17,7 +17,7 @@ from django.utils.encoding import force_text
 from django.utils.crypto import get_random_string
 
 from olga.analytics.models import EdxInstallation, InstallationStatistics
-from olga.analytics.tests.factories import EdxInstallationFactory, InstallationStatisticsFactory
+from olga.analytics.tests.factories import EdxInstallationFactory
 
 from olga.analytics.views import (
     AccessTokenAuthorization,
@@ -558,7 +558,7 @@ class TestReceiveInstallationStatistics(TestCase):
         self.client.post('/api/installation/statistics/', self.received_data)
         self.assertEqual(6, InstallationStatistics.objects.all().count())
         active_students_amount_day = int(self.received_data['active_students_amount_day'])
-        self.received_data['active_students_amount_day'] =  str(active_students_amount_day * 2)
+        self.received_data['active_students_amount_day'] = str(active_students_amount_day * 2)
         self.client.post('/api/installation/statistics/', self.received_data)
         stats = InstallationStatistics.objects.all()
         self.assertEqual(6, stats.count())

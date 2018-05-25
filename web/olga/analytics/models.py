@@ -4,7 +4,7 @@ Models for analytics application. Models used to store and operate all data rece
 
 from __future__ import division
 
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta
 
 import operator
 import pycountry

@@ -202,17 +202,21 @@ class ReceiveInstallationStatistics(View):
 
     @atomic
     def process_instance_datas(self, received_data, access_token):
+        """
+        Add statistics data for all received dates.
+        """
         today_date = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         edx_installation_object = EdxInstallation.objects.get(access_token=access_token)
         today_stats = self.get_today_stats(received_data, edx_installation_object)
-        dates = self.get_all_stats_by_dates(received_data, access_token)
+        dates = self.get_all_stats_by_dates(received_data)
         self.add_today_to_dates(today_date, today_stats, dates)
 
-        for date in dates.keys():
+        for date in dates:
             statistics = dates[date]
             self.create_instance_data(statistics, edx_installation_object, date)
 
-    def add_today_to_dates(self, today_date, today_stats, dates):
+    @staticmethod
+    def add_today_to_dates(today_date, today_stats, dates):
         """
         Add today statistics data to the dates dictionary for the further pass to the create_instance_data.
         """
@@ -225,7 +229,8 @@ class ReceiveInstallationStatistics(View):
         today_stats['generated_certificates'] = dates[today_date]['generated_certificates']
         dates[today_date] = today_stats
 
-    def get_all_stats_by_dates(self, received_data, access_token): 
+    @staticmethod
+    def get_all_stats_by_dates(received_data):
         """
         Return a dictionary of dates and stats (as the keys and the values respectively) to create the object.
         """
@@ -247,7 +252,7 @@ class ReceiveInstallationStatistics(View):
             date = datetime.datetime.strptime(str_date, '%Y-%m-%d')
             dates[date] = data_template.copy()
             dates[date]['registered_students'] += registered_students_dates.get(date, 0)
-            dates[date]['enthusiastic_students'] +=  enthusiastic_students_dates.get(date, 0)
+            dates[date]['enthusiastic_students'] += enthusiastic_students_dates.get(date, 0)
             dates[date]['generated_certificates'] += generated_certificates_dates.get(date, 0)
 
         return dates
@@ -269,7 +274,8 @@ class ReceiveInstallationStatistics(View):
 
         return today_stats
 
-    def create_instance_data(self, stats, edx_installation_object, statistics_date):
+    @staticmethod
+    def create_instance_data(stats, edx_installation_object, statistics_date):
         """
         Save edX installation data into a database.
 
