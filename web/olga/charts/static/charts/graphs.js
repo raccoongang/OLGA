@@ -8,6 +8,11 @@
  * and corresponding counts (array of counts).
  */
 (function() {
+    students = students.splice(175);
+    timeline = timeline.splice(175);
+    courses = courses.splice(175);
+    instances = instances.splice(175);
+
     var WIDTH_IN_PERCENT_OF_PARENT = 100,
         HEIGHT_IN_PERCENT_OF_PARENT = 60;
 
@@ -40,7 +45,7 @@
         layout = {
             xaxis: {
                 title: chart_title,
-
+                domain: [0, 0.95]
             },
             yaxis: {
                 nticks: 4,
@@ -49,11 +54,12 @@
             },
             yaxis2: {
                 nticks: 3,
-                anchor: 'x',
+                anchor: 'free',
+                position: 0.99,
                 overlaying: 'y',
                 side: 'right',
                 tickfont: {color: '#8BB22A'},
-                showline: true,
+
             },
             yaxis4: {
                 nticks: 5,
@@ -61,6 +67,7 @@
                 overlaying: 'y',
                 side: 'right',
                 tickfont: {color: '#CC4630'},
+                showline: true,
             },
             legend: {
                 x: 0,
@@ -155,7 +162,7 @@
 
         var layout = {barmode: 'group'};
 
-        Plotly.newPlot(chart, data, layout);
+        Plotly.newPlot(chart, data, layout, {displayModeBar: false});
     }
 
     appendChartData(instances_gd, [instances,courses,students], 'Instances, Courses, Students');
