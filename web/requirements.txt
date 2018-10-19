@@ -6,4 +6,4 @@ mock==2.0.0
 psycopg2==2.7.3
 pycountry==17.5.14
 raven==6.1.0
-requests==2.18.2
+requests==2.20.0
