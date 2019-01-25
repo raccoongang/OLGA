@@ -179,8 +179,8 @@ class ReceiveInstallationStatistics(View):
             received_data.get('students_per_country'), int(received_data.get('active_students_amount_day'))
         )
         enthusiast_edx_installation = {
-            'latitude': float(received_data.get('latitude')),
-            'longitude': float(received_data.get('longitude')),
+            'latitude': received_data.get('latitude'),
+            'longitude': received_data.get('longitude'),
             'platform_name': received_data.get('platform_name'),
             'platform_url': received_data.get('platform_url'),
         }
@@ -194,8 +194,11 @@ class ReceiveInstallationStatistics(View):
         }
         stats.update(enthusiast_statistics)
 
-        edx_installation_object.latitude = enthusiast_edx_installation['latitude']
-        edx_installation_object.longitude = enthusiast_edx_installation['longitude']
+        # Checks the latitude and longitude that are not empty strings
+        if enthusiast_edx_installation['latitude'] and enthusiast_edx_installation['longitude']:
+            edx_installation_object.latitude = float(enthusiast_edx_installation['latitude'])
+            edx_installation_object.longitude = float(enthusiast_edx_installation['longitude'])
+
         edx_installation_object.platform_name = enthusiast_edx_installation['platform_name']
         edx_installation_object.platform_url = enthusiast_edx_installation['platform_url']
         edx_installation_object.save()
