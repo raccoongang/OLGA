@@ -6,6 +6,7 @@ import httplib
 import logging
 import requests
 
+
 from django.http import HttpResponse
 
 from olga.analytics.forms import (
@@ -64,5 +65,5 @@ def get_coordinates_by_platform_city_name(city_name):
 
         return location['lat'], location['lon']
 
-    logger.info('Nominatim API status: %s, City name: %s' % (geo_api.status_code, city_name))
+    logger.debug('Nominatim API status: %s, City name: %s', geo_api.status_code, city_name)
     return '', ''
