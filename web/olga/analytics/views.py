@@ -19,7 +19,8 @@ from django.utils.decorators import method_decorator
 
 from olga.analytics.forms import AccessTokenForm
 from olga.analytics.models import EdxInstallation, InstallationStatistics
-from olga.analytics.utils import validate_instance_stats_forms
+from olga.analytics.utils import validate_instance_stats_forms, get_coordinates_by_platform_city_name
+
 
 logging.basicConfig()
 
@@ -182,6 +183,7 @@ class ReceiveInstallationStatistics(View):
             'latitude': received_data.get('latitude'),
             'longitude': received_data.get('longitude'),
             'platform_name': received_data.get('platform_name'),
+            'platform_city_name': received_data.get('platform_city_name'),
             'platform_url': received_data.get('platform_url'),
         }
 
@@ -198,6 +200,14 @@ class ReceiveInstallationStatistics(View):
         if enthusiast_edx_installation['latitude'] and enthusiast_edx_installation['longitude']:
             edx_installation_object.latitude = float(enthusiast_edx_installation['latitude'])
             edx_installation_object.longitude = float(enthusiast_edx_installation['longitude'])
+
+        elif enthusiast_edx_installation['platform_city_name']:
+            latitude, longitude = get_coordinates_by_platform_city_name(
+                enthusiast_edx_installation['platform_city_name']
+            )
+            if latitude and longitude:
+                edx_installation_object.latitude = float(latitude)
+                edx_installation_object.longitude = float(longitude)
 
         edx_installation_object.platform_name = enthusiast_edx_installation['platform_name']
         edx_installation_object.platform_url = enthusiast_edx_installation['platform_url']

@@ -3,6 +3,8 @@ Helpers for the analytics part of OLGA application.
 """
 
 import httplib
+import requests
+import logging
 
 from django.http import HttpResponse
 
@@ -12,6 +14,11 @@ from olga.analytics.forms import (
     InstallationStatisticsParanoidLevelForm,
     InstallationStatisticsEnthusiastLevelForm
 )
+
+logging.basicConfig()
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 def validate_instance_stats_forms(receive_instance_stats_method):
@@ -42,3 +49,20 @@ def validate_instance_stats_forms(receive_instance_stats_method):
         return HttpResponse(status=httplib.UNAUTHORIZED)
 
     return wrapper
+
+
+def get_coordinates_by_platform_city_name(city_name):
+    """
+    Gather coordinates by platform city name with Nominatim API.
+    """
+    geo_api = requests.get('https://nominatim.openstreetmap.org/search/', params={'city': city_name, 'format': 'json'})
+
+    if geo_api.status_code == 200 and geo_api.json():
+        location = geo_api.json()[0]
+
+        return location['lat'], location['lon']
+
+    logger.info(
+        'Nominatim API status: {status}, City name: {city_name}'.format(status=geo_api.status_code, city_name=city_name)
+    )
+    return '', ''
