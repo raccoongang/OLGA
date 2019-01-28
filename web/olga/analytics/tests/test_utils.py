@@ -126,7 +126,6 @@ class TestPlatformCoordinates(unittest.TestCase):
         """
         Tests to prove that methods send request to needed corresponding URLs.
         """
-
         # Verify that get_coordinates_by_platform_city_name sends request to API with address as parameter.
         get_coordinates_by_platform_city_name('Kiev')
 
