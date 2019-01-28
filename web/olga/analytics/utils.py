@@ -3,8 +3,8 @@ Helpers for the analytics part of OLGA application.
 """
 
 import httplib
-import requests
 import logging
+import requests
 
 from django.http import HttpResponse
 
@@ -19,6 +19,8 @@ logging.basicConfig()
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
+# pylint: disable=invalid-name
 
 
 def validate_instance_stats_forms(receive_instance_stats_method):
@@ -62,7 +64,5 @@ def get_coordinates_by_platform_city_name(city_name):
 
         return location['lat'], location['lon']
 
-    logger.info(
-        'Nominatim API status: {status}, City name: {city_name}'.format(status=geo_api.status_code, city_name=city_name)
-    )
+    logger.info('Nominatim API status: %s, City name: %s' % (geo_api.status_code, city_name))
     return '', ''
