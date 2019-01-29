@@ -340,7 +340,7 @@ class ReceiveInstallationStatistics(View):
             client_ip = x_forwarded_for.split(',')[0]
         else:
             client_ip = request.META.get('REMOTE_ADDR')
-        return client_ip
+        return client_ip.encode('utf-8')
 
     @method_decorator(validate_instance_stats_forms)
     def post(self, request):

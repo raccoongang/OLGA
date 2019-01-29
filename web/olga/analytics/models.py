@@ -281,11 +281,11 @@ class InstallationStatistics(models.Model):
                 country_name = cls.unspecified_country_name
 
             if country_name in tabular_format_countries_map:
-                tabular_format_countries_map[country_name] = map(
+                tabular_format_countries_map[country_name] = list(map(
                     operator.add,
                     tabular_format_countries_map[country_name],
                     [count, student_amount_percentage]
-                )
+                ))
             else:
                 tabular_format_countries_map[country_name] = [count, student_amount_percentage]
 
@@ -303,7 +303,6 @@ class InstallationStatistics(models.Model):
             tabular_format_countries_list.append(
                 (cls.unspecified_country_name, unspecified_country_values)
             )
-
         return datamap_format_countries_list, tabular_format_countries_list
 
     @classmethod
