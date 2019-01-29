@@ -63,7 +63,7 @@ class InstallationStatistics(models.Model):
     generated_certificates = models.IntegerField(default=0)
     courses_amount = models.IntegerField(default=0)
     data_created_datetime = models.DateTimeField()
-    edx_installation = models.ForeignKey(EdxInstallation)
+    edx_installation = models.ForeignKey(EdxInstallation, on_delete=models.CASCADE)
     statistics_level = models.CharField(
         choices=(
             ('enthusiast', 'enthusiast'),
@@ -73,7 +73,7 @@ class InstallationStatistics(models.Model):
         default='paranoid'
     )
     students_per_country = JSONField(
-        default={},
+        default=dict,
         blank=True,
         null=True,
         help_text='This field has students country-count accordance. It follows `json` type. '
@@ -265,17 +265,17 @@ class InstallationStatistics(models.Model):
             tabular_format_countries_map[cls.unspecified_country_name] = [0, 0]
             return datamap_format_countries_list, tabular_format_countries_map.items()
 
-        all_active_students = sum(worlds_students_per_country.itervalues())
+        all_active_students = sum(worlds_students_per_country.values())
 
-        for country, count in worlds_students_per_country.iteritems():
+        for country, count in worlds_students_per_country.items():
             student_amount_percentage = cls.get_student_amount_percentage(count, all_active_students)
 
             try:
                 country_info = pycountry.countries.get(alpha_2=country)
-                country_alpha_3 = country_info.alpha_3.encode("utf8")
+                country_alpha_3 = country_info.alpha_3
                 datamap_format_countries_list += [[country_alpha_3, count]]
 
-                country_name = country_info.name.encode("utf8")
+                country_name = country_info.name
             except KeyError:
                 # Create students without country amount.
                 country_name = cls.unspecified_country_name
