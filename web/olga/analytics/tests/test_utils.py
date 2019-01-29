@@ -5,13 +5,13 @@ Tests for analytics utils.
 import httplib
 import unittest
 
-from mock import patch, call
+from mock import call, patch
 
 from django.http import HttpResponse
 from django.test import TestCase
 from django.test.client import RequestFactory
 
-from olga.analytics.utils import validate_instance_stats_forms, get_coordinates_by_platform_city_name
+from olga.analytics.utils import get_coordinates_by_platform_city_name, validate_instance_stats_forms
 
 # pylint: disable=invalid-name, attribute-defined-outside-init, protected-access
 
@@ -119,7 +119,7 @@ class TestInstallationStatisticsFormsChecker(TestCase):
 @patch('olga.analytics.utils.requests.get')
 class TestPlatformCoordinates(unittest.TestCase):
     """
-    Tests for platform coordinates methods, that gather latitude and longitude.
+    Test for platform coordinates method, that gather latitude and longitude.
     """
 
     def tests_sending_requests(self, mock_request):
@@ -139,9 +139,7 @@ class TestPlatformCoordinates(unittest.TestCase):
         """
         Verify that get_coordinates_by_platform_city_name returns None if platform city name in settings is wrong.
         """
-        mock_request.return_value.json.return_value = {
-            'results': []
-        }
+        mock_request.return_value.json.return_value = {'results': []}
 
         result_without_city_name = get_coordinates_by_platform_city_name('Lmnasasfabqwrqrn')
         self.assertEqual(('', ''), result_without_city_name)

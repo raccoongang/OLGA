@@ -2,7 +2,7 @@
 Helpers for the analytics part of OLGA application.
 """
 
-import httplib
+import http.client as http
 import logging
 import requests
 
@@ -49,14 +49,32 @@ def validate_instance_stats_forms(receive_instance_stats_method):
         if level_valid_forms[statistics_level]:
             return receive_instance_stats_method(request, *args, **kwargs)
 
-        return HttpResponse(status=httplib.UNAUTHORIZED)
+        return HttpResponse(status=http.UNAUTHORIZED)
 
     return wrapper
 
 
 def get_coordinates_by_platform_city_name(city_name):
     """
-    Gather coordinates by platform city name with Nominatim API.
+    Gather coordinates from Nominatim service by the platform city name.
+
+    geo_api.json returns:
+    [
+        {
+            'display_name': '<Display name in binary>',
+            'importance': 0.665644115037534,
+            'place_id': '198763125',
+            'lon': '36.2722660718121',
+            'lat': '49.99142545',
+            'osm_type': 'relation',
+            'licence': 'Data \xa9 OpenStreetMap contributors, ODbL 1.0. https://osm.org/copyright',
+            'osm_id': '3154746',
+            'boundingbox': ['49.8782819', '50.1044256', '36.1056163', '36.4560593'],
+            'type': 'city',
+            'class': 'place',
+            'icon': 'https://nominatim.openstreetmap.org/images/mapicons/poi_place_city.p.20.png'
+        }, ...
+    ]
     """
     geo_api = requests.get('https://nominatim.openstreetmap.org/search/', params={'city': city_name, 'format': 'json'})
 

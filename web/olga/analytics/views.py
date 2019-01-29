@@ -4,7 +4,7 @@ Views for the analytics application.
 
 import copy
 import hashlib
-import httplib
+import http.client as http
 import json
 import logging
 from uuid import uuid4
@@ -19,7 +19,7 @@ from django.utils.decorators import method_decorator
 
 from olga.analytics.forms import AccessTokenForm
 from olga.analytics.models import EdxInstallation, InstallationStatistics
-from olga.analytics.utils import validate_instance_stats_forms, get_coordinates_by_platform_city_name
+from olga.analytics.utils import get_coordinates_by_platform_city_name, validate_instance_stats_forms
 
 
 logging.basicConfig()
@@ -78,7 +78,7 @@ class AccessTokenRegistration(View):
         access_token, is_new_token = self.get_access_token(uid)
         if is_new_token:
             self.create_new_edx_instance(access_token, uid)
-        return JsonResponse({'access_token': access_token}, status=httplib.CREATED)
+        return JsonResponse({'access_token': access_token}, status=http.CREATED)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -112,9 +112,9 @@ class AccessTokenAuthorization(View):
 
         if access_token_serializer.is_valid():
             if self.is_token_authorized(access_token):
-                return HttpResponse(status=httplib.OK)
+                return HttpResponse(status=http.OK)
 
-        return HttpResponse(status=httplib.UNAUTHORIZED)
+        return HttpResponse(status=http.UNAUTHORIZED)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -358,6 +358,6 @@ class ReceiveInstallationStatistics(View):
             self.log_client_ip(request)
 
             self.process_instance_datas(received_data, access_token)
-            return HttpResponse(status=httplib.CREATED)
+            return HttpResponse(status=http.CREATED)
 
-        return HttpResponse(status=httplib.UNAUTHORIZED)
+        return HttpResponse(status=http.UNAUTHORIZED)
