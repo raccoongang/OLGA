@@ -2,7 +2,7 @@
 Tests for analytics utils.
 """
 
-import httplib
+import http.client as http
 import unittest
 
 from mock import call, patch
@@ -69,7 +69,7 @@ class TestInstallationStatisticsFormsChecker(TestCase):
 
         self.decorator_wrapper_response = self.decorator_wrapper(self.factory_request_post)
 
-        self.assertEqual(httplib.UNAUTHORIZED, self.decorator_wrapper_response.status_code)
+        self.assertEqual(http.UNAUTHORIZED, self.decorator_wrapper_response.status_code)
         self.assertEqual(HttpResponse, self.decorator_wrapper_response.__class__)
 
     @patch('olga.analytics.forms.EdxInstallationEnthusiastLevelForm.is_valid')
@@ -99,7 +99,7 @@ class TestInstallationStatisticsFormsChecker(TestCase):
 
         self.decorator_wrapper_response = self.decorator_wrapper(self.factory_request_post)
 
-        self.assertEqual(httplib.UNAUTHORIZED, self.decorator_wrapper_response.status_code)
+        self.assertEqual(http.UNAUTHORIZED, self.decorator_wrapper_response.status_code)
         self.assertEqual(HttpResponse, self.decorator_wrapper_response.__class__)
 
     @patch('olga.analytics.forms.EdxInstallationParanoidLevelForm.is_valid')
@@ -124,7 +124,7 @@ class TestPlatformCoordinates(unittest.TestCase):
 
     def tests_sending_requests(self, mock_request):
         """
-        Test to prove that method send request to needed corresponding URLs.
+        Test to prove that method send request to needed corresponding URL.
         """
         # Verify that get_coordinates_by_platform_city_name sends request to API with address as parameter.
         get_coordinates_by_platform_city_name('Kiev')

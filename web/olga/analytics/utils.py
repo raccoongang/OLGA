@@ -3,9 +3,9 @@ Helpers for the analytics part of OLGA application.
 """
 
 import http.client as http
-import logging
 import requests
 
+import logging
 
 from django.http import HttpResponse
 
@@ -16,10 +16,7 @@ from olga.analytics.forms import (
     InstallationStatisticsEnthusiastLevelForm
 )
 
-logging.basicConfig()
-
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 # pylint: disable=invalid-name
 
