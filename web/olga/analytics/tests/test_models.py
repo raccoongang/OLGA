@@ -79,7 +79,7 @@ class TestInstallationStatisticsMethods(TestCase):
             - fifth object with 2017-06-01 15:30:30, 2017-06-04 15:30:30, 2017-06-05 15:30:30
         """
         students_division_by_2_part = OrderedDict([
-            (k, v / 2) for k, v in WORLDS_STUDENTS_PER_COUNTRY['2017-06']['countries'].iteritems()
+            (k, v / 2) for k, v in WORLDS_STUDENTS_PER_COUNTRY['2017-06']['countries'].items()
         ])
 
         data_created_datetimes = [
@@ -157,7 +157,7 @@ class TestInstallationStatisticsMethods(TestCase):
         result = InstallationStatistics.get_students_per_country_stats()
         wanted_result = {}
 
-        for key, value in WORLDS_STUDENTS_PER_COUNTRY['2017-06']['countries'].iteritems():
+        for key, value in WORLDS_STUDENTS_PER_COUNTRY['2017-06']['countries'].items():
             wanted_result[key] = value * 9 / 2
 
         self.assertDictEqual(wanted_result, result['2017-06']['countries'])

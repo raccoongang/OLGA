@@ -4,7 +4,7 @@ Views for the analytics application.
 
 import copy
 import hashlib
-import httplib
+from http import HTTPStatus as http
 import json
 import logging
 from uuid import uuid4
@@ -19,7 +19,8 @@ from django.utils.decorators import method_decorator
 
 from olga.analytics.forms import AccessTokenForm
 from olga.analytics.models import EdxInstallation, InstallationStatistics
-from olga.analytics.utils import validate_instance_stats_forms
+from olga.analytics.utils import get_coordinates_by_platform_city_name, validate_instance_stats_forms
+
 
 logging.basicConfig()
 
@@ -77,7 +78,7 @@ class AccessTokenRegistration(View):
         access_token, is_new_token = self.get_access_token(uid)
         if is_new_token:
             self.create_new_edx_instance(access_token, uid)
-        return JsonResponse({'access_token': access_token}, status=httplib.CREATED)
+        return JsonResponse({'access_token': access_token}, status=http.CREATED)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -111,9 +112,9 @@ class AccessTokenAuthorization(View):
 
         if access_token_serializer.is_valid():
             if self.is_token_authorized(access_token):
-                return HttpResponse(status=httplib.OK)
+                return HttpResponse(status=http.OK)
 
-        return HttpResponse(status=httplib.UNAUTHORIZED)
+        return HttpResponse(status=http.UNAUTHORIZED)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -179,9 +180,10 @@ class ReceiveInstallationStatistics(View):
             received_data.get('students_per_country'), int(received_data.get('active_students_amount_day'))
         )
         enthusiast_edx_installation = {
-            'latitude': float(received_data.get('latitude')),
-            'longitude': float(received_data.get('longitude')),
+            'latitude': received_data.get('latitude'),
+            'longitude': received_data.get('longitude'),
             'platform_name': received_data.get('platform_name'),
+            'platform_city_name': received_data.get('platform_city_name'),
             'platform_url': received_data.get('platform_url'),
         }
 
@@ -194,8 +196,19 @@ class ReceiveInstallationStatistics(View):
         }
         stats.update(enthusiast_statistics)
 
-        edx_installation_object.latitude = enthusiast_edx_installation['latitude']
-        edx_installation_object.longitude = enthusiast_edx_installation['longitude']
+        # Checks the latitude and longitude that are not empty strings
+        if enthusiast_edx_installation['latitude'] and enthusiast_edx_installation['longitude']:
+            edx_installation_object.latitude = float(enthusiast_edx_installation['latitude'])
+            edx_installation_object.longitude = float(enthusiast_edx_installation['longitude'])
+
+        elif enthusiast_edx_installation['platform_city_name']:
+            latitude, longitude = get_coordinates_by_platform_city_name(
+                enthusiast_edx_installation['platform_city_name']
+            )
+            if latitude and longitude:
+                edx_installation_object.latitude = float(latitude)
+                edx_installation_object.longitude = float(longitude)
+
         edx_installation_object.platform_name = enthusiast_edx_installation['platform_name']
         edx_installation_object.platform_url = enthusiast_edx_installation['platform_url']
         edx_installation_object.save()
@@ -327,7 +340,7 @@ class ReceiveInstallationStatistics(View):
             client_ip = x_forwarded_for.split(',')[0]
         else:
             client_ip = request.META.get('REMOTE_ADDR')
-        return client_ip
+        return client_ip.encode('utf-8')
 
     @method_decorator(validate_instance_stats_forms)
     def post(self, request):
@@ -345,6 +358,6 @@ class ReceiveInstallationStatistics(View):
             self.log_client_ip(request)
 
             self.process_instance_datas(received_data, access_token)
-            return HttpResponse(status=httplib.CREATED)
+            return HttpResponse(status=http.CREATED)
 
-        return HttpResponse(status=httplib.UNAUTHORIZED)
+        return HttpResponse(status=http.UNAUTHORIZED)
