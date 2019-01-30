@@ -1,4 +1,4 @@
-FROM python:2.7-alpine
+FROM python:3.6-alpine
 MAINTAINER devops@raccoongang.com
 ENV PYTHONUNBUFFERED 1
 RUN apk --update add postgresql-dev alpine-sdk
