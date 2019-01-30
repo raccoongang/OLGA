@@ -4,7 +4,7 @@ Tests for analytics views.
 
 import copy
 import hashlib
-import httplib
+from http import HTTPStatus as http
 import json
 import uuid
 from datetime import datetime
@@ -29,7 +29,7 @@ from olga.analytics.views import (
 # pylint: disable=invalid-name
 
 
-class MockUUID4(object):  # pylint: disable=too-few-public-methods
+class MockUUID4:  # pylint: disable=too-few-public-methods
     """
     Mock UUID4 hex value.
 
@@ -40,7 +40,7 @@ class MockUUID4(object):  # pylint: disable=too-few-public-methods
     hex = uuid.uuid4().hex
 
 
-class InstallationDefaultData(object):  # pylint: disable=too-few-public-methods
+class InstallationDefaultData:  # pylint: disable=too-few-public-methods
     """
     Provide default data that uses in edx installation and Acceptor server flow.
     """
@@ -134,23 +134,21 @@ class TestAccessTokenRegistration(TestCase):
 
         response = self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR='123.0.0.1')
 
-        self.assertEqual(response.status_code, httplib.CREATED)
+        self.assertEqual(response.status_code, http.CREATED)
         self.assertJSONEqual(
             force_text(response.content),
             {'access_token': mock_uuid4.return_value.hex}
         )
 
-    @patch('olga.analytics.views.AccessTokenRegistration.get_access_token', )
-    def test_get_access_token_occurs(
-            self, get_access_token
-    ):
+    @patch('olga.analytics.views.AccessTokenRegistration.get_access_token')
+    def test_get_access_token_occurs(self, get_access_token):
         """
         Test get_access_token method accepts uid during post method`s process.
         """
         get_access_token.return_value = uuid.uuid4().hex, True
 
         x_forward_for = '123.0.0.1'
-        uid = hashlib.md5(x_forward_for).hexdigest()
+        uid = hashlib.md5(x_forward_for.encode('utf-8')).hexdigest()
         self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR=x_forward_for)
 
         get_access_token.assert_called_once_with(uid)
@@ -167,7 +165,7 @@ class TestAccessTokenRegistration(TestCase):
         get_access_token.return_value = (access_token, True)
 
         x_forward_for = '123.0.0.1'
-        uid = hashlib.md5(x_forward_for).hexdigest()
+        uid = hashlib.md5(x_forward_for.encode('utf-8')).hexdigest()
         self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR=x_forward_for)
 
         create_new_edx_instance.assert_called_once_with(access_token, uid)
@@ -181,7 +179,7 @@ class TestAccessTokenRegistration(TestCase):
         mock_uuid4.return_value = MockUUID4()
 
         x_forward_for = '123.0.0.1'
-        uid = hashlib.md5(x_forward_for).hexdigest()
+        uid = hashlib.md5(x_forward_for.encode('utf-8')).hexdigest()
         self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR=x_forward_for)
 
         mock_logger_debug.assert_any_call(
@@ -191,7 +189,7 @@ class TestAccessTokenRegistration(TestCase):
         )
 
         x_forward_for = '123.0.0.2'
-        uid = hashlib.md5(x_forward_for).hexdigest()
+        uid = hashlib.md5(x_forward_for.encode('utf-8')).hexdigest()
         self.client.post('/api/token/registration/', HTTP_X_FORWARDED_FOR=x_forward_for)
         mock_uuid4.return_value = MockUUID4()
 
@@ -222,7 +220,7 @@ class TestAccessTokenAuthorization(TestCase):
 
         response = self.client.post('/api/token/authorization/', {'access_token': access_token})
 
-        self.assertEqual(httplib.OK, response.status_code)
+        self.assertEqual(http.OK, response.status_code)
         self.assertEqual(HttpResponse, response.__class__)
 
     @patch('olga.analytics.views.uuid4')
@@ -241,7 +239,7 @@ class TestAccessTokenAuthorization(TestCase):
 
         response = self.client.post('/api/token/authorization/', {'access_token': access_token})
 
-        self.assertEqual(httplib.UNAUTHORIZED, response.status_code)
+        self.assertEqual(http.UNAUTHORIZED, response.status_code)
         self.assertEqual(HttpResponse, response.__class__)
 
     def test_post_method_if_request_data_is_not_valid(self, mock_access_token_form_is_valid):
@@ -254,7 +252,7 @@ class TestAccessTokenAuthorization(TestCase):
 
         response = self.client.post('/api/token/authorization/', {'access_token': access_token})
 
-        self.assertEqual(httplib.UNAUTHORIZED, response.status_code)
+        self.assertEqual(http.UNAUTHORIZED, response.status_code)
         self.assertEqual(HttpResponse, response.__class__)
 
 
@@ -510,7 +508,7 @@ class TestReceiveInstallationStatistics(TestCase):
         """
         response = self.client.post('/api/installation/statistics/', self.received_data)
 
-        self.assertEqual(httplib.CREATED, response.status_code)
+        self.assertEqual(http.CREATED, response.status_code)
         self.assertEqual(HttpResponse, response.__class__)
 
     @patch('olga.analytics.views.AccessTokenAuthorization.is_token_authorized')
@@ -522,7 +520,7 @@ class TestReceiveInstallationStatistics(TestCase):
 
         response = self.client.post('/api/installation/statistics/', self.received_data)
 
-        self.assertEqual(httplib.UNAUTHORIZED, response.status_code)
+        self.assertEqual(http.UNAUTHORIZED, response.status_code)
         self.assertEqual(HttpResponse, response.__class__)
 
     @patch('olga.analytics.views.AccessTokenAuthorization.is_token_authorized')

@@ -15,12 +15,12 @@ setup(
     license='AL v2',
     install_requires=[
         'ddt>=1.1.1',
-        'Django>=1.11.3',
+        'Django>=2.1.5',
         'gunicorn>=19.7.1',
         'factory-boy==2.9.0',
         'mock==2.0.0',
         'psycopg2==2.7.3',
         'pycountry>=17.5.14',
-        'requests>=2.18.2',
+        'requests>=2.21.0',
     ],
 )
