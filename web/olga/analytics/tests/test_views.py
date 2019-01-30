@@ -29,7 +29,7 @@ from olga.analytics.views import (
 # pylint: disable=invalid-name
 
 
-class MockUUID4(object):  # pylint: disable=too-few-public-methods, useless-object-inheritance
+class MockUUID4:  # pylint: disable=too-few-public-methods
     """
     Mock UUID4 hex value.
 
@@ -40,7 +40,7 @@ class MockUUID4(object):  # pylint: disable=too-few-public-methods, useless-obje
     hex = uuid.uuid4().hex
 
 
-class InstallationDefaultData(object):  # pylint: disable=too-few-public-methods, useless-object-inheritance
+class InstallationDefaultData:  # pylint: disable=too-few-public-methods
     """
     Provide default data that uses in edx installation and Acceptor server flow.
     """
