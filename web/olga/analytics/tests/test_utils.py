@@ -2,15 +2,16 @@
 Tests for analytics utils.
 """
 
-import httplib
+from http import HTTPStatus as http
+import unittest
 
-from mock import patch
+from mock import call, patch
 
 from django.http import HttpResponse
 from django.test import TestCase
 from django.test.client import RequestFactory
 
-from olga.analytics.utils import validate_instance_stats_forms
+from olga.analytics.utils import get_coordinates_by_platform_city_name, validate_instance_stats_forms
 
 # pylint: disable=invalid-name, attribute-defined-outside-init, protected-access
 
@@ -25,6 +26,7 @@ class TestInstallationStatisticsFormsChecker(TestCase):
         Provide basic action and common variables as passing method to decorator (it is not intended for testing).
         """
         factory_request = RequestFactory()
+        self.factory_request = factory_request
 
         self.factory_request_post = factory_request.post('/api/installation/statistics/', {'kwargs': 'kwargs'})
         self.fake_response = 'fake_response'
@@ -67,7 +69,7 @@ class TestInstallationStatisticsFormsChecker(TestCase):
 
         self.decorator_wrapper_response = self.decorator_wrapper(self.factory_request_post)
 
-        self.assertEqual(httplib.UNAUTHORIZED, self.decorator_wrapper_response.status_code)
+        self.assertEqual(http.UNAUTHORIZED, self.decorator_wrapper_response.status_code)
         self.assertEqual(HttpResponse, self.decorator_wrapper_response.__class__)
 
     @patch('olga.analytics.forms.EdxInstallationEnthusiastLevelForm.is_valid')
@@ -97,7 +99,7 @@ class TestInstallationStatisticsFormsChecker(TestCase):
 
         self.decorator_wrapper_response = self.decorator_wrapper(self.factory_request_post)
 
-        self.assertEqual(httplib.UNAUTHORIZED, self.decorator_wrapper_response.status_code)
+        self.assertEqual(http.UNAUTHORIZED, self.decorator_wrapper_response.status_code)
         self.assertEqual(HttpResponse, self.decorator_wrapper_response.__class__)
 
     @patch('olga.analytics.forms.EdxInstallationParanoidLevelForm.is_valid')
@@ -112,3 +114,42 @@ class TestInstallationStatisticsFormsChecker(TestCase):
 
         self.decorator_wrapper(self.factory_request_post)
         self.mock_decorated_method.assert_called_once_with(self.factory_request_post)
+
+
+@patch('olga.analytics.utils.requests.get')
+class TestPlatformCoordinates(unittest.TestCase):
+    """
+    Test for platform coordinates method, that gather latitude and longitude.
+    """
+
+    def tests_sending_requests(self, mock_request):
+        """
+        Test to prove that method send request to needed corresponding URL.
+        """
+        # Verify that get_coordinates_by_platform_city_name sends request to API with address as parameter.
+        get_coordinates_by_platform_city_name('Kiev')
+
+        expected_calls = [
+            call('https://nominatim.openstreetmap.org/search/', params={'city': 'Kiev', 'format': 'json'}),
+        ]
+
+        self.assertEqual(mock_request.call_args_list, expected_calls)
+
+    def test_platform_city_name_if_wrong_city_name(self, mock_request):
+        """
+        Verify that get_coordinates_by_platform_city_name returns None if platform city name in settings is wrong.
+        """
+        mock_request.return_value.json.return_value = {'results': []}
+
+        result_without_city_name = get_coordinates_by_platform_city_name('Lmnasasfabqwrqrn')
+        self.assertEqual(('', ''), result_without_city_name)
+
+    def test_platform_city_name_if_api_changed(self, mock_request):
+        """
+        Verify return value if the keys in the API has been changed.
+        """
+        mock_request.return_value.status_code = 200
+        mock_request.return_value.json.return_value = [{'some_other_key': "30", 'some_other_key2': "20"}]
+
+        result_without_city_name = get_coordinates_by_platform_city_name('Kharkov')
+        self.assertEqual(('', ''), result_without_city_name)

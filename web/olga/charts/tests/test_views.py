@@ -148,7 +148,7 @@ class TestGraphsView(TestCase):
             mock_installation_statistics_model_data_per_period,
             mock_installation_statistics_model_timeline,
             mock_get_data_created_datetime_scope
-    ):
+    ):  # pylint: disable=too-many-locals
         """
         Verify that graphs view render correct context fields values.
         """

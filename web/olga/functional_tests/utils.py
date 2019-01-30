@@ -37,7 +37,7 @@ class SetUp(TestCase):
             InstallationStatisticsFactory(data_created_datetime=mock_data_created_datetime)
 
 
-class _HtmlTargets(object):
+class _HtmlTargets:
     """
     Contains several acceptor parts of html-templates, that need to be tested.
     """
