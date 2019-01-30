@@ -143,3 +143,13 @@ class TestPlatformCoordinates(unittest.TestCase):
 
         result_without_city_name = get_coordinates_by_platform_city_name('Lmnasasfabqwrqrn')
         self.assertEqual(('', ''), result_without_city_name)
+
+    def test_platform_city_name_if_api_changed(self, mock_request):
+        """
+        Verify return value if the keys in the API has been changed.
+        """
+        mock_request.return_value.status_code = 200
+        mock_request.return_value.json.return_value = [{'some_other_key': "30", 'some_other_key2': "20"}]
+
+        result_without_city_name = get_coordinates_by_platform_city_name('Kharkov')
+        self.assertEqual(('', ''), result_without_city_name)

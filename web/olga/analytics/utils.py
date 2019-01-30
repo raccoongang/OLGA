@@ -78,7 +78,7 @@ def get_coordinates_by_platform_city_name(city_name):
     if geo_api.status_code == 200 and geo_api.json():
         location = geo_api.json()[0]
 
-        return location['lat'], location['lon']
+        return location.get('lat', ''), location.get('lon', '')
 
     logger.debug('Nominatim API status: %s, City name: %s', geo_api.status_code, city_name)
     return '', ''
