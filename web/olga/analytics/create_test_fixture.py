@@ -136,6 +136,7 @@ def generate_model():
 
     return json.dumps(instance_list)
 
+
 if __name__ == '__main__':
 
     data = generate_model()
