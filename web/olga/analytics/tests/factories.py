@@ -18,7 +18,7 @@ from olga.analytics.models import InstallationStatistics, EdxInstallation
 
 
 class EdxInstallationFactory(DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = EdxInstallation
 
     access_token = uuid.uuid4().hex
@@ -29,7 +29,7 @@ class EdxInstallationFactory(DjangoModelFactory):
 
 
 class InstallationStatisticsFactory(DjangoModelFactory):
-    class Meta(object):
+    class Meta:
         model = InstallationStatistics
 
     active_students_amount_day = 5

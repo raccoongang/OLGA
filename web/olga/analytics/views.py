@@ -4,7 +4,7 @@ Views for the analytics application.
 
 import copy
 import hashlib
-import http.client as http
+from http import HTTPStatus as http
 import json
 import logging
 from uuid import uuid4

@@ -4,7 +4,7 @@ Tests for analytics views.
 
 import copy
 import hashlib
-import http.client as http
+from http import HTTPStatus as http
 import json
 import uuid
 from datetime import datetime
@@ -29,7 +29,7 @@ from olga.analytics.views import (
 # pylint: disable=invalid-name
 
 
-class MockUUID4(object):  # pylint: disable=too-few-public-methods
+class MockUUID4(object):  # pylint: disable=too-few-public-methods, useless-object-inheritance
     """
     Mock UUID4 hex value.
 
@@ -40,7 +40,7 @@ class MockUUID4(object):  # pylint: disable=too-few-public-methods
     hex = uuid.uuid4().hex
 
 
-class InstallationDefaultData(object):  # pylint: disable=too-few-public-methods
+class InstallationDefaultData(object):  # pylint: disable=too-few-public-methods, useless-object-inheritance
     """
     Provide default data that uses in edx installation and Acceptor server flow.
     """
@@ -140,10 +140,8 @@ class TestAccessTokenRegistration(TestCase):
             {'access_token': mock_uuid4.return_value.hex}
         )
 
-    @patch('olga.analytics.views.AccessTokenRegistration.get_access_token', )
-    def test_get_access_token_occurs(
-            self, get_access_token
-    ):
+    @patch('olga.analytics.views.AccessTokenRegistration.get_access_token')
+    def test_get_access_token_occurs(self, get_access_token):
         """
         Test get_access_token method accepts uid during post method`s process.
         """

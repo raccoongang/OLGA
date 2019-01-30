@@ -2,7 +2,7 @@
 Tests for analytics utils.
 """
 
-import http.client as http
+from http import HTTPStatus as http
 import unittest
 
 from mock import call, patch

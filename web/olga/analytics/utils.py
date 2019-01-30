@@ -2,10 +2,10 @@
 Helpers for the analytics part of OLGA application.
 """
 
-import http.client as http
+from http import HTTPStatus as http
+import logging
 import requests
 
-import logging
 
 from django.http import HttpResponse
 
@@ -64,7 +64,7 @@ def get_coordinates_by_platform_city_name(city_name):
             'lon': '36.2722660718121',
             'lat': '49.99142545',
             'osm_type': 'relation',
-            'licence': 'Data \xa9 OpenStreetMap contributors, ODbL 1.0. https://osm.org/copyright',
+            'licence': 'Data OpenStreetMap contributors, ODbL 1.0. https://osm.org/copyright',
             'osm_id': '3154746',
             'boundingbox': ['49.8782819', '50.1044256', '36.1056163', '36.4560593'],
             'type': 'city',
