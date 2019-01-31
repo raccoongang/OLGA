@@ -21,7 +21,7 @@ class TestGraphsMetricsWithoutStatistics(TestCase):
     Test html render graphs metrics if statistics does not exist.
     """
 
-    @data([0, 'Instances'], [None, 'Courses'], [None, 'Active Students'])
+    @data([0, 'Instances'], [0, 'Courses'], [0, 'Active Students'])
     @unpack
     def test_activity_metrics_if_no_statistics(self, amount, label):
         """

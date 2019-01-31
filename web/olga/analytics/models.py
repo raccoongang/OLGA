@@ -156,7 +156,13 @@ class InstallationStatistics(models.Model):
         """
         Provide total count of all instances, courses and students from all instances per previous calendar day.
 
-        Returns overall counts as int-value.
+        Returns overall counts as dict.
+        {
+            "instances_count": <int:instances_count>,
+            "courses_count": <int:courses_count>,
+            "students_count": <int:students_count>,
+            "generated_certificates_count": <int:generated_certificates_count>,
+        }
         """
         start_of_day, end_of_day = get_last_calendar_day()
 
@@ -174,7 +180,37 @@ class InstallationStatistics(models.Model):
             Sum('active_students_amount_day')
         )['active_students_amount_day__sum']
 
-        return instances_count, courses_count, students_count
+        generated_certificates_count = all_unique_instances.aggregate(
+            Sum('generated_certificates')
+        )['generated_certificates__sum']
+
+        return {
+            "instances_count": instances_count or 0,
+            "courses_count": courses_count or 0,
+            "students_count": students_count or 0,
+            "generated_certificates_count": generated_certificates_count or 0,
+        }
+
+    @classmethod
+    def get_charts_data(cls):
+        """
+        Provide data about certificates and users for chart.
+
+        :return: dict
+        {
+            "19-01-28": [0, 1, 0],
+            "19-01-22": [0, 7, 0],
+            "19-01-31": [0, 0, 0],
+        }
+        """
+        statistics = cls.objects.all()
+
+        charts = dict()
+        for item in statistics:
+            charts[item.data_created_datetime.strftime('%y-%m-%d')] = \
+                [item.registered_students, item.generated_certificates, item.active_students_amount_day]
+
+        return charts
 
     @classmethod
     def get_students_per_country_stats(cls):
@@ -263,7 +299,7 @@ class InstallationStatistics(models.Model):
 
         if not worlds_students_per_country:
             tabular_format_countries_map[cls.unspecified_country_name] = [0, 0]
-            return datamap_format_countries_list, tabular_format_countries_map.items()
+            return datamap_format_countries_list, list(tabular_format_countries_map.items())
 
         all_active_students = sum(worlds_students_per_country.values())
 

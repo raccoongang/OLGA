@@ -140,14 +140,15 @@ class TestInstallationStatisticsMethods(TestCase):
     @patch('olga.analytics.models.get_last_calendar_day')
     def test_overall_counts(self, mock_get_last_calendar_day):
         """
-        Verify that overall_counts method returns overall statistics instance counts for previous calendar day.
+        Verify that overall_counts method returns overall statistics instance counts in dict for previous calendar day.
         """
         mock_get_last_calendar_day.return_value = date(2017, 6, 1), date(2017, 6, 2)
+        test_result = dict(instances_count=0, courses_count=0, students_count=0, generated_certificates_count=0)
 
         result = InstallationStatistics.overall_counts()
 
         self.assertEqual(
-            (2, 2, 10), result
+            test_result.keys(), result.keys()
         )
 
     def test_students_per_country_as_dict(self):
