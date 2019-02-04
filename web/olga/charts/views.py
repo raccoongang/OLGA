@@ -36,8 +36,12 @@ class MapView(View):
         """
         Pass graph data to frontend.
         """
+        first_datetime_of_update_data, last_datetime_of_update_data = get_data_created_datetime_scope()
+
         context = {
             'months': json.dumps(InstallationStatistics().get_students_per_country()),
+            'first_datetime_of_update_data': first_datetime_of_update_data,
+            'last_datetime_of_update_data': last_datetime_of_update_data,
         }
         return render(request, 'charts/worldmap.html', context)
 
