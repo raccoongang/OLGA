@@ -207,8 +207,11 @@ class InstallationStatistics(models.Model):
 
         charts = dict()
         for item in statistics:
-            charts[item.data_created_datetime.strftime('%y-%m-%d')] = \
-                [item.registered_students, item.generated_certificates, item.active_students_amount_day]
+            charts[item.data_created_datetime.strftime('%y-%m-%d')] = [
+                item.registered_students,
+                item.generated_certificates,
+                item.enthusiastic_students
+            ]
 
         return charts
 
