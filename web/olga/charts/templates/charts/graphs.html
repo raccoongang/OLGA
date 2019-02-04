@@ -15,12 +15,8 @@
         var instances = JSON.parse('{{ instances|safe }}');
         var newData = {
             'total_registered_students': 12300,
-            'total_generated_certificates': 4320,
-            'monthly': {
-                '2018-01': [11, 33, 55],
-                '2018-05': [22, 44, 66],
-                '2018-02': [12, 23, 34]
-            }
+            'total_generated_certificates': {{ generated_certificates_count|safe }},
+            'monthly': {{ charts|safe }}
         }
     </script>
 

@@ -264,9 +264,9 @@ class ReceiveInstallationStatistics(View):
         for str_date in all_dates:
             date = datetime.datetime.strptime(str_date, '%Y-%m-%d')
             dates[date] = data_template.copy()
-            dates[date]['registered_students'] += registered_students_dates.get(date, 0)
-            dates[date]['enthusiastic_students'] += enthusiastic_students_dates.get(date, 0)
-            dates[date]['generated_certificates'] += generated_certificates_dates.get(date, 0)
+            dates[date]['registered_students'] += registered_students_dates.get(str_date, 0)
+            dates[date]['enthusiastic_students'] += enthusiastic_students_dates.get(str_date, 0)
+            dates[date]['generated_certificates'] += generated_certificates_dates.get(str_date, 0)
 
         return dates
 
@@ -306,9 +306,9 @@ class ReceiveInstallationStatistics(View):
         log_msg = 'Corresponding data was %s in OLGA database.'
 
         if previous_stats:
-            previous_stats.registered_students += stats.pop('registered_students', 0)
-            previous_stats.enthusiastic_students += stats.pop('enthusiastic_students', 0)
-            previous_stats.generated_certificates += stats.pop('generated_certificates', 0)
+            previous_stats.registered_students = stats.pop('registered_students', 0)
+            previous_stats.enthusiastic_students = stats.pop('enthusiastic_students', 0)
+            previous_stats.generated_certificates = stats.pop('generated_certificates', 0)
             previous_stats.update(stats)
             logger.debug(log_msg, 'updated')
         else:

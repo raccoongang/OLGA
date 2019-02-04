@@ -154,7 +154,7 @@ class TestGraphsView(TestCase):
         """
         mock_timeline = ['2017-05-14', '2017-05-15', '2017-05-16']
         mock_students, mock_courses, mock_instances = [4124, 5122, 6412], [110, 211, 167], [30, 20, 25]
-        mock_instances_count, mock_courses_count, mock_students_count = 6412, 167, 25
+        mock_instances_count, mock_courses_count, mock_students_count, mock_certificates_count = 6412, 167, 25, 0
         mock_first_datetime_of_update_data = datetime(2017, 6, 1, 14, 56, 18)
         mock_last_datetime_of_update_data = datetime(2017, 7, 2, 23, 12, 8)
 
@@ -162,8 +162,12 @@ class TestGraphsView(TestCase):
 
         mock_installation_statistics_model_data_per_period.return_value = mock_students, mock_courses, mock_instances
 
-        mock_installation_statistics_model_overall_counts.return_value = \
-            mock_instances_count, mock_courses_count, mock_students_count
+        mock_installation_statistics_model_overall_counts.return_value = {
+            "instances_count": 6412,
+            "courses_count": 167,
+            "students_count": 25,
+            "generated_certificates_count": 0,
+        }
 
         mock_get_data_created_datetime_scope.return_value = \
             mock_first_datetime_of_update_data, mock_last_datetime_of_update_data
@@ -177,5 +181,6 @@ class TestGraphsView(TestCase):
         self.assertEqual(response.context['instances_count'], mock_instances_count)
         self.assertEqual(response.context['students_count'], mock_students_count)
         self.assertEqual(response.context['courses_count'], mock_courses_count)
+        self.assertEqual(response.context['generated_certificates_count'], mock_certificates_count)
         self.assertEqual(response.context['first_datetime_of_update_data'], mock_first_datetime_of_update_data)
         self.assertEqual(response.context['last_datetime_of_update_data'], mock_last_datetime_of_update_data)

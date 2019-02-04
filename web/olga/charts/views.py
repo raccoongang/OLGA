@@ -56,20 +56,21 @@ class GraphsView(View):
 
         students, courses, instances = InstallationStatistics.data_per_period()
 
-        instances_count, courses_count, students_count = InstallationStatistics.overall_counts()
-
         first_datetime_of_update_data, last_datetime_of_update_data = get_data_created_datetime_scope()
+
+        charts = InstallationStatistics.get_charts_data()
 
         context = {
             'timeline': json.dumps(timeline),
             'students': json.dumps(students),
             'courses': json.dumps(courses),
             'instances': json.dumps(instances),
-            'instances_count': instances_count,
-            'courses_count': courses_count,
-            'students_count': students_count,
             'first_datetime_of_update_data': first_datetime_of_update_data,
-            'last_datetime_of_update_data': last_datetime_of_update_data
+            'last_datetime_of_update_data': last_datetime_of_update_data,
+            'charts': json.dumps(charts),
         }
+
+        # Update context with this data: instances_count, courses_count, students_count, generated_certificates_count
+        context.update(InstallationStatistics.overall_counts())
 
         return render(request, 'charts/graphs.html', context)
