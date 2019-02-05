@@ -59,6 +59,7 @@ class InstallationDefaultData:  # pylint: disable=too-few-public-methods
             'latitude': '50.10',
             'longitude': '40.50',
             'platform_name': 'platform_name',
+            'platform_city_name': 'Kiev',
             'platform_url': 'https://platform.url',
             'statistics_level': 'enthusiast',
             'students_per_country': "{\"RU\": 10, \"CA\": 5, \"UA\": 20}",
@@ -72,14 +73,14 @@ class InstallationDefaultData:  # pylint: disable=too-few-public-methods
             'active_students_amount_week': 15,
             'active_students_amount_month': 20,
             'courses_amount': 10,
-            'statistics_level': 'enthusiast'
+            'statistics_level': 'enthusiast',
         }
 
         enthusiast_edx_installation = {
             'latitude': 50.10,
             'longitude': 40.50,
             'platform_name': 'platform_name',
-            'platform_url': 'https://platform.url'
+            'platform_url': 'https://platform.url',
         }
 
         return received_data, installation_statistics, enthusiast_edx_installation
@@ -320,6 +321,49 @@ class TestReceiveInstallationStatisticsHelpers(TestCase):
         extended_edx_installation_object_attributes = EdxInstallation.objects.first().__dict__
 
         self.assertDictContainsSubset(self.enthusiast_edx_installation, extended_edx_installation_object_attributes)
+
+    def test_extend_stats_without_geo_coordinates(self):
+        """
+        Verify that the get_coordinates_by_platform_city_name return coordinates and save it to the model.
+
+        When received data hasn't latitude, longitude but has platform_city_name.
+        """
+        edx_installation_object = EdxInstallationFactory(
+            platform_name=None, platform_url=None, latitude=None, longitude=None
+        )
+
+        self.received_data['latitude'] = ''
+        self.received_data['longitude'] = ''
+
+        ReceiveInstallationStatistics().extend_stats_to_enthusiast(
+            self.received_data, self.installation_statistics, edx_installation_object,
+        )
+
+        stats = EdxInstallation.objects.last()
+
+        self.assertEqual((50.4500644, 30.5241037), (stats.latitude, stats.longitude))
+
+    def test_extend_stats_without_platform_city_name(self):
+        """
+        Verify that latitude and longitude is None.
+
+        When received data hasn't latitude, longitude, and platform_city_name.
+        """
+        edx_installation_object = EdxInstallationFactory(
+            platform_name=None, platform_url=None, latitude=None, longitude=None
+        )
+
+        self.received_data['latitude'] = ''
+        self.received_data['longitude'] = ''
+        self.received_data['platform_city_name'] = ''
+
+        ReceiveInstallationStatistics().extend_stats_to_enthusiast(
+            self.received_data, self.installation_statistics, edx_installation_object,
+        )
+
+        stats = EdxInstallation.objects.first()
+
+        self.assertEqual((None, None), (stats.latitude, stats.longitude))
 
     @patch('olga.analytics.views.ReceiveInstallationStatistics.extend_stats_to_enthusiast')
     @patch('olga.analytics.models.EdxInstallation.objects.get')
