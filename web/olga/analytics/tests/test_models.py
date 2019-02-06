@@ -143,7 +143,13 @@ class TestInstallationStatisticsMethods(TestCase):
         Verify that overall_counts method returns overall statistics instance counts in dict for previous calendar day.
         """
         mock_get_last_calendar_day.return_value = date(2017, 6, 1), date(2017, 6, 2)
-        test_result = dict(instances_count=0, courses_count=0, students_count=0, generated_certificates_count=0)
+        test_result = dict(
+            instances_count=0,
+            courses_count=0,
+            students_count=0,
+            generated_certificates_count=0,
+            registered_students_count=0,
+        )
 
         result = InstallationStatistics.overall_counts()
 

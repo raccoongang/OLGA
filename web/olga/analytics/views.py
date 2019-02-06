@@ -187,7 +187,7 @@ class ReceiveInstallationStatistics(View):
             'platform_url': received_data.get('platform_url'),
         }
 
-        if 'null' in students_per_country and not students_per_country['null']:
+        if 'null' in students_per_country and students_per_country['null']:
             students_per_country.pop('null')
 
         enthusiast_statistics = {

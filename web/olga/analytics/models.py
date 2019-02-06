@@ -184,11 +184,16 @@ class InstallationStatistics(models.Model):
             Sum('generated_certificates')
         )['generated_certificates__sum']
 
+        registered_students_count = all_unique_instances.aggregate(
+            Sum('registered_students')
+        )['registered_students__sum']
+
         return {
             "instances_count": instances_count or 0,
             "courses_count": courses_count or 0,
             "students_count": students_count or 0,
             "generated_certificates_count": generated_certificates_count or 0,
+            "registered_students_count": registered_students_count or 0,
         }
 
     @classmethod

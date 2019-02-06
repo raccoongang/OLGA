@@ -14,7 +14,7 @@
         var courses = JSON.parse('{{ courses|safe }}');
         var instances = JSON.parse('{{ instances|safe }}');
         var newData = {
-            'total_registered_students': 12300,
+            'total_registered_students': {{ registered_students_count|safe }},
             'total_generated_certificates': {{ generated_certificates_count|safe }},
             'monthly': {{ charts|safe }}
         }
