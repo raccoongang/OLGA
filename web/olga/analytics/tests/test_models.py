@@ -148,7 +148,7 @@ class TestInstallationStatisticsMethods(TestCase):
             courses_count=0,
             students_count=0,
             generated_certificates_count=0,
-            registered_students_count=0
+            registered_students_count=0,
         )
 
         result = InstallationStatistics.overall_counts()
