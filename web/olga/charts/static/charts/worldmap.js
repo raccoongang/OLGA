@@ -30,6 +30,7 @@ function compose_dataset(datamap_data) {
     datamap = new Datamap({
         element: document.getElementById('datamap-container'),
         projection: 'mercator', // Big world map.
+
         // Countries don't listed in dataset will be painted with this color.
         fills: { defaultFill: '#F5F5F5' },
         data: dataset,
@@ -59,8 +60,6 @@ function compose_dataset(datamap_data) {
             }
         }
     });
-
-    datamap;
 
     /**
      * Scaling map.
