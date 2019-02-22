@@ -64,6 +64,7 @@ function select_month(month_key) {
     $('#tbody_' + month_key).show();
 
     // Update map
+    datamap.updateChoropleth(null, {reset: true});
     datamap.updateChoropleth(compose_dataset(month.datamap_countries_list));
 }
 
