@@ -61,8 +61,6 @@ function compose_dataset(datamap_data) {
         }
     });
 
-    Datamap();
-
     /**
      * Scaling map.
      */
