@@ -58,7 +58,7 @@ function select_month(month_key) {
     // Update top_country
     $('#top_country').html(month.top_country);
     // Update countries_amount
-    $('#countries_amount').html(month.countries_amount);
+    $('#countries_amount').html(month.tabular_countries_list.length);
     // Update countries_table
     $('#DataTables_Table_0 tbody').hide();
     $('#tbody_' + month_key).show();
