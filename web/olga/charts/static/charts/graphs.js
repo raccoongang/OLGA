@@ -40,7 +40,7 @@
         layout = {
             xaxis: {
                 title: chart_title,
-
+                side: 'top',
             },
             yaxis: {
                 nticks: 4,
