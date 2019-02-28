@@ -153,13 +153,20 @@
 
         var data = [trace1, trace2, trace3];
 
-        var layout = {barmode: 'group'};
+        var layout = {
+            barmode: 'group',
+            title: chart_title,
+            legend: {
+                x: 0,
+                y: 100,
+            }
+        };
 
         Plotly.newPlot(chart, data, layout);
     }
 
     appendChartData(instances_gd, [instances,courses,students], 'Instances, Courses, Students');
-    appendSecChart(courses_gd, [], 'Need_a_name');
+    appendSecChart(courses_gd, [], 'Student engagement');
     document.getElementById('js-total-cert').innerHTML = newData.total_generated_certificates;
     document.getElementById('js-total-stud').innerHTML = newData.total_registered_students;
 
