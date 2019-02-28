@@ -51,6 +51,8 @@
                 side: 'right',
                 tickfont: {color: '#8BB22A'},
                 showline: true,
+                ticklen: 30,
+                tickcolor: 'rgba(0,0,0,0)',
             },
             yaxis4: {
                 nticks: 5,
