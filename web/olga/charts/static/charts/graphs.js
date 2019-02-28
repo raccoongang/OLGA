@@ -38,10 +38,7 @@
      */
     function appendChartData(chart, chart_data, chart_title) {
         layout = {
-            xaxis: {
-                title: chart_title,
-
-            },
+            title: chart_title,
             yaxis: {
                 nticks: 4,
                 tickfont: {color: '#70A3FF'},
