@@ -38,10 +38,7 @@
      */
     function appendChartData(chart, chart_data, chart_title) {
         layout = {
-            xaxis: {
-                title: chart_title,
-
-            },
+            title: chart_title,
             yaxis: {
                 nticks: 4,
                 tickfont: {color: '#70A3FF'},
@@ -54,6 +51,8 @@
                 side: 'right',
                 tickfont: {color: '#8BB22A'},
                 showline: true,
+                ticklen: 30,
+                tickcolor: 'rgba(0,0,0,0)',
             },
             yaxis4: {
                 nticks: 5,
@@ -153,13 +152,20 @@
 
         var data = [trace1, trace2, trace3];
 
-        var layout = {barmode: 'group'};
+        var layout = {
+            barmode: 'group',
+            title: chart_title,
+            legend: {
+                x: 0,
+                y: 100,
+            }
+        };
 
         Plotly.newPlot(chart, data, layout);
     }
 
     appendChartData(instances_gd, [instances,courses,students], 'Instances, Courses, Students');
-    appendSecChart(courses_gd, [], 'Need_a_name');
+    appendSecChart(courses_gd, [], 'Student engagement');
     document.getElementById('js-total-cert').innerHTML = newData.total_generated_certificates;
     document.getElementById('js-total-stud').innerHTML = newData.total_registered_students;
 
