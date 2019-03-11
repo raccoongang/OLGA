@@ -293,9 +293,9 @@ class ReceiveInstallationStatistics(View):
         Save edX installation data into a database.
 
         Arguments:
-            received_data (QueryDict): Request data from edX instance.
-            access_token (unicode): Secret key to allow edX instance send a data to server.
-                                    If token is empty, it will be generated with uuid.UUID in string format.
+            :param statistics_date: Datetime object. Date and time when statistics was send.
+            :param edx_installation_object: EdxInstallation instance for current platform.
+            :param stats: Dict object with statistics for current date.
         """
         statistics_date.replace(hour=0, minute=0, second=0, microsecond=0)
         stats['data_created_datetime'] = statistics_date
@@ -303,13 +303,26 @@ class ReceiveInstallationStatistics(View):
             statistics_date,
             edx_installation_object=edx_installation_object,
         )
-        log_msg = 'Corresponding data was %s in OLGA database.'
+        if stats['registered_students'] == 0:
+            stats.pop('registered_students')
+        if stats['enthusiastic_students'] == 0:
+            stats.pop('enthusiastic_students')
+        if stats['generated_certificates'] == 0:
+            stats.pop('generated_certificates')
 
+        log_msg = 'Corresponding data was %s in OLGA database.'
         if previous_stats:
-            previous_stats.registered_students = stats.pop('registered_students', 0)
-            previous_stats.enthusiastic_students = stats.pop('enthusiastic_students', 0)
-            previous_stats.generated_certificates = stats.pop('generated_certificates', 0)
-            previous_stats.update(stats)
+            previous_stats.registered_students = stats.pop('registered_students', previous_stats.registered_students)
+            previous_stats.enthusiastic_students = stats.pop(
+                'enthusiastic_students',
+                previous_stats.enthusiastic_students
+            )
+            previous_stats.generated_certificates = stats.pop(
+                'generated_certificates',
+                previous_stats.generated_certificates
+            )
+
+            previous_stats.save()
             logger.debug(log_msg, 'updated')
         else:
             InstallationStatistics.objects.create(edx_installation=edx_installation_object, **stats)
