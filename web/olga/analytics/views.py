@@ -303,26 +303,16 @@ class ReceiveInstallationStatistics(View):
             statistics_date,
             edx_installation_object=edx_installation_object,
         )
-        if stats['registered_students'] == 0:
-            stats.pop('registered_students')
-        if stats['enthusiastic_students'] == 0:
-            stats.pop('enthusiastic_students')
-        if stats['generated_certificates'] == 0:
-            stats.pop('generated_certificates')
-
         log_msg = 'Corresponding data was %s in OLGA database.'
         if previous_stats:
-            previous_stats.registered_students = stats.pop('registered_students', previous_stats.registered_students)
-            previous_stats.enthusiastic_students = stats.pop(
-                'enthusiastic_students',
-                previous_stats.enthusiastic_students
-            )
-            previous_stats.generated_certificates = stats.pop(
-                'generated_certificates',
-                previous_stats.generated_certificates
-            )
+            if stats.get('registered_students', None) == 0:
+                stats['registered_students'] = previous_stats.registered_students
+            if stats.get('enthusiastic_students', None) == 0:
+                stats['enthusiastic_students'] = previous_stats.enthusiastic_students
+            if stats.get('generated_certificates', None) == 0:
+                stats['generated_certificates'] = previous_stats.generated_certificates
 
-            previous_stats.save()
+            previous_stats.update(stats)
             logger.debug(log_msg, 'updated')
         else:
             InstallationStatistics.objects.create(edx_installation=edx_installation_object, **stats)
