@@ -293,9 +293,9 @@ class ReceiveInstallationStatistics(View):
         Save edX installation data into a database.
 
         Arguments:
-            :param statistics_date: Datetime object. Date and time when statistics was send.
-            :param edx_installation_object: EdxInstallation instance for current platform.
             :param stats: Dict object with statistics for current date.
+            :param edx_installation_object: EdxInstallation instance for current platform.
+            :param statistics_date: Datetime object. Date and time when statistics was send.
         """
         statistics_date.replace(hour=0, minute=0, second=0, microsecond=0)
         stats['data_created_datetime'] = statistics_date
@@ -305,12 +305,15 @@ class ReceiveInstallationStatistics(View):
         )
         log_msg = 'Corresponding data was %s in OLGA database.'
         if previous_stats:
-            if stats.get('registered_students', None) == 0:
-                stats['registered_students'] = previous_stats.registered_students
-            if stats.get('enthusiastic_students', None) == 0:
-                stats['enthusiastic_students'] = previous_stats.enthusiastic_students
-            if stats.get('generated_certificates', None) == 0:
-                stats['generated_certificates'] = previous_stats.generated_certificates
+            previous_stats.registered_students = (
+                stats.pop('registered_students', 0) or previous_stats.registered_students
+            )
+            previous_stats.enthusiastic_students = (
+                stats.pop('enthusiastic_students', 0) or previous_stats.enthusiastic_students
+            )
+            previous_stats.generated_certificates = (
+                stats.pop('generated_certificates', 0) or previous_stats.generated_certificates
+            )
 
             previous_stats.update(stats)
             logger.debug(log_msg, 'updated')
