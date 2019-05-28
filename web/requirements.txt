@@ -5,5 +5,5 @@ factory-boy==2.11.1
 mock==2.0.0
 psycopg2==2.7.7
 pycountry==17.5.14
-raven==6.1.0
+raven==6.10.0
 requests==2.21.0
