@@ -1,4 +1,4 @@
-ddt==1.1.1
+ddt==1.2.2
 Django==2.1.7
 gunicorn==19.7.1
 factory-boy==2.11.1
