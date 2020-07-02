@@ -4,6 +4,6 @@ gunicorn==19.7.1
 factory-boy==2.11.1
 mock==2.0.0
 psycopg2==2.7.7
-pycountry==17.5.14
+pycountry==20.7.2
 raven==6.1.0
 requests==2.21.0
