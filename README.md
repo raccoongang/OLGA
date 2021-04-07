@@ -1,4 +1,4 @@
-# OLGA
+# OLGA [ARCHIVED]
 
 [![Travis](https://travis-ci.org/raccoongang/OLGA.svg?branch=develop)](https://travis-ci.org/raccoongang/OLGA)
 [![Codecov](https://codecov.io/gh/raccoongang/OLGA/branch/develop/graph/badge.svg)](https://codecov.io/gh/raccoongang/OLGA/branch/develop)
